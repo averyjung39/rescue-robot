@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   message_generation
+  mapperception
 )
 
 add_message_files(
@@ -17,8 +18,15 @@ generate_messages(
   std_msgs
 )
 
-catkin_package()
+catkin_package(
+  INCLUDE_DIRS include
+)
 
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
+
+add_executable(planning_node src/planning_main.cpp src/AStarPlanner.cpp)
+target_link_libraries(planning_node ${catkin_LIBRARIES})
+add_dependencies(planning_node mapperception)
