@@ -12,9 +12,9 @@ struct PlannerCell {
         g_cost = h_cost = 0.0;
     }
 
-    bool operator<(const PlannerCell& rhs) const {
-        return cost() < rhs.cost();
-    }
+    // bool operator<(const PlannerCell& rhs) const {
+    //     return cost() < rhs.cost();
+    // }
 
     void print() const {
         ROS_INFO("PlannerCell @ {%d, %d}: g,h costs: {%f, %f}",
@@ -33,7 +33,8 @@ struct PlannerCell {
 
 struct PlannerCellPtrComp {
     bool operator()(const PlannerCell* lhs, const PlannerCell* rhs) const {
-        return *lhs < *rhs;
+        if (lhs->cost() == rhs->cost()) return lhs->indices < rhs->indices;
+        return lhs->cost() < rhs->cost();
     }
 };
 
@@ -43,7 +44,7 @@ public:
 
     // Instead of passing a map 2D array, width and height, ideally there
     // would be a Map data structure that gets passed in
-    RobotPath planPath(const int **map,
+    RobotPath planPath(int **map,
         const int &map_w,
         const int &map_h,
         const std::pair<int, int> &start_pos,
@@ -51,7 +52,7 @@ public:
 
 private:
     static const int NUM_SEARCH_DIRECTIONS = 8;
-    std::pair<int, int> VALID_SEARCH_DIRECTIONS[];
+    int VALID_SEARCH_DIRECTIONS[NUM_SEARCH_DIRECTIONS][2];
 
     float costHeuristic(const std::pair<int, int> &start_pos,
         const std::pair<int, int> &end_pos) const;
@@ -62,11 +63,11 @@ private:
         const int &map_w,
         const int &map_h) const;
     bool isObstacle(std::pair<int, int> indices,
-        const int **map,
+        int **map,
         const int &map_w,
         const int &map_h) const;
     int getCost(std::pair<int, int> indices,
-        const int **map,
+        int **map,
         const int &map_w,
         const int &map_h) const;
 };

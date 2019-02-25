@@ -19,6 +19,7 @@ public:
     void addToFront(std::pair<int, int> indices) {
         _path.push_back(indices);
     }
+    void print(int **map, const int &map_w, const int &map_h) const;
 
     
 private:
