@@ -10,8 +10,13 @@
   <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>message_generation</build_depend>
-  <exec_depend>message_runtime</exec_depend>
+  <build_depend>sensors</build_depend>
+  <build_depend>localization</build_depend>
+
   <exec_depend>roscpp</exec_depend>
   <exec_depend>std_msgs</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>sensors</exec_depend>
+  <exec_depend>localization</exec_depend>
 
 </package>

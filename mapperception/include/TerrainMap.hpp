@@ -9,7 +9,7 @@ enum Terrain {
 
 Class TerrainMap : public Map {
 public:
-    int** getMap() { return _map };
+    int** getMap() { return _map; }
     void setValue(int x, int y, int value) { _map[y][x] = value; }
 private:
     int _size = 6;

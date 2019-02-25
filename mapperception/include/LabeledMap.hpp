@@ -1,4 +1,4 @@
-Class LabelledMap : public Map {
+Class LabeledMap : public Map {
 public:
     int** getMap() { return _map };
     void setValue(int x, int y, int value) { _map[y][x] = value; }

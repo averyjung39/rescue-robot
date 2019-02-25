@@ -1,11 +1,11 @@
 #include "Mapper.hpp"
 #include <math.h>
 
-LabelledMap Mapper::modifyLabelledMap(float *dists, int robot_x, int robot_y, float robot_angle) {
+LabelledMap Mapper::modifyLabeledMap(float *dists, float robot_x, float robot_y, float robot_angle) {
     for(int i = robot_x-RADIUS; i <= robot_x+RADIUS; i++) {
         for(int j = robot_y-RADIUS; j <= robot_y+RADIUS; j++) {
             if(i < 0 || j < 0) continue;
-            _labelled_map.setValue(i, j, 50);
+            _labeled_map.setValue(i, j, 50);
         }
     }
 
@@ -16,18 +16,20 @@ LabelledMap Mapper::modifyLabelledMap(float *dists, int robot_x, int robot_y, fl
         } else {
             sensor = 5+i;
         }
-        auto points = distToPoints(dists[i], robot_x, robot_y, robot_angle, sensor);
-        _labelled_map.setValue(points.first, points.second, 100);
+        auto coords = distToCoordinates(dists[i], robot_x, robot_y, robot_angle, sensor);
+        auto points = coordinateToPoints(coords.first, coords.second, _labeled_map.getResolution());
+        _labeled_map.setValue(points.first, points.second, 100);
     }
-    return _labelled_map.getMap();
+    return _labeled_map.getMap();
 }
 
-TerrainMap Mapper::modifyTerrainMap(int x, int y, Terrain terrain) {
-    _terrain_map.setValue(x, y, terrain);
+TerrainMap Mapper::modifyTerrainMap(float x, float y, Terrain terrain) {
+    auto points = coordinateToPoints(x, y, _terrain_map.getResolution());
+    _terrain_map.setValue(points.first, points.second, terrain);
     return _terrain_map.getMap();
 }
 
-std::pair<int,int> Mapper::distToPoints(float d, int rx, int ry, float rangle, int sensor) {
+std::pair<int,int> Mapper::distToCoordinates(float d, float rx, float ry, float rangle, int sensor) {
     // xr,yr points in local robot axes
     float xr = 0.0;
     float yr = 0.0;
@@ -69,8 +71,15 @@ std::pair<int,int> Mapper::distToPoints(float d, int rx, int ry, float rangle, i
 
     // Convert xr,yr (local robot axes) to x,y (global axes)
     auto robot_angle_rad = rangle*M_PI/180;
-    int x = rx + ceil(xr*cos(robot_angle_rad) + yr*sin(robot_angle_rad))/CMPERPX;
-    int y = ry + ceil(-xr*sin(robot_angle_rad) + yr*cos(robot_angle_rad))/CMPERPX;
+    int x = rx + xr*cos(robot_angle_rad) + yr*sin(robot_angle_rad);
+    int y = ry - xr*sin(robot_angle_rad) + yr*cos(robot_angle_rad);
 
     return std::make_pair(x,y);
+}
+
+std::pair<int, int> Mapper::coordinateToPoints(float x, float y, int resolution) {
+    float cm_per_px = 30.48/resolution;
+    int point_x = ceil(x/cm_per_px);
+    int point_y = ceil(y/cm_per_px);
+    return std::make_pair(point_x, point_y);
 }

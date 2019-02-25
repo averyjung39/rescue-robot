@@ -1,8 +1,6 @@
-#include "LabelledMap.hpp"
+#include "LabeledMap.hpp"
 #include "TerrainMap.hpp"
 
-const int RESOLUTION = 10;
-const float CMPERPX = 30.48/RESOLUTION;
 // Radius to mark searched grids. This radius means the cells that are offset by this amount
 // from the current robot position in all directions will be marked as searched.
 const int RADIUS = 1;
@@ -27,10 +25,11 @@ enum SensorType {
 Class Mapper {
 public:
     Mapper() {};
-    LabelledMap modifyLabelledMap(float *dists, int robot_x, int robot_y, float robot_angle);
-    TerrainMap modifyTerrainMap(int x, int y, Terrain terrain);
+    LabeledMap modifyLabeledMap(float *dists, float robot_x, float robot_y, float robot_angle);
+    TerrainMap modifyTerrainMap(float x, float y, Terrain terrain);
 private:
-    std::pair<int, int> distToPoints(float d, int rx, int ry, float rangle, int sensor);
-    LabelledMap _labelled_map;
+    std::pair<int, int> distToCoordinates(float d, float rx, float ry, float rangle, int sensor);
+    std::pair<int, int> coordinateToPoints(float x, float y, int resolution);
+    LabeledMap _labeled_map;
     TerrainMap _terrain_map;
 };
