@@ -1,11 +1,11 @@
 #include "Mapper.hpp"
 #include <math.h>
 
-CostMap Mapper::modifyCostMap(float *dists, int robot_x, int robot_y, float robot_angle) {
+LabelledMap Mapper::modifyLabelledMap(float *dists, int robot_x, int robot_y, float robot_angle) {
     for(int i = robot_x-RADIUS; i <= robot_x+RADIUS; i++) {
         for(int j = robot_y-RADIUS; j <= robot_y+RADIUS; j++) {
             if(i < 0 || j < 0) continue;
-            _cost_map[j][i] = 50;
+            _labelled_map.setValue(i, j, 50);
         }
     }
 
@@ -17,9 +17,14 @@ CostMap Mapper::modifyCostMap(float *dists, int robot_x, int robot_y, float robo
             sensor = 5+i;
         }
         auto points = distToPoints(dists[i], robot_x, robot_y, robot_angle, sensor);
-        _cost_map[points.second][points.first] = 100;
+        _labelled_map.setValue(points.first, points.second, 100);
     }
-    return _cost_map;
+    return _labelled_map.getMap();
+}
+
+TerrainMap Mapper::modifyTerrainMap(int x, int y, Terrain terrain) {
+    _terrain_map.setValue(x, y, terrain);
+    return _terrain_map.getMap();
 }
 
 std::pair<int,int> Mapper::distToPoints(float d, int rx, int ry, float rangle, int sensor) {
