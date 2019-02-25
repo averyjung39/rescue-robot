@@ -1,8 +1,15 @@
-#include "ros/ros.h"
-#include "Mapper.hpp"
+#include <vector>
 
-float tof_sensor_data[5];
-float ult_sensor_data[3];
+#include "ros/ros.h"
+#include "mapperception/Mapper.h"
+#include "mapperception/Map.h"
+#include "mapperception/MapRow.h"
+#include "sensors/TimeOfFlight.h"
+#include "sensors/Ultrasonic.h"
+#include "localization/Pose.h"
+
+std::vector<float> tof_sensor_data;
+std::vector<float> ult_sensor_data;
 float robot_x;
 float robot_y;
 float robot_angle;
@@ -36,17 +43,24 @@ int main(int argc, char **argv) {
     ros::Publisher terrain_map_pub = n.advertise<mapperception::Map>("terrain_map", 1);
 
     Mapper mapper;
+    std::vector< std::vector<int> > labeled_map;
+    std::vector<mapperception::MapRow> map_rows;
+    mapperception::Map pub_labeled_map;
 
     while(ros::ok()) {
 
         ros::spinOnce();
 
-        mapperception::Map labeled_map;
-
         mapper.modifyLabeledMap(tof_sensor_data, robot_x, robot_y, robot_angle);
-        labeled_map.data = mapper.modifyLabeledMap(ult_sensor_data, robot_x, robot_y, robot_angle);
+        labeled_map = mapper.modifyLabeledMap(ult_sensor_data, robot_x, robot_y, robot_angle);
 
-        labeled_map_pub.publish(labeled_map);
+        for(int i = 0; i < labeled_map.size(); i++) {
+            map_rows[i].row = labeled_map[i];
+        }
+
+        pub_labeled_map.map = map_rows;
+
+        labeled_map_pub.publish(pub_labeled_map);
     }
 
     return 0;

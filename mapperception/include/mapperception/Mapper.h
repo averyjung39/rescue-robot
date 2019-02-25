@@ -1,5 +1,12 @@
-#include "LabeledMap.hpp"
-#include "TerrainMap.hpp"
+#ifndef MAPPER
+#define MAPPER
+
+#include <utility>
+#include <vector>
+
+#include "LabeledMap.h"
+#include "TerrainMap.h"
+
 
 // Radius to mark searched grids. This radius means the cells that are offset by this amount
 // from the current robot position in all directions will be marked as searched.
@@ -22,14 +29,16 @@ enum SensorType {
     u3 = 7
 };
 
-Class Mapper {
+class Mapper {
 public:
     Mapper() {};
-    LabeledMap modifyLabeledMap(float *dists, float robot_x, float robot_y, float robot_angle);
-    TerrainMap modifyTerrainMap(float x, float y, Terrain terrain);
+    std::vector< std::vector<int> > modifyLabeledMap(std::vector<float> dists, float robot_x, float robot_y, float robot_angle);
+    std::vector< std::vector<int> > modifyTerrainMap(float x, float y, Terrain terrain);
 private:
     std::pair<int, int> distToCoordinates(float d, float rx, float ry, float rangle, int sensor);
     std::pair<int, int> coordinateToPoints(float x, float y, int resolution);
     LabeledMap _labeled_map;
     TerrainMap _terrain_map;
 };
+
+#endif // MAPPER

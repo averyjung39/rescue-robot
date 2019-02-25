@@ -1,7 +1,8 @@
-#include "Mapper.hpp"
+#include "mapperception/Mapper.h"
+#include <ros/ros.h>
 #include <math.h>
 
-LabelledMap Mapper::modifyLabeledMap(float *dists, float robot_x, float robot_y, float robot_angle) {
+std::vector< std::vector<int> > Mapper::modifyLabeledMap(std::vector<float> dists, float robot_x, float robot_y, float robot_angle) {
     for(int i = robot_x-RADIUS; i <= robot_x+RADIUS; i++) {
         for(int j = robot_y-RADIUS; j <= robot_y+RADIUS; j++) {
             if(i < 0 || j < 0) continue;
@@ -10,21 +11,21 @@ LabelledMap Mapper::modifyLabeledMap(float *dists, float robot_x, float robot_y,
     }
 
     for(int i = 0; i < dists.size(); i++) {
-        SensorType sensor;
+        int sensor;
         if (dists.size() == 5) {
             sensor = i;
         } else {
             sensor = 5+i;
         }
-        auto coords = distToCoordinates(dists[i], robot_x, robot_y, robot_angle, sensor);
-        auto points = coordinateToPoints(coords.first, coords.second, _labeled_map.getResolution());
+        std::pair<int,int> coords = distToCoordinates(dists[i], robot_x, robot_y, robot_angle, sensor);
+        std::pair<int,int> points = coordinateToPoints(coords.first, coords.second, _labeled_map.getResolution());
         _labeled_map.setValue(points.first, points.second, 100);
     }
     return _labeled_map.getMap();
 }
 
-TerrainMap Mapper::modifyTerrainMap(float x, float y, Terrain terrain) {
-    auto points = coordinateToPoints(x, y, _terrain_map.getResolution());
+std::vector< std::vector<int> > Mapper::modifyTerrainMap(float x, float y, Terrain terrain) {
+    std::pair<int,int> points = coordinateToPoints(x, y, _terrain_map.getResolution());
     _terrain_map.setValue(points.first, points.second, terrain);
     return _terrain_map.getMap();
 }
@@ -65,12 +66,12 @@ std::pair<int,int> Mapper::distToCoordinates(float d, float rx, float ry, float 
             xr = d+U123_OFFSET;
             break;
         default:
-            std::cout << "Unknown sensor" << std::endl;
+            ROS_ERROR("Unknown sensor type.");
             break;
     }
 
     // Convert xr,yr (local robot axes) to x,y (global axes)
-    auto robot_angle_rad = rangle*M_PI/180;
+    float robot_angle_rad = rangle*M_PI/180;
     int x = rx + xr*cos(robot_angle_rad) + yr*sin(robot_angle_rad);
     int y = ry - xr*sin(robot_angle_rad) + yr*cos(robot_angle_rad);
 
