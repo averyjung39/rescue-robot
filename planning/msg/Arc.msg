@@ -1,0 +1,2 @@
+float32 radius
+bool direction_is_right
