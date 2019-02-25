@@ -39,6 +39,7 @@ RobotPath AStarPlanner::planPath(int **map,
     RobotPath path;
 
     // Run A* algorithm
+    // A decent explanation can be found here https://www.geeksforgeeks.org/a-search-algorithm/
     while (!open_set.empty()) {
         // Get lowest cost cell from the open set
         PlannerCell* curr_cell = *(open_set.begin());
@@ -65,11 +66,9 @@ RobotPath AStarPlanner::planPath(int **map,
                 curr_cell->indices.second + direction_pair.second);
             // Ignore cells that have already been explored, or cells that are obstacles/have invalid indices
             if (closed_set.count(adj_cell_indices) || isObstacle(adj_cell_indices, map, map_w, map_h)) {
-                // ROS_WARN("%d", closed_set.count(adj_cell_indices));
                 continue;
             }
             closed_set.insert(adj_cell_indices);
-            // ROS_WARN("{%d, %d}", adj_cell_indices.first, adj_cell_indices.second);
             
             PlannerCell *adj_cell = new PlannerCell(adj_cell_indices);
             adj_cell->parent = curr_cell;
@@ -82,42 +81,11 @@ RobotPath AStarPlanner::planPath(int **map,
             adj_cell->h_cost = costHeuristic(adj_cell_indices, end_pos);
 
             // Add cell to open set
-            // adj_cell->print();
             open_set.insert(adj_cell);
-            // ROS_WARN("OPEN SET: ");
-            // for (std::set<PlannerCell*>::iterator it = open_set.begin(); it != open_set.end(); ++it) {
-            //     (*it)->print();
-            // }
-            // ROS_WARN("CLOSED SET: ");
-            // for (std::set<std::pair<int, int> >::iterator it = closed_set.begin(); it != closed_set.end(); ++it) {
-            //     ROS_INFO("PlannerCell @ {%d, %d}", it->first, it->second);
-            // }
-            // ROS_INFO("\n"); 
         }
 
-        // ROS_WARN("OPEN SET: ");
-        // for (std::set<PlannerCell*>::iterator it = open_set.begin(); it != open_set.end(); ++it) {
-        //     (*it)->print();
-        // }
-        // ROS_WARN("CLOSED SET: ");
-        // for (std::set<std::pair<int, int> >::iterator it = closed_set.begin(); it != closed_set.end(); ++it) {
-        //     ROS_INFO("PlannerCell @ {%d, %d}", it->first, it->second);
-        // }
-
-        // Remove current cell from open set and place in closed set
-        // closed_set.insert(curr_cell->indices);
+        // Remove current cell from open set
         open_set.erase(curr_cell);
-
-        // ROS_WARN("OPEN SET: ");
-        // for (std::set<PlannerCell*>::iterator it = open_set.begin(); it != open_set.end(); ++it) {
-        //     (*it)->print();
-        // }
-        // ROS_WARN("CLOSED SET: ");
-        // for (std::set<std::pair<int, int> >::iterator it = closed_set.begin(); it != closed_set.end(); ++it) {
-        //     ROS_INFO("PlannerCell @ {%d, %d}", it->first, it->second);
-        // }
-        
-        // usleep(500000);
     }
 
     ROS_ERROR("Unable to find path with A*!");

@@ -5,16 +5,13 @@
 
 #include "planning/RobotPath.h"
 
+// A struct representing one map cell, for planning purposes
 struct PlannerCell {
     PlannerCell(const std::pair<int, int>& indices) {
         this->indices = indices;
         parent = NULL;
         g_cost = h_cost = 0.0;
     }
-
-    // bool operator<(const PlannerCell& rhs) const {
-    //     return cost() < rhs.cost();
-    // }
 
     void print() const {
         ROS_INFO("PlannerCell @ {%d, %d}: g,h costs: {%f, %f}",
@@ -31,6 +28,7 @@ struct PlannerCell {
     float h_cost; // Heuristic cost (estimated cost to travel from PlannerCell to end)
 };
 
+// Comparator class to order PlannerCells by cost
 struct PlannerCellPtrComp {
     bool operator()(const PlannerCell* lhs, const PlannerCell* rhs) const {
         if (lhs->cost() == rhs->cost()) return lhs->indices < rhs->indices;
@@ -38,12 +36,18 @@ struct PlannerCellPtrComp {
     }
 };
 
+// Path-Planner using A* Algorithm
 class AStarPlanner {
 public:
     AStarPlanner();
 
-    // Instead of passing a map 2D array, width and height, ideally there
-    // would be a Map data structure that gets passed in
+    /**
+     * @brief Generates a path using A* algorithm
+     *        A decent explanation can be found here: https://www.geeksforgeeks.org/a-search-algorithm/
+     * @param map: Costmap representation (TODO: Change this to a Map data structure when it becomes available)
+     * @param map_w, map_h: Width and height of map (number of cols and rows in the array)
+     * @param start_pos, end_pos: Start and goal points, in (row,col) format
+     */
     RobotPath planPath(int **map,
         const int &map_w,
         const int &map_h,
@@ -52,8 +56,12 @@ public:
 
 private:
     static const int NUM_SEARCH_DIRECTIONS = 8;
-    int VALID_SEARCH_DIRECTIONS[NUM_SEARCH_DIRECTIONS][2];
+    int VALID_SEARCH_DIRECTIONS[NUM_SEARCH_DIRECTIONS][2]; // This gets initialized in constructor
 
+    /**
+     * @brief Calculate heuristic (h-cost) based on Euclidean distance to goal
+     * @param start_pos, end_pos: Current position and goal position, in (row, col) format 
+     */
     float costHeuristic(const std::pair<int, int> &start_pos,
         const std::pair<int, int> &end_pos) const;
 
