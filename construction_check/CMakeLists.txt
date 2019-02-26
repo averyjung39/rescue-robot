@@ -4,8 +4,10 @@ project(construction_check)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  sensors
+  planning
+  topics
 )
-
 
 ## Generate messages in the 'msg' folder
 # add_message_files(
@@ -30,3 +32,7 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
+
+add_executable(construction_check src/tof_main.cpp)
+target_link_libraries(construction_check ${catkin_LIBRARIES})
+add_dependencies(construction_check sensors planning topics)
