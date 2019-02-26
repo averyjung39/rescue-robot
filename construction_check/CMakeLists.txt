@@ -33,6 +33,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(construction_check src/tof_main.cpp)
-target_link_libraries(construction_check ${catkin_LIBRARIES})
-add_dependencies(construction_check sensors planning topics)
+add_executable(tof_test src/tof_main.cpp)
+target_link_libraries(tof_test ${catkin_LIBRARIES})
+add_dependencies(tof_test sensors planning topics)
