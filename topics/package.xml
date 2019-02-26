@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>topics</name>
+  <version>0.0.0</version>
+  <description>The topics package</description>
+
+  <maintainer email="avery@todo.todo">avery</maintainer>
+
+  <license>TODO</license>
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>
