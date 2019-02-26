@@ -5,8 +5,6 @@
 #include "planning/Arc.h"
 #include "topics/topics.h"
 
-using namespace topics;
-
 std::vector<float> tof_data;
 bool new_data = false;
 
