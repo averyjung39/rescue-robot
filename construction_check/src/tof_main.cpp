@@ -30,12 +30,12 @@ int main(int argc, char **argv) {
             // Assume the first index will be populated for construction check
             if(tof_data[0] <= 5 || stopping) {
                 // Speical value for stopping
-                arc_cmd.radius = -2;
+                arc_cmd.radius = planning::Arc::STOP;
                 arc_cmd.direction_is_right = false;
                 stopping = true; // Make sure we don't start driving again after issuing a command to stop
             } else {
                 // Special value for driving in a line
-                arc_cmd.radius = -1;
+                arc_cmd.radius = planning::Arc::STRAIGHT_LINE;
                 arc_cmd.direction_is_right = false;
             }
             arc_pub.publish(arc_cmd);
