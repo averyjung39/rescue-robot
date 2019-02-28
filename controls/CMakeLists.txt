@@ -20,3 +20,6 @@ add_executable(controller src/controls_main.cpp src/controller.cpp)
 target_link_libraries(controller ${catkin_LIBRARIES})
 add_dependencies(controller ${catkin_EXPORTED_TARGETS})
 
+add_executable(arc_publisher src/arc_pub.cpp)
+target_link_libraries(arc_publisher ${catkin_LIBRARIES})
+add_dependencies(arc_publisher ${catkin_EXPORTED_TARGETS})
