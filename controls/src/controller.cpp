@@ -29,7 +29,7 @@ std::pair<float, float> Controller::getVelocities(const planning::Arc &arc_cmd) 
         right_left_velocities.second = rampVelocity(-MAX_VELOCITY_RPM, false);
     } else if (radius == planning::Arc::STOP) {
         right_left_velocities.first = rampVelocity(0, true);
-        right_left_velocities.second = rampVelocity(0, false);    
+        right_left_velocities.second = rampVelocity(0, false);
     } else if (radius == planning::Arc::TURN_ON_SPOT) {
         int direction_sign = direction_is_right ? -1 : 1;
         right_left_velocities.first = rampVelocity(direction_sign*MAX_VELOCITY_RPM, true);
@@ -53,8 +53,8 @@ float Controller::rampVelocity(float target_rpm, const bool &is_right_motor) con
     if (target_rpm > MAX_VELOCITY_RPM) {
         target_rpm = MAX_VELOCITY_RPM;
     }
-    if (fabs(target_rpm - curr_rpm) > MAX_VELOCITY_CHANGE_RPM) {
-        return target_rpm > curr_rpm ? curr_rpm + MAX_VELOCITY_CHANGE_RPM : curr_rpm - MAX_VELOCITY_CHANGE_RPM;
+    if (fabs(target_rpm - curr_rpm) > MAX_VELOCITY_RPM_CHANGE) {
+        return target_rpm > curr_rpm ? curr_rpm + MAX_VELOCITY_RPM_CHANGE : curr_rpm - MAX_VELOCITY_RPM_CHANGE;
     }
 
     return target_rpm;
