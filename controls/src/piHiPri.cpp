@@ -27,7 +27,7 @@
 #include <sched.h>
 #include <string.h>
 
-#include "wiringPi.h"
+#include "controls/wiringPi.h"
 
 
 /*

@@ -26,8 +26,8 @@
 #include <malloc.h>
 #include <pthread.h>
 
-#include "wiringPi.h"
-#include "softPwm.h"
+#include "controls/wiringPi.h"
+#include "controls/softPwm.h"
 
 // MAX_PINS:
 //	This is more than the number of Pi pins because we can actually softPwm.

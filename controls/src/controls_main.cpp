@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     Controller controller;
     ros::Rate rate(10);
 
-    if(wiringPiSetupGpio() == -1) {
+    if (wiringPiSetupGpio() == -1) {
         ROS_ERROR("Setting up wiringPi failed.");
         return -1;
     }
@@ -52,17 +52,17 @@ int main(int argc, char **argv) {
         ros::spinOnce();
 
         // keep the pulse high for 1 ms
-        softPwmWrite(MotorEnable1,50);
-        digitalWrite(MotorPin1,HIGH);
-        digitalWrite(MotorPin2,LOW);
+        softPwmWrite(MotorEnable1,20);
+        digitalWrite(MotorPin1,LOW);
+        digitalWrite(MotorPin2,HIGH);
 
         ros::Duration(5).sleep();
 
         softPwmWrite(MotorEnable1,0);
 
-        softPwmWrite(MotorEnable2,50);
-        digitalWrite(MotorPin3,LOW);
-        digitalWrite(MotorPin4,HIGH);
+        softPwmWrite(MotorEnable2,20);
+        digitalWrite(MotorPin3,HIGH);
+        digitalWrite(MotorPin4,LOW);
 
         ros::Duration(5).sleep();
 
