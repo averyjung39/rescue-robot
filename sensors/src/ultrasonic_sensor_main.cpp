@@ -28,29 +28,41 @@ int main (int argc, char **argv)
     ros::Time start = ros::Time::now();
     ros::Time finish = ros::Time::now();
 
+    // Set timeout to 100ms 
+    ros::Duration timeout(0.1);
     sensors::Ultrasonic ult_data_cm;
+    ult_data_cm.data.resize(1);
 
     while(ros::ok())
     {
         counter = 0;
         gpio28->write_gpio("1");
-        ros::Duration(0.00001).sleep();
+        ros::Duration(0.0001).sleep();
         gpio28->write_gpio("0");
 
         gpio31->read_gpio(inputstring);
-        while(inputstring == "0")
+        ros::Time begin_read_time = ros::Time::now();
+        bool timed_out = false;
+        while(inputstring == "0" && !timed_out)
         {
             gpio31->read_gpio(inputstring);
             start = ros::Time::now();
+            timed_out = start - begin_read_time >= timeout;
         }
-        while(inputstring == "1")
+        begin_read_time = ros::Time::now();
+        while(inputstring == "1" && !timed_out)
         {
             gpio31->read_gpio(inputstring);
             finish = ros::Time::now();
+            timed_out = start - begin_read_time >= timeout;
         }
-
+        if (timed_out) {
+            ROS_WARN("Timed out!");
+            continue;
+        }
         ros::Duration elapsed = finish - start;
         // convert duration to seconds
+	ROS_INFO("Elapsed time: %f", elapsed.toSec());
         distance = (elapsed.toSec() * 34300) / 2;
         ult_data_cm.data[0] = distance;
         ult_data_pub.publish(ult_data_cm);
