@@ -32,8 +32,9 @@ int main(int argc, char **argv) {
     ROS_INFO("Revision ID - %d\n", revision);
 
     sensors::TimeOfFlight tof_data_cm;
+    tof_data_cm.data.resize(1);
 
-    while(ros::ok()) {
+    while (ros::ok()) {
         tof_distance = tofReadDistance();
         if(tof_distance < 4096) { // valid range?
             tof_data_cm.data[0] = tof_distance / 10.0;
