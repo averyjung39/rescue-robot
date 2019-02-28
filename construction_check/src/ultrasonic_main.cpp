@@ -26,12 +26,11 @@ int main(int argc, char **argv) {
 
     while (ros::ok()) {
         ros::spinOnce();
-        // Assume back ultrasonic sensor is mounted
-        // Start close to a wall and drive away from the wall until
-        // we are 50 cm from the wall
+        // Assume back ultrasonic sensor is mounted on the side
+        // Start driving and stop when we see something 10 cm from the robot on the side
         if (new_data) {
             // Assume the first index will be populated for construction check
-            if (data[0] > 50 || stopping) {
+            if (data[0] < 10 || stopping) {
                 // Speical value for stopping
                 arc_cmd.radius = planning::Arc::STOP;
                 arc_cmd.direction_is_right = false;
