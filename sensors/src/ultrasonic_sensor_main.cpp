@@ -15,12 +15,12 @@ int main (int argc, char **argv)
     ros::Publisher ult_data_pub = nh.advertise<sensors::Ultrasonic>(topics::ULTRASONIC_TOPIC, 1);
 
     GPIOClass* gpio28 = new GPIOClass("28"); // trig
-    gpio18->export_gpio();
-    gpio18->setdir_gpio("out");
+    gpio28->export_gpio();
+    gpio28->setdir_gpio("out");
 
     GPIOClass* gpio31 = new GPIOClass("31"); // echo
-    gpio24->export_gpio();
-    gpio24->setdir_gpio("in");
+    gpio31->export_gpio();
+    gpio31->setdir_gpio("in");
 
     long counter = 0;
     string inputstring;
@@ -33,19 +33,19 @@ int main (int argc, char **argv)
     while(ros::ok())
     {
         counter = 0;
-        gpio18->write_gpio("1");
+        gpio28->write_gpio("1");
         ros::Duration(0.00001).sleep();
-        gpio18->write_gpio("0");
+        gpio28->write_gpio("0");
 
-        gpio24->read_gpio(inputstring);
+        gpio31->read_gpio(inputstring);
         while(inputstring == "0")
         {
-            gpio24->read_gpio(inputstring);
+            gpio31->read_gpio(inputstring);
             start = ros::Time::now();
         }
         while(inputstring == "1")
         {
-            gpio24->read_gpio(inputstring);
+            gpio31->read_gpio(inputstring);
             finish = ros::Time::now();
         }
 
