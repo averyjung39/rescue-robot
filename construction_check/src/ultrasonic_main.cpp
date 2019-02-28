@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 
     while (ros::ok()) {
         ros::spinOnce();
-        // Assume back ultrasonic sensor is mounted on the side
+        // Assume ultrasonic sensor is mounted on the side
         // Start driving and stop when we see something 10 cm from the robot on the side
         if (new_data) {
             // Assume the first index will be populated for construction check
