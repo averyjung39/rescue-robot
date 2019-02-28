@@ -14,11 +14,11 @@ int main (int argc, char **argv)
     ros::NodeHandle nh;
     ros::Publisher ult_data_pub = nh.advertise<sensors::Ultrasonic>(topics::ULTRASONIC_TOPIC, 1);
 
-    GPIOClass* gpio18 = new GPIOClass("18"); // trig
+    GPIOClass* gpio28 = new GPIOClass("28"); // trig
     gpio18->export_gpio();
     gpio18->setdir_gpio("out");
 
-    GPIOClass* gpio24 = new GPIOClass("24"); // echo
+    GPIOClass* gpio31 = new GPIOClass("31"); // echo
     gpio24->export_gpio();
     gpio24->setdir_gpio("in");
 
