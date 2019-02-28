@@ -27,6 +27,8 @@ int main (int argc, char **argv)
     float distance = 0;
     ros::Time start = ros::Time::now();
     ros::Time finish = ros::Time::now();
+
+    // Set timeout to 100ms 
     ros::Duration timeout(0.1);
     sensors::Ultrasonic ult_data_cm;
     ult_data_cm.data.resize(1);
