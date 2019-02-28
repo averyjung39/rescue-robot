@@ -15,7 +15,6 @@ void Controller::actuate(const planning::Arc &arc_cmd) {
 
     ROS_INFO("Right/Left Velocities: %f, %f", _rpm_right, _rpm_left);
 
-    // Send output voltages
 }
 
 std::pair<float, float> Controller::getVelocities(const planning::Arc &arc_cmd) const {

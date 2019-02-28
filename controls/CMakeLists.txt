@@ -9,14 +9,16 @@ find_package(catkin REQUIRED COMPONENTS
   topics
 )
 
-catkin_package()
+catkin_package(
+    INCLUDE_DIRS include
+)
 
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(controller src/controls_main.cpp src/controller.cpp)
+add_executable(controller src/controls_main.cpp src/controller.cpp
+               src/wiringPi.cpp src/softPwm.cpp src/softTone.cpp src/piHiPri.cpp)
 target_link_libraries(controller ${catkin_LIBRARIES})
 add_dependencies(controller ${catkin_EXPORTED_TARGETS})
-
