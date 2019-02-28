@@ -36,6 +36,7 @@ int main(int argc, char **argv) {
 
     while (ros::ok()) {
         tof_distance = tofReadDistance();
+        ROS_INFO("TOF DISTANCE: %d", tof_distance);
         if(tof_distance < 4096) { // valid range?
             tof_data_cm.data[0] = tof_distance / 10.0;
             tof_data_pub.publish(tof_data_cm);
