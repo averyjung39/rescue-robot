@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   message_generation
+  topics
 )
 
 add_message_files(
@@ -22,8 +23,15 @@ generate_messages(
   std_msgs
 )
 
-catkin_package()
+catkin_package(
+    INCLUDE_DIRS include
+)
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  include
 )
+
+add_executable(tof_sensor src/tof_sensor_main.cpp src/tof.cpp)
+target_link_libraries(tof_sensor ${catkin_LIBRARIES})
+add_dependencies(tof_sensor ${catkin_EXPORTED_TARGETS})

@@ -20,15 +20,16 @@ int main(int argc, char **argv) {
     int model, revision;
 
     tof = tofInit(1, 0x29, 1); // set long range mode (up to 2m)
-	if (tof != 1)
-	{
-		return -1; // problem - quit
-	}
+    if(tof != 1)
+    {
+        ROS_ERROR("Problem initializing ToF sensor");
+        return -1; // problem - quit
+    }
 
     ROS_INFO("VL53L0X device successfully opened.\n");
-	tof = tofGetModel(&model, &revision);
-	ROS_INFO("Model ID - %d\n", model);
-	ROS_INFO("Revision ID - %d\n", revision);
+    tof = tofGetModel(&model, &revision);
+    ROS_INFO("Model ID - %d\n", model);
+    ROS_INFO("Revision ID - %d\n", revision);
 
     sensors::TimeOfFlight tof_data_cm;
 
