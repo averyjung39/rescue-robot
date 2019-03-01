@@ -1,12 +1,12 @@
 <launch>
 	<!-- Command line arguments -->
-	<arg name="speed" default=0 />
-	<arg name="motor_to_run" default=0 />
+	<arg name="speed" default="0" />
+	<arg name="motor_to_run" default="0" />
 
 	<!-- Nodes to run -->
 	<node pkg="construction_check" type="arc_test" name="arc_test" />
 	<node pkg="controls" type="controller" name="controller">
-		<param name="speed" value="$(arg speed)" />
-		<param name="motor_to_run" value ="$(arg motor_to_run)" />
+		<param name="speed" type="int" value="$(arg speed)" />
+		<param name="motor_to_run" type="int" value="$(arg motor_to_run)" />
 	</node>
 </launch>

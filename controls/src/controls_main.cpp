@@ -20,14 +20,14 @@ int main(int argc, char **argv) {
     // 1 for both, 2 for right, 3 for left;
     int motor_to_run;
 
-    if (nh.getParam("speed", speed)) {
+    if (nh.getParam("/controller/speed", speed)) {
         ROS_INFO("SPEED: %d", speed);
     } else {
         ROS_ERROR("No speed, please pass in speed");
         return -1;
     }
 
-    if (nh.getParam("motor_to_run", motor_to_run)) {
+    if (nh.getParam("/controller/motor_to_run", motor_to_run)) {
         ROS_INFO("MOTOR TO RUN: %d", motor_to_run);
     } else {
         ROS_ERROR("No motor selected, please select motor");
