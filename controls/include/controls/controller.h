@@ -18,8 +18,8 @@ private:
     float rampVelocity(float target_rpm, const bool &is_right_motor) const;
 
     void motorInit();
-    void actuateRightMotor(int pwm, bool is_forward);
-    void actuateLeftMotor(int pwm, bool is_forward);
+    void actuateRightMotor(int pwm, bool is_forward) const;
+    void actuateLeftMotor(int pwm, bool is_forward) const;
 
     float _rpm_right;
     float _rpm_left;

@@ -6,13 +6,13 @@
 #include "controls/wiringPi.h"
 #include "controls/softPwm.h"
 
-#define Motor1_1 20
-#define Motor1_2 21
-#define MotorEnable1 18
+#define MOTOR_RIGHT_1 20
+#define MOTOR_RIGHT_2 21
+#define MOTOR_ENABLE_1 18
 
-#define Motor2_1 22
-#define Motor2_2 23
-#define MotorEnable2 19
+#define MOTOR_LEFT_1 22
+#define MOTOR_LEFT_2 23
+#define MOTOR_ENABLE_2 19
 
 Controller::Controller() {
     _rpm_right = _rpm_left = 0;
@@ -25,17 +25,17 @@ void Controller::motorInit() {
         throw std::runtime_error("");
     }
     // TODO: figure out which motor is which and modify the variable names
-    pinMode(Motor1_1,OUTPUT);
-    pinMode(Motor1_2,OUTPUT);
-    pinMode(MotorEnable1,PWM_OUTPUT);
+    pinMode(MOTOR_RIGHT_1,OUTPUT);
+    pinMode(MOTOR_RIGHT_2,OUTPUT);
+    pinMode(MOTOR_ENABLE_1,PWM_OUTPUT);
 
-    pinMode(Motor2_1,OUTPUT);
-    pinMode(Motor2_2,OUTPUT);
-    pinMode(MotorEnable2,PWM_OUTPUT);
+    pinMode(MOTOR_LEFT_1,OUTPUT);
+    pinMode(MOTOR_LEFT_2,OUTPUT);
+    pinMode(MOTOR_ENABLE_2,PWM_OUTPUT);
 
     // Create a cycle 10 ms long made up of 100 steps
-    softPwmCreate(MotorEnable1,0,MAX_PWM);
-    softPwmCreate(MotorEnable2,0,MAX_PWM);
+    softPwmCreate(MOTOR_ENABLE_1,0,MAX_PWM);
+    softPwmCreate(MOTOR_ENABLE_2,0,MAX_PWM);
 }
 
 void Controller::actuate(const planning::Arc &arc_cmd) {
@@ -46,8 +46,8 @@ void Controller::actuate(const planning::Arc &arc_cmd) {
 
     ROS_INFO("Right/Left Velocities: %f, %f", _rpm_right, _rpm_left);
 
-    bool right_is_forward = _rpm_right > 0 ? true : false;
-    bool left_is_forward = _rpm_left < 0 ? true : false;
+    bool right_is_forward = _rpm_right > 0;
+    bool left_is_forward = _rpm_left < 0;
 
     float right_ratio = fabs(_rpm_right)/MAX_ACTUAL_RPM;
     float left_ratio = fabs(_rpm_left)/MAX_ACTUAL_RPM;
@@ -61,25 +61,25 @@ void Controller::actuate(const planning::Arc &arc_cmd) {
 
 void Controller::actuateRightMotor(int pwm, bool is_forward) {
     // TODO: figure out which setup is forward or backward
-    softPwmWrite(MotorEnable1, pwm);
+    softPwmWrite(MOTOR_ENABLE_1, pwm);
     if (is_forward) {
-        digitalWrite(Motor1_1, HIGH);
-        digitalWrite(Motor1_2, LOW);
+        digitalWrite(MOTOR_RIGHT_1, HIGH);
+        digitalWrite(MOTOR_RIGHT_2, LOW);
     } else {
-        digitalWrite(Motor1_1, LOW);
-        digitalWrite(Motor1_2, HIGH);
+        digitalWrite(MOTOR_RIGHT_1, LOW);
+        digitalWrite(MOTOR_RIGHT_2, HIGH);
     }
 }
 
 void Controller::actuateLeftMotor(int pwm, bool is_forward) {
     // TODO: figure out which setup is forward or backward
-    softPwmWrite(MotorEnable2, pwm);
+    softPwmWrite(MOTOR_ENABLE_2, pwm);
     if (is_forward) {
-        digitalWrite(Motor2_1, LOW);
-        digitalWrite(Motor2_2, HIGH);
+        digitalWrite(MOTOR_LEFT_1, LOW);
+        digitalWrite(MOTOR_LEFT_2, HIGH);
     } else {
-        digitalWrite(Motor2_1, HIGH);
-        digitalWrite(Motor2_2, LOW);
+        digitalWrite(MOTOR_LEFT_1, HIGH);
+        digitalWrite(MOTOR_LEFT_2, LOW);
     }
 }
 
