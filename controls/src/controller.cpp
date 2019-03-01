@@ -49,8 +49,8 @@ void Controller::actuate(const planning::Arc &arc_cmd) {
     bool right_is_forward = _rpm_right > 0 ? true : false;
     bool left_is_forward = _rpm_left < 0 ? true : false;
 
-    float right_ratio = fabs(_rpm_right)/MAX_MOTOR_RPM;
-    float left_ratio = fabs(_rpm_left)/MAX_MOTOR_RPM;
+    float right_ratio = fabs(_rpm_right)/MAX_ACTUAL_RPM;
+    float left_ratio = fabs(_rpm_left)/MAX_ACTUAL_RPM;
 
     int right_pwm = MAX_PWM*right_ratio;
     int left_pwm = MAX_PWM*left_ratio;
@@ -90,15 +90,15 @@ std::pair<float, float> Controller::getVelocities(const planning::Arc &arc_cmd) 
     std::pair<float, float> right_left_velocities = std::make_pair(_rpm_right, _rpm_left);
 
     if (radius == planning::Arc::STRAIGHT_LINE) {
-        right_left_velocities.first = rampVelocity(MAX_VELOCITY_RPM, true);
-        right_left_velocities.second = rampVelocity(-MAX_VELOCITY_RPM, false);
+        right_left_velocities.first = rampVelocity(MAX_ALLOWABLE_RPM, true);
+        right_left_velocities.second = rampVelocity(-MAX_ALLOWABLE_RPM, false);
     } else if (radius == planning::Arc::STOP) {
         right_left_velocities.first = rampVelocity(0, true);
         right_left_velocities.second = rampVelocity(0, false);
     } else if (radius == planning::Arc::TURN_ON_SPOT) {
         int direction_sign = direction_is_right ? -1 : 1;
-        right_left_velocities.first = rampVelocity(direction_sign*MAX_VELOCITY_RPM, true);
-        right_left_velocities.second = rampVelocity(direction_sign*MAX_VELOCITY_RPM, false);
+        right_left_velocities.first = rampVelocity(direction_sign*MAX_ALLOWABLE_RPM, true);
+        right_left_velocities.second = rampVelocity(direction_sign*MAX_ALLOWABLE_RPM, false);
     } else {
         ROS_ERROR("UNHANDLED CONTROLS CASE: radius=%f, direction=%d", radius, direction_is_right);
     }
@@ -115,11 +115,11 @@ float Controller::rampVelocity(float target_rpm, const bool &is_right_motor) con
     }
 
     // Limit max rpm
-    if (target_rpm > MAX_VELOCITY_RPM) {
-        target_rpm = MAX_VELOCITY_RPM;
+    if (target_rpm > MAX_ALLOWABLE_RPM) {
+        target_rpm = MAX_ALLOWABLE_RPM;
     }
-    if (fabs(target_rpm - curr_rpm) > MAX_VELOCITY_RPM_CHANGE) {
-        return target_rpm > curr_rpm ? curr_rpm + MAX_VELOCITY_RPM_CHANGE : curr_rpm - MAX_VELOCITY_RPM_CHANGE;
+    if (fabs(target_rpm - curr_rpm) > MAX_ALLOWABLE_RPM_CHANGE) {
+        return target_rpm > curr_rpm ? curr_rpm + MAX_ALLOWABLE_RPM_CHANGE : curr_rpm - MAX_ALLOWABLE_RPM_CHANGE;
     }
 
     return target_rpm;

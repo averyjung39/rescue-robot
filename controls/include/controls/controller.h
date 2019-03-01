@@ -9,9 +9,9 @@ public:
 
     void actuate(const planning::Arc &arc_cmd);
 private:
-    static const float MAX_VELOCITY_RPM_CHANGE = 5;
-    static const float MAX_VELOCITY_RPM = 150;
-    static const float MAX_MOTOR_RPM = 350;
+    static const float MAX_ALLOWABLE_RPM_CHANGE = 5;
+    static const float MAX_ALLOWABLE_RPM = 150;
+    static const float MAX_ACTUAL_RPM = 350;
     static const float MAX_PWM = 100;
 
     std::pair<float, float> getVelocities(const planning::Arc &arc_cmd) const;
