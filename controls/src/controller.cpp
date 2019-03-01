@@ -59,7 +59,7 @@ void Controller::actuate(const planning::Arc &arc_cmd) {
     actuateLeftMotor(left_pwm, left_is_forward);
 }
 
-void Controller::actuateRightMotor(int pwm, bool is_forward) {
+void Controller::actuateRightMotor(int pwm, bool is_forward) const {
     // TODO: figure out which setup is forward or backward
     softPwmWrite(MOTOR_ENABLE_1, pwm);
     if (is_forward) {
@@ -71,7 +71,7 @@ void Controller::actuateRightMotor(int pwm, bool is_forward) {
     }
 }
 
-void Controller::actuateLeftMotor(int pwm, bool is_forward) {
+void Controller::actuateLeftMotor(int pwm, bool is_forward) const {
     // TODO: figure out which setup is forward or backward
     softPwmWrite(MOTOR_ENABLE_2, pwm);
     if (is_forward) {
