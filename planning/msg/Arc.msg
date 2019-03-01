@@ -1,6 +1,5 @@
 float32 radius
 bool direction_is_right
-bool direction_is_backward
 
 # Constants
 float32 TURN_ON_SPOT = 0

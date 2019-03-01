@@ -16,6 +16,24 @@ int main(int argc, char **argv) {
 
     ros::NodeHandle nh;
 
+    int speed;
+    // 1 for both, 2 for right, 3 for left;
+    int motor_to_run;
+
+    if (nh.getParam("speed", speed)) {
+        ROS_INFO("SPEED: %d", speed);
+    } else {
+        ROS_ERROR("No speed, please pass in speed");
+        return -1;
+    }
+
+    if (nh.getParam("motor_to_run", motor_to_run)) {
+        ROS_INFO("MOTOR TO RUN: %d", motor_to_run);
+    } else {
+        ROS_ERROR("No motor selected, please select motor");
+        return -1;
+    }
+
     ros::Subscriber planning_arc_sub = nh.subscribe(topics::ARC_TOPIC, 1, planningArcCallback);
     Controller controller;
     ros::Rate rate(10);
@@ -24,7 +42,7 @@ int main(int argc, char **argv) {
         ros::spinOnce();
 
         if (arc_msg) {
-            controller.actuate(*arc_msg);
+            controller.actuate(*arc_msg, speed, motor_to_run);
         }
         rate.sleep();
     }

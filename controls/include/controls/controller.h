@@ -7,7 +7,7 @@ class Controller {
 public:
     Controller();
 
-    void actuate(const planning::Arc &arc_cmd);
+    void actuate(const planning::Arc &arc_cmd, int speed = 0, int motor_to_run = 0);
 private:
     static const float MAX_ALLOWABLE_RPM_CHANGE = 5;
     static const float MAX_ALLOWABLE_RPM = 150;

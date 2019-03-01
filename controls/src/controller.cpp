@@ -38,30 +38,43 @@ void Controller::motorInit() {
     softPwmCreate(MOTOR_ENABLE_2,0,MAX_PWM);
 }
 
-void Controller::actuate(const planning::Arc &arc_cmd) {
-    std::pair<float, float> right_left_velocities = getVelocities(arc_cmd);
+void Controller::actuate(const planning::Arc &arc_cmd, int speed, int motor_to_run) {
+    if (speed == 0 && motor_to_run == 0) {
+        std::pair<float, float> right_left_velocities = getVelocities(arc_cmd);
 
-    _rpm_right = right_left_velocities.first;
-    _rpm_left = right_left_velocities.second;
+        _rpm_right = right_left_velocities.first;
+        _rpm_left = right_left_velocities.second;
 
-    ROS_INFO("Right/Left Velocities: %f, %f", _rpm_right, _rpm_left);
+        ROS_INFO("Right/Left Velocities: %f, %f", _rpm_right, _rpm_left);
 
-    if (arc_cmd.direction_is_backward) {
-        _rpm_right *= -1;
-        _rpm_left *= -1;
+        bool right_is_forward = _rpm_right > 0;
+        bool left_is_forward = _rpm_left < 0;
+
+        float right_ratio = fabs(_rpm_right)/MAX_ACTUAL_RPM;
+        float left_ratio = fabs(_rpm_left)/MAX_ACTUAL_RPM;
+
+        int right_pwm = MAX_PWM*right_ratio;
+        int left_pwm = MAX_PWM*left_ratio;
+
+        actuateRightMotor(right_pwm, right_is_forward);
+        actuateLeftMotor(left_pwm, left_is_forward);
+    } else {
+        if (motor_to_run == 2) {
+            if (speed < 0) actuateRightMotor(-speed, false);
+            else actuateRightMotor(speed, true);
+        } else if (motor_to_run == 3) {
+            if (speed < 0) actuateLeftMotor(-speed, false);
+            else actuateLeftMotor(speed, true);
+        } else {
+            if (speed < 0) {
+                actuateRightMotor(-speed, false);
+                actuateLeftMotor(-speed, false);
+            } else {
+                actuateRightMotor(speed, true);
+                actuateLeftMotor(speed, true);
+            }
+        }
     }
-
-    bool right_is_forward = _rpm_right > 0;
-    bool left_is_forward = _rpm_left < 0;
-
-    float right_ratio = fabs(_rpm_right)/MAX_ACTUAL_RPM;
-    float left_ratio = fabs(_rpm_left)/MAX_ACTUAL_RPM;
-
-    int right_pwm = MAX_PWM*right_ratio;
-    int left_pwm = MAX_PWM*left_ratio;
-
-    actuateRightMotor(right_pwm, right_is_forward);
-    actuateLeftMotor(left_pwm, left_is_forward);
 }
 
 void Controller::actuateRightMotor(int pwm, bool is_forward) const {
