@@ -96,15 +96,15 @@ std::pair<float, float> Controller::getVelocities(const planning::Arc &arc_cmd, 
     std::pair<float, float> right_left_velocities = std::make_pair(_rpm_right, _rpm_left);
 
     if (radius == planning::Arc::STRAIGHT_LINE) {
-        right_left_velocities.first = rampVelocity(MAX_ALLOWABLE_RPM, true);
-        right_left_velocities.second = rampVelocity(-MAX_ALLOWABLE_RPM, false);
+        right_left_velocities.first = rampVelocity(speed, true);
+        right_left_velocities.second = rampVelocity(-speed, false);
     } else if (radius == planning::Arc::STOP) {
         right_left_velocities.first = rampVelocity(0, true);
         right_left_velocities.second = rampVelocity(0, false);
     } else if (radius == planning::Arc::TURN_ON_SPOT) {
         int direction_sign = direction_is_right ? -1 : 1;
-        right_left_velocities.first = rampVelocity(direction_sign*MAX_ALLOWABLE_RPM, true);
-        right_left_velocities.second = rampVelocity(direction_sign*MAX_ALLOWABLE_RPM, false);
+        right_left_velocities.first = rampVelocity(direction_sign*speed, true);
+        right_left_velocities.second = rampVelocity(direction_sign*speed, false);
     } else {
         ROS_ERROR("UNHANDLED CONTROLS CASE: radius=%f, direction=%d", radius, direction_is_right);
     }
