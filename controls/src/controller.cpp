@@ -46,6 +46,11 @@ void Controller::actuate(const planning::Arc &arc_cmd) {
 
     ROS_INFO("Right/Left Velocities: %f, %f", _rpm_right, _rpm_left);
 
+    if (arc_cmd.direction_is_backward) {
+        _rpm_right *= -1;
+        _rpm_left *= -1;
+    }
+
     bool right_is_forward = _rpm_right > 0;
     bool left_is_forward = _rpm_left < 0;
 
