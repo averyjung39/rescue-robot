@@ -40,3 +40,7 @@ add_dependencies(tof_test sensors planning topics)
 add_executable(ultrasonic_test src/ultrasonic_main.cpp)
 target_link_libraries(ultrasonic_test ${catkin_LIBRARIES})
 add_dependencies(ultrasonic_test ${catkin_EXPORTED_TARGETS})
+
+add_executable(arc_test src/arc_main.cpp)
+target_link_libraries(arc_test ${catkin_LIBRARIES})
+add_dependencies(arc_test ${catkin_EXPORTED_TARGETS})
