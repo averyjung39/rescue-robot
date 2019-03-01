@@ -34,6 +34,11 @@ int main(int argc, char **argv) {
         return -1;
     }
 
+    if (motor_to_run < 1 || motor_to_run > 3) {
+        ROS_ERROR("Invalid motor to run, please select from 1-3");
+        return -1;
+    }
+
     ros::Subscriber planning_arc_sub = nh.subscribe(topics::ARC_TOPIC, 1, planningArcCallback);
     Controller controller;
     ros::Rate rate(10);

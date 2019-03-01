@@ -14,7 +14,7 @@ private:
     static const float MAX_ACTUAL_RPM = 350;
     static const float MAX_PWM = 100;
 
-    std::pair<float, float> getVelocities(const planning::Arc &arc_cmd) const;
+    std::pair<float, float> getVelocities(const planning::Arc &arc_cmd, float speed) const;
     float rampVelocity(float target_rpm, const bool &is_right_motor) const;
 
     void motorInit();
