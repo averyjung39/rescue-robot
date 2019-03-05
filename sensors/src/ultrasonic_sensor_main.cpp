@@ -7,8 +7,7 @@
 #include "sensors/GPIOClass.h"
 #include "topics/topics.h"
 
-int main (int argc, char **argv)
-{
+int main (int argc, char **argv) {
     ros::init(argc, argv, "ultrasonic_sensor");
 
     ros::NodeHandle nh;
@@ -28,7 +27,7 @@ int main (int argc, char **argv)
     ros::Time start = ros::Time::now();
     ros::Time finish = ros::Time::now();
 
-    // Set timeout to 100ms 
+    // Set timeout to 100ms
     ros::Duration timeout(0.1);
     sensors::Ultrasonic ult_data_cm;
     ult_data_cm.data.resize(1);
