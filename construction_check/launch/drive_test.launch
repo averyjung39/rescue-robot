@@ -6,7 +6,8 @@
 	<!-- Nodes to run -->
 	<node pkg="construction_check" type="arc_test" name="arc_test" />
 	<node pkg="controls" type="controller" name="controller">
-		<param name="speed" type="int" value="$(arg speed)" />
-		<param name="motor_to_run" type="int" value="$(arg motor_to_run)" />
+		<param name="speed_r" type="int" value="$(arg speed_r)" />
+		<param name="speed_l" type="int" value="$(arg speed_l)" />
+		<!-- <param name="motor_to_run" type="int" value="$(arg motor_to_run)" /> -->
 	</node>
 </launch>

@@ -7,14 +7,14 @@ class Controller {
 public:
     Controller();
 
-    void actuate(const planning::Arc &arc_cmd, int speed = 0, int motor_to_run = 0);
+    void actuate(const planning::Arc &arc_cmd, int speed_r = 0, int speed_l = 0);// int motor_to_run = 0);
 private:
     static const float MAX_ALLOWABLE_RPM_CHANGE = 5;
     static const float MAX_ALLOWABLE_RPM = 150;
     static const float MAX_ACTUAL_RPM = 350;
     static const float MAX_PWM = 100;
 
-    std::pair<float, float> getVelocities(const planning::Arc &arc_cmd, float speed) const;
+    std::pair<float, float> getVelocities(const planning::Arc &arc_cmd, float speed_r, float speed_l) const;
     float rampVelocity(float target_rpm, const bool &is_right_motor) const;
 
     void motorInit();
