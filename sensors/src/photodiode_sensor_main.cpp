@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <ros/duration.h>
 
 #include "sensors/Photodiode.h"
 #include "sensors/GPIOClass.h"
