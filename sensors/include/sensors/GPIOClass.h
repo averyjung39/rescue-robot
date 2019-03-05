@@ -10,11 +10,11 @@ class GPIOClass
         GPIOClass();
         GPIOClass(string x);
 
-        int export_gpio();
-        int unexport_gpio();
-        int setdir_gpio(string dir);
-        int write_gpio(string val);
-        int read_gpio(string &val);
+        bool export_gpio();
+        bool unexport_gpio();
+        bool setdir_gpio(string dir);
+        bool write_gpio(string val);
+        bool read_gpio(bool &val);
         string get_gpionum();
     private:
         string gpionum;
