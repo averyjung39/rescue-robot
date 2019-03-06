@@ -38,8 +38,8 @@ void Controller::motorInit() {
     softPwmCreate(MOTOR_ENABLE_2,0,MAX_PWM);
 }
 
-void Controller::actuate(const planning::Arc &arc_cmd, int speed_r, int speed_l) {// int motor_to_run) {
-    std::pair<float, float> right_left_velocities = getVelocities(arc_cmd, speed_r, speed_l);
+void Controller::actuate(const planning::Arc &arc_cmd) {
+    std::pair<float, float> right_left_velocities = getVelocities(arc_cmd);
 
     _rpm_right = right_left_velocities.first;
     _rpm_left = right_left_velocities.second;
@@ -57,15 +57,6 @@ void Controller::actuate(const planning::Arc &arc_cmd, int speed_r, int speed_l)
 
     actuateRightMotor(right_pwm, right_is_forward);
     actuateLeftMotor(left_pwm, left_is_forward);
-
-    /*if (motor_to_run == 2) {
-        actuateRightMotor(right_pwm, right_is_forward);
-    } else if (motor_to_run == 3) {
-        actuateLeftMotor(left_pwm, left_is_forward);
-    } else {
-        actuateRightMotor(right_pwm, right_is_forward);
-        actuateLeftMotor(left_pwm, left_is_forward);
-    }*/
 }
 
 void Controller::actuateRightMotor(int pwm, bool is_forward) const {
@@ -92,9 +83,11 @@ void Controller::actuateLeftMotor(int pwm, bool is_forward) const {
     }
 }
 
-std::pair<float, float> Controller::getVelocities(const planning::Arc &arc_cmd, float speed_r, float speed_l) const {
+std::pair<float, float> Controller::getVelocities(const planning::Arc &arc_cmd) const {
     const float &radius = arc_cmd.radius;
     const bool &direction_is_right = arc_cmd.direction_is_right;
+    const float &speed_r = arc_cmd.speed_r;
+    const float &speed_l = arc_cmd.speed_l;
 
     std::pair<float, float> right_left_velocities = std::make_pair(_rpm_right, _rpm_left);
 

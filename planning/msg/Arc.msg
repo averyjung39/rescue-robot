@@ -1,5 +1,7 @@
 float32 radius
 bool direction_is_right
+int32 speed_r
+int32 speed_l
 
 # Constants
 float32 TURN_ON_SPOT = 0
