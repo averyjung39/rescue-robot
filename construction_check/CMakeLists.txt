@@ -33,7 +33,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(tof_test src/tof_main.cpp)
+add_executable(tof_test src/tof_main.cpp ${sensors_SOURCE_PREFIX}/src/GPIOClass.cpp)
 target_link_libraries(tof_test ${catkin_LIBRARIES})
 add_dependencies(tof_test sensors planning topics)
 
