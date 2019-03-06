@@ -99,8 +99,10 @@ std::pair<float, float> Controller::getVelocities(const planning::Arc &arc_cmd, 
     std::pair<float, float> right_left_velocities = std::make_pair(_rpm_right, _rpm_left);
 
     if (radius == planning::Arc::STRAIGHT_LINE) {
-        right_left_velocities.first = rampVelocity(speed_r, true);
-        right_left_velocities.second = rampVelocity(-speed_l, false);
+        // right is forward
+        int direction_sign = direction_is_right ? 1 : -1;
+        right_left_velocities.first = rampVelocity(direction_sign*speed_r, true);
+        right_left_velocities.second = rampVelocity(direction_sign*speed_l, false);
     } else if (radius == planning::Arc::STOP) {
         right_left_velocities.first = rampVelocity(0, true);
         right_left_velocities.second = rampVelocity(0, false);
