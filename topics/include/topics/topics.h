@@ -5,4 +5,9 @@ namespace topics {
 
     // Path-Planning
     const char *ARC_TOPIC = "arc_data";
+
+    // Construction Check Demos
+    const char *DRIVE_DEMO_COMPLETE_TOPIC = "drive_demo_complete";
+    const char *TURN_DEMO_COMPLETE_TOPIC = "turn_demo_complete";
+    const char *TOF_DEMO_COMPLETE_TOPIC = "tof_demo_complete";
 }

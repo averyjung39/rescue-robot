@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <vector>
+#include <std_msgs/Bool.h>
 
 #include "sensors/Ultrasonic.h"
 #include "planning/Arc.h"
@@ -8,10 +9,15 @@
 std::vector<float> data;
 bool new_data = false;
 bool stopping = false;
+bool tof_complete = false;
 
-void ultrasonicSensorDataCallback(const sensors::Ultrasonic::ConstPtr& msg) {
+void ultrasonicSensorDataCallback(const sensors::Ultrasonic::ConstPtr &msg) {
     new_data = true;
     data = msg->data;
+}
+
+void tofDemoCompleteCallback(const std_msgs::Bool::ConstPtr &msg) {
+    tof_complete = msg->data;
 }
 
 int main(int argc, char **argv) {
@@ -21,11 +27,17 @@ int main(int argc, char **argv) {
 
     ros::Subscriber tof_data_sub = nh.subscribe(topics::ULTRASONIC_TOPIC, 1, ultrasonicSensorDataCallback);
     ros::Publisher arc_pub = nh.advertise<planning::Arc>(topics::ARC_TOPIC, 1);
+    ros::Subscriber tof_demo_complete_sub = nh.subscribe(topics::TOF_DEMO_COMPLETE_TOPIC, 1, tofDemoCompleteCallback);
 
     planning::Arc arc_cmd;
 
     while (ros::ok()) {
         ros::spinOnce();
+
+        if (!tof_complete) {
+            continue;
+        }
+
         // Assume ultrasonic sensor is mounted on the side
         // Start driving and stop when we see something 10 cm from the robot on the side
         if (new_data) {
