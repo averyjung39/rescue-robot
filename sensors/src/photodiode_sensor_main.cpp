@@ -52,5 +52,8 @@ int main(int argc, char **argv) {
         rate.sleep();
     }
 
+    for(int i = 0; i < photodiodes.size(); i++) {
+        delete photodiodes[i];
+    }
     return 0;
 }
