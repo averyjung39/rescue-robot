@@ -7,12 +7,14 @@
 #include "planning/Arc.h"
 #include "topics/topics.h"
 
-#define CONSTRUCTION_CHECK_BUTTON_PIN "45" // TODO Move GPIO setup to drive test node
+#ifndef CONSTRUCTION_CHECK_BUTTON_PIN
+#define CONSTRUCTION_CHECK_BUTTON_PIN "45"
+#endif
 
 std::vector<float> tof_data;
 bool new_data = false;
 bool stopping = false;
-bool turn_demo_complete = true; // TODO change to false when drive test nodes are available
+bool turn_demo_complete = false;
 bool tof_demo_complete = false;
 
 void tofSensorDataCallback(const sensors::TimeOfFlight::ConstPtr &msg) {
@@ -66,6 +68,8 @@ int main(int argc, char **argv) {
         // If button is pressed, start next test
         bool input_val = false;
         if (button_gpio->read_gpio(input_val) && input_val) {
+            // Wait for button release
+            while (button_gpio->read_gpio(input_val) && input_val);
             std_msgs::Bool msg;
             msg.data = true;
             tof_demo_complete_pub.publish(msg);
