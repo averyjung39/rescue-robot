@@ -10,7 +10,7 @@
 #define CONSTRUCTION_CHECK_BUTTON_PIN "45"
 #endif
 
-bool drive_demo_complete = false
+bool drive_demo_complete = false;
 
 int main(int argc, char **argv) {
     ros::init(argc, argv, "drive_forward_backward_test");
@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 
     planning::Arc arc_cmd;
     arc_cmd.radius = planning::Arc::STRAIGHT_LINE;
-    // direction right is for going forward 
+    // direction right is for going forward
     arc_cmd.direction_is_right = true;
 
     GPIOClass *button_gpio = new GPIOClass(CONSTRUCTION_CHECK_BUTTON_PIN);
