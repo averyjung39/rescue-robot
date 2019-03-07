@@ -2,17 +2,9 @@
 
 #include "controls/controller.h"
 #include "planning/Arc.h"
-
-#include "controls/wiringPi.h"
-#include "controls/softPwm.h"
-
-#define MOTOR_RIGHT_1 20
-#define MOTOR_RIGHT_2 21
-#define MOTOR_ENABLE_1 18
-
-#define MOTOR_LEFT_1 22
-#define MOTOR_LEFT_2 23
-#define MOTOR_ENABLE_2 19
+#include "constants/gpio_pins.h"
+#include "external/wiringPi/wiringPi.h"
+#include "external/wiringPi/softPwm.h"
 
 Controller::Controller() {
     _rpm_right = _rpm_left = 0;
