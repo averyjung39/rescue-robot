@@ -31,6 +31,19 @@ int main(int argc, char **argv) {
     GPIOClass *button_gpio = new GPIOClass(CONSTRUCTION_CHECK_BUTTON_PIN);
     button_gpio->export_gpio();
     button_gpio->setdir_gpio("in");
+
+
+    // Wait for button press
+    bool val = false;
+    while (!val) {
+        button_gpio->read_gpio(val);
+    }
+    ROS_INFO("Detected button press!");
+    // Wait for button release
+    while (val) {
+        button_gpio->read_gpio(val);
+    }
+    ROS_INFO("Beginning Construction Check Demo");
     while (ros::ok()) {
         if (drive_demo_complete) {
             continue;
