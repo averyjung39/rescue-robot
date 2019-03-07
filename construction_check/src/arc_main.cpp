@@ -15,14 +15,14 @@ int main(int argc, char **argv) {
     int speed_l;
 
     // right
-    if (nh.getParam("/controller/speed_r", speed_r)) {
+    if (nh.getParam("/arc_test/speed_r", speed_r)) {
         ROS_INFO("SPEED: %d", speed_r);
     } else {
         ROS_ERROR("No speed, please pass in speed_r");
         return -1;
     }
     // left
-    if (nh.getParam("/controller/speed_l", speed_l)) {
+    if (nh.getParam("/arc_test/speed_l", speed_l)) {
         ROS_INFO("SPEED: %d", speed_l);
     } else {
         ROS_ERROR("No speed, please pass in speed_l");
