@@ -3,8 +3,8 @@
 #include "controls/controller.h"
 #include "planning/Arc.h"
 
-#include "controls/wiringPi.h"
-#include "controls/softPwm.h"
+#include "external/wiringPi/wiringPi.h"
+#include "external/wiringPi/softPwm.h"
 
 #define MOTOR_RIGHT_1 20
 #define MOTOR_RIGHT_2 21

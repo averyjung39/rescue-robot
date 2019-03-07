@@ -6,7 +6,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   planning
-  topics
+  external
+  constants
 )
 
 catkin_package(
@@ -19,6 +20,9 @@ include_directories(
 )
 
 add_executable(controller src/controls_main.cpp src/controller.cpp
-               src/wiringPi.cpp src/softPwm.cpp src/softTone.cpp src/piHiPri.cpp)
+               ${external_SOURCE_PREFIX}/src/wiringPi/wiringPi.cpp
+               ${external_SOURCE_PREFIX}/src/wiringPi/softPwm.cpp
+               ${external_SOURCE_PREFIX}/src/wiringPi/softTone.cpp
+               ${external_SOURCE_PREFIX}/src/wiringPi/piHiPri.cpp)
 target_link_libraries(controller ${catkin_LIBRARIES})
 add_dependencies(controller ${catkin_EXPORTED_TARGETS})

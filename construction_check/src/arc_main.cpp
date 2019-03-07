@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 
 #include "planning/Arc.h"
-#include "topics/topics.h"
+#include "constants/topics.h"
 
 int main(int argc, char **argv) {
     ros::init(argc, argv, "arc_test");

@@ -6,7 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   sensors
   planning
-  topics
+  constants
 )
 
 ## Generate messages in the 'msg' folder
@@ -35,7 +35,7 @@ include_directories(
 
 add_executable(tof_test src/tof_main.cpp ${sensors_SOURCE_PREFIX}/src/GPIOClass.cpp)
 target_link_libraries(tof_test ${catkin_LIBRARIES})
-add_dependencies(tof_test sensors planning topics)
+add_dependencies(tof_test ${catkin_EXPORTED_TARGETS})
 
 add_executable(ultrasonic_test src/ultrasonic_main.cpp)
 target_link_libraries(ultrasonic_test ${catkin_LIBRARIES})

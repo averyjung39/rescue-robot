@@ -3,7 +3,7 @@
 
 #include "controls/controller.h"
 #include "planning/Arc.h"
-#include "topics/topics.h"
+#include "constants/topics.h"
 
 planning::Arc::ConstPtr arc_msg;
 

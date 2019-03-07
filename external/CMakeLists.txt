@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(topics)
+project(external)
 
-find_package(catkin REQUIRED)
-
-# catkin_python_setup()
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  std_msgs
+)
 
 ## Generate messages in the 'msg' folder
 # add_message_files(
@@ -20,8 +21,8 @@ find_package(catkin REQUIRED)
 
 catkin_package(
     INCLUDE_DIRS include
-#  LIBRARIES topics
-#  CATKIN_DEPENDS other_catkin_pkg
+#  LIBRARIES external
+#  CATKIN_DEPENDS roscpp std_msgs
 #  DEPENDS system_lib
 )
 
@@ -29,3 +30,8 @@ include_directories(
     include
     ${catkin_INCLUDE_DIRS}
 )
+
+## Declare a C++ library
+# add_library(${PROJECT_NAME}
+#   src/${PROJECT_NAME}/external.cpp
+# )

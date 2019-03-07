@@ -8,7 +8,7 @@
 
 #include "sensors/TimeOfFlight.h"
 #include "sensors/tof.h"
-#include "topics/topics.h"
+#include "constants/topics.h"
 
 int main(int argc, char **argv) {
     ros::init(argc, argv, "tof_sensor");

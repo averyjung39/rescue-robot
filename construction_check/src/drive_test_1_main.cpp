@@ -4,7 +4,7 @@
 
 #include "sensors/GPIOClass.h"
 #include "planning/Arc.h"
-#include "topics/topics.h"
+#include "constants/topics.h"
 
 #ifndef CONSTRUCTION_CHECK_BUTTON_PIN
 #define CONSTRUCTION_CHECK_BUTTON_PIN "45"
