@@ -17,4 +17,5 @@
 #define HALL_EFFECT_2_H 10
 #define HALL_EFFECT_2_L 11
 
+
 #endif // GPIO_PINS

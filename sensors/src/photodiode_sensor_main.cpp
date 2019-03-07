@@ -4,9 +4,8 @@
 
 #include "sensors/Photodiode.h"
 #include "sensors/GPIOClass.h"
-#include "topics/topics.h"
+#include "constants/topics.h"
 
-// TODO: replace pin numbers
 std::vector<GPIOClass*> photodiodes;
 
 void photodiodeInit() {

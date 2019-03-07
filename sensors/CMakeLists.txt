@@ -13,7 +13,6 @@ add_message_files(
   TimeOfFlight.msg
   Ultrasonic.msg
   Photodiode.msg
-  HallEffect.msg
   IMU.msg
   Encoder.msg
 )
