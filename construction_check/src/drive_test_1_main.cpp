@@ -27,6 +27,8 @@ int main(int argc, char **argv) {
     arc_cmd.radius = planning::Arc::STRAIGHT_LINE;
     // direction right is for going forward
     arc_cmd.direction_is_right = true;
+    arc_cmd.speed_r = 70;
+    arc_cmd.speed_l = 70;
 
     GPIOClass *button_gpio = new GPIOClass(CONSTRUCTION_CHECK_BUTTON_PIN);
     button_gpio->export_gpio();

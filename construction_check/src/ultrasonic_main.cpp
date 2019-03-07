@@ -50,7 +50,10 @@ int main(int argc, char **argv) {
             } else {
                 // Special value for driving in a line
                 arc_cmd.radius = planning::Arc::STRAIGHT_LINE;
-                arc_cmd.direction_is_right = false;
+                // drive forward
+                arc_cmd.direction_is_right = true;
+                arc_cmd.speed_r = 70;
+                arc_cmd.speed_l = 70;
             }
             arc_pub.publish(arc_cmd);
             new_data = false;

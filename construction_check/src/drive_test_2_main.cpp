@@ -32,6 +32,8 @@ int main(int argc, char **argv) {
     planning::Arc arc_cmd;
     arc_cmd.radius = planning::Arc::TURN_ON_SPOT;
     arc_cmd.direction_is_right = true;
+    arc_cmd.speed_r = 70;
+    arc_cmd.speed_l = 70;
 
     GPIOClass *button_gpio = new GPIOClass(CONSTRUCTION_CHECK_BUTTON_PIN);
     button_gpio->export_gpio();

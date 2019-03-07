@@ -50,8 +50,8 @@ int main(int argc, char **argv) {
             }
         }
 
-        arc_cmd.speed_r = speed_r;
-        arc_cmd.speed_l = speed_l;
+        arc_cmd.speed_r = abs(speed_r);
+        arc_cmd.speed_l = abs(speed_l);
         arc_pub.publish(arc_cmd);
     }
     return 0;
