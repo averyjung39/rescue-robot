@@ -2,8 +2,8 @@
     <node pkg="controls" type="controller" name="controller" />
     <node pkg="construction_check" type="tof_test" name="tof_test" />
     <node pkg="construction_check" type="ultrasonic_test" name="ultrasonic_test" />
-    <node pkg="construction_check" type="drive_forward_backward_test" name="drive_forward_backward_test" />
-    <node pkg="construction_check" type="drive_turn_test" name="drive_turn_test" />
+    <node pkg="construction_check" type="drive_forward_backward_test" name="drive_forward_backward_test" output="screen" />
+    <node pkg="construction_check" type="drive_turn_test" name="drive_turn_test" output="screen" />
     <node pkg="sensors" type="tof_sensor" name="tof_sensor" />
     <node pkg="sensors" type="ultrasonic_sensor" name="ultrasonic_sensor" />
 </launch>
