@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   constants
   external
+  controls
 )
 
 add_message_files(
@@ -47,3 +48,7 @@ add_dependencies(photodiode_sensor ${catkin_EXPORTED_TARGETS})
 add_executable(hall_effect_sensor src/hall_effect_sensor_main.cpp)
 target_link_libraries(hall_effect_sensor ${catkin_LIBRARIES})
 add_dependencies(hall_effect_sensor ${catkin_EXPORTED_TARGETS})
+
+add_executable(encoder src/encoder_main.cpp src/MotorEncoder.cpp src/GPIOClass.cpp)
+target_link_libraries(encoder ${catkin_LIBRARIES})
+add_dependencies(encoder ${catkin_EXPORTED_TARGETS})
