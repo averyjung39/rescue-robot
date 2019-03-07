@@ -21,7 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
     INCLUDE_DIRS include
-#  LIBRARIES external
+    LIBRARIES wiringPi
 #  CATKIN_DEPENDS roscpp std_msgs
 #  DEPENDS system_lib
 )
@@ -32,6 +32,17 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/external.cpp
-# )
+add_library(wiringPi
+    src/wiringPi/wiringPi.cpp
+    src/wiringPi/piHiPri.cpp
+    src/wiringPi/softPwm.cpp
+    src/wiringPi/softTone.cpp
+)
+
+target_link_libraries(wiringPi ${catkin_LIBRARIES})
+
+install(TARGETS wiringPi
+    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

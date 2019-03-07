@@ -2,7 +2,7 @@
 #include <ros/duration.h>
 #include <std_msgs/Bool.h>
 
-#include "external/wiringPi.h"
+#include "external/wiringPi/wiringPi.h"
 #include "constants/gpio_pins.h"
 #include "constants/topics.h"
 
@@ -14,13 +14,10 @@ void hallEffectInit() {
 }
 
 bool checkForMagnet() {
-    if (digitalRead(HALL_EFFECT_1_H) == HIGH ||
-        digitalRead(HALL_EFFECT_1_L) == LOW ||
-        digitalRead(HALL_EFFECT_2_H) == HIGH ||
-        digitalRead(HALL_EFFECT_2_L) == LOW) {
-        return true;
-    }
-    return false;
+    return (digitalRead(HALL_EFFECT_1_H) == HIGH ||
+            digitalRead(HALL_EFFECT_1_L) == LOW ||
+            digitalRead(HALL_EFFECT_2_H) == HIGH ||
+            digitalRead(HALL_EFFECT_2_L) == LOW);
 }
 
 int main(int argc, char **argv) {

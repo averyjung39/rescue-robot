@@ -19,10 +19,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(controller src/controls_main.cpp src/controller.cpp
-               ${external_SOURCE_PREFIX}/src/wiringPi/wiringPi.cpp
-               ${external_SOURCE_PREFIX}/src/wiringPi/softPwm.cpp
-               ${external_SOURCE_PREFIX}/src/wiringPi/softTone.cpp
-               ${external_SOURCE_PREFIX}/src/wiringPi/piHiPri.cpp)
+add_executable(controller src/controls_main.cpp src/controller.cpp)
 target_link_libraries(controller ${catkin_LIBRARIES})
 add_dependencies(controller ${catkin_EXPORTED_TARGETS})

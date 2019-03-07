@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   constants
+  external
 )
 
 add_message_files(
@@ -42,3 +43,7 @@ add_dependencies(ultrasonic_sensor ${catkin_EXPORTED_TARGETS})
 add_executable(photodiode_sensor src/photodiode_sensor_main.cpp src/GPIOClass.cpp)
 target_link_libraries(photodiode_sensor ${catkin_LIBRARIES})
 add_dependencies(photodiode_sensor ${catkin_EXPORTED_TARGETS})
+
+add_executable(hall_effect_sensor src/hall_effect_sensor_main.cpp)
+target_link_libraries(hall_effect_sensor ${catkin_LIBRARIES})
+add_dependencies(hall_effect_sensor ${catkin_EXPORTED_TARGETS})
