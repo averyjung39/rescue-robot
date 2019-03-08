@@ -12,8 +12,8 @@ void photodiodeInit() {
     stringstream ss;
     string pin;
     for (int i = 0; i < 5; i++) {
-        // GPIO 2 to 6
-        ss << i+2;
+        // GPIO 4 to 8, from left to right
+        ss << i+4;
         pin = ss.str();
         photodiodes[i] = new GPIOClass(pin);
         photodiodes[i]->export_gpio();
