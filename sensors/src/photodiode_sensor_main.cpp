@@ -11,6 +11,7 @@ std::vector<GPIOClass*> photodiodes;
 void photodiodeInit() {
     stringstream ss;
     string pin;
+    photodiodes.resize(5);
     for (int i = 0; i < 5; i++) {
         // GPIO 4 to 8, from left to right
         ss << i+4;
