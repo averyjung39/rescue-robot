@@ -2,17 +2,9 @@
 
 #include "controls/controller.h"
 #include "planning/Arc.h"
-
-#include "controls/wiringPi.h"
-#include "controls/softPwm.h"
-
-#define MOTOR_RIGHT_1 20
-#define MOTOR_RIGHT_2 21
-#define MOTOR_ENABLE_1 18
-
-#define MOTOR_LEFT_1 22
-#define MOTOR_LEFT_2 23
-#define MOTOR_ENABLE_2 19
+#include "constants/gpio_pins.h"
+#include "external/wiringPi/wiringPi.h"
+#include "external/wiringPi/softPwm.h"
 
 Controller::Controller() {
     _rpm_right = _rpm_left = 0;
@@ -86,19 +78,23 @@ void Controller::actuateLeftMotor(int pwm, bool is_forward) const {
 std::pair<float, float> Controller::getVelocities(const planning::Arc &arc_cmd) const {
     const float &radius = arc_cmd.radius;
     const bool &direction_is_right = arc_cmd.direction_is_right;
+    const float &speed_r = arc_cmd.speed_r;
+    const float &speed_l = arc_cmd.speed_l;
 
     std::pair<float, float> right_left_velocities = std::make_pair(_rpm_right, _rpm_left);
 
     if (radius == planning::Arc::STRAIGHT_LINE) {
-        right_left_velocities.first = rampVelocity(MAX_ALLOWABLE_RPM, true);
-        right_left_velocities.second = rampVelocity(-MAX_ALLOWABLE_RPM, false);
+        // right is forward
+        int direction_sign = direction_is_right ? 1 : -1;
+        right_left_velocities.first = rampVelocity(direction_sign*speed_r, true);
+        right_left_velocities.second = rampVelocity(-direction_sign*speed_l, false);
     } else if (radius == planning::Arc::STOP) {
         right_left_velocities.first = rampVelocity(0, true);
         right_left_velocities.second = rampVelocity(0, false);
     } else if (radius == planning::Arc::TURN_ON_SPOT) {
         int direction_sign = direction_is_right ? -1 : 1;
-        right_left_velocities.first = rampVelocity(direction_sign*MAX_ALLOWABLE_RPM, true);
-        right_left_velocities.second = rampVelocity(direction_sign*MAX_ALLOWABLE_RPM, false);
+        right_left_velocities.first = rampVelocity(direction_sign*speed_r, true);
+        right_left_velocities.second = rampVelocity(direction_sign*speed_l, false);
     } else {
         ROS_ERROR("UNHANDLED CONTROLS CASE: radius=%f, direction=%d", radius, direction_is_right);
     }
@@ -117,6 +113,9 @@ float Controller::rampVelocity(float target_rpm, const bool &is_right_motor) con
     // Limit max rpm
     if (target_rpm > MAX_ALLOWABLE_RPM) {
         target_rpm = MAX_ALLOWABLE_RPM;
+    }
+    if (target_rpm < -MAX_ALLOWABLE_RPM) {
+        target_rpm = -MAX_ALLOWABLE_RPM;
     }
     if (fabs(target_rpm - curr_rpm) > MAX_ALLOWABLE_RPM_CHANGE) {
         return target_rpm > curr_rpm ? curr_rpm + MAX_ALLOWABLE_RPM_CHANGE : curr_rpm - MAX_ALLOWABLE_RPM_CHANGE;

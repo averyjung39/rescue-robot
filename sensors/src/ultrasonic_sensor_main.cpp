@@ -5,10 +5,9 @@
 
 #include "sensors/Ultrasonic.h"
 #include "sensors/GPIOClass.h"
-#include "topics/topics.h"
+#include "constants/topics.h"
 
-int main (int argc, char **argv)
-{
+int main (int argc, char **argv) {
     ros::init(argc, argv, "ultrasonic_sensor");
 
     ros::NodeHandle nh;
@@ -23,36 +22,33 @@ int main (int argc, char **argv)
     gpio31->setdir_gpio("in");
 
     long counter = 0;
-    string inputstring;
+    bool input_val;
     float distance = 0;
     ros::Time start = ros::Time::now();
     ros::Time finish = ros::Time::now();
 
-    // Set timeout to 100ms 
+    // Set timeout to 100ms
     ros::Duration timeout(0.1);
     sensors::Ultrasonic ult_data_cm;
     ult_data_cm.data.resize(1);
 
-    while(ros::ok())
-    {
+    while (ros::ok()) {
         counter = 0;
         gpio28->write_gpio("1");
         ros::Duration(0.0001).sleep();
         gpio28->write_gpio("0");
 
-        gpio31->read_gpio(inputstring);
+        gpio31->read_gpio(input_val);
         ros::Time begin_read_time = ros::Time::now();
         bool timed_out = false;
-        while(inputstring == "0" && !timed_out)
-        {
-            gpio31->read_gpio(inputstring);
+        while (input_val == 0 && !timed_out) {
+            gpio31->read_gpio(input_val);
             start = ros::Time::now();
             timed_out = start - begin_read_time >= timeout;
         }
         begin_read_time = ros::Time::now();
-        while(inputstring == "1" && !timed_out)
-        {
-            gpio31->read_gpio(inputstring);
+        while (input_val == 1 && !timed_out) {
+            gpio31->read_gpio(input_val);
             finish = ros::Time::now();
             timed_out = start - begin_read_time >= timeout;
         }

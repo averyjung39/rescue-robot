@@ -71,11 +71,11 @@
 #include <sys/ioctl.h>
 #include <asm/ioctl.h>
 
-#include "controls/softPwm.h"
-#include "controls/softTone.h"
+#include "external/wiringPi/softPwm.h"
+#include "external/wiringPi/softTone.h"
 
-#include "controls/wiringPi.h"
-#include "controls/version.h"
+#include "external/wiringPi/wiringPi.h"
+#include "external/wiringPi/version.h"
 
 // Environment Variables
 

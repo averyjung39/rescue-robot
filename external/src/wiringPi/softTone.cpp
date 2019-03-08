@@ -29,8 +29,8 @@
 #include <stdio.h>
 #include <pthread.h>
 
-#include "controls/wiringPi.h"
-#include "controls/softTone.h"
+#include "external/wiringPi/wiringPi.h"
+#include "external/wiringPi/softTone.h"
 
 #define	MAX_PINS	64
 

@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <ros/duration.h>
 #include <vector>
 #include <stdio.h>
 #include <string.h>
@@ -7,7 +8,7 @@
 
 #include "sensors/TimeOfFlight.h"
 #include "sensors/tof.h"
-#include "topics/topics.h"
+#include "constants/topics.h"
 
 int main(int argc, char **argv) {
     ros::init(argc, argv, "tof_sensor");
@@ -33,6 +34,7 @@ int main(int argc, char **argv) {
 
     sensors::TimeOfFlight tof_data_cm;
     tof_data_cm.data.resize(1);
+    ros::Rate rate(10);
 
     while (ros::ok()) {
         tof_distance = tofReadDistance();
@@ -40,6 +42,7 @@ int main(int argc, char **argv) {
             tof_data_cm.data[0] = tof_distance / 10.0;
             tof_data_pub.publish(tof_data_cm);
         }
+        rate.sleep();
     }
 
     return 0;
