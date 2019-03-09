@@ -1,11 +1,11 @@
 #include <ros/ros.h>
 #include <vector>
 
+#include "constants/topics.h"
 #include "sensors/Encoder.h"
 #include "sensors/GPIOClass.h"
 #include "sensors/MotorEncoder.h"
 #include "sensors/MotorEncoderISR.h"
-#include "topics/topics.h"
 
 #define MOTOR_R_ENCODER_A_PIN "16"
 #define MOTOR_R_ENCODER_B_PIN "17"

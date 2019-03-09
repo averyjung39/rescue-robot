@@ -1,8 +1,8 @@
 #include <ros/ros.h>
 
+#include "external/wiringPi/wiringPi.h"
 #include "sensors/MotorEncoder.h"
 #include "sensors/GPIOClass.h"
-#include "controls/wiringPi.h"
 
 MotorEncoder::MotorEncoder(const char *pin_a, const char *pin_b, void (*isr_function)(void), volatile int *global_rising_edge_count) {
     _gpio_a = new GPIOClass(pin_a);
