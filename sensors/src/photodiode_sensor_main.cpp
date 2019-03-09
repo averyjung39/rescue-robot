@@ -7,6 +7,11 @@
 #include "external/wiringPi/wiringPi.h"
 
 void photodiodeInit() {
+    if (wiringPiSetupGpio() == -1) {
+        ROS_ERROR("Setting up wiringPi failed.");
+        throw std::runtime_error("");
+    }
+    
     pinMode(PHOTODIODE_1, INPUT);
     pinMode(PHOTODIODE_2, INPUT);
     pinMode(PHOTODIODE_3, INPUT);
