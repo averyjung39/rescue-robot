@@ -10,12 +10,23 @@
 #define CF_GYR_ACC 0.98    // complementary filter constant for gyro and accelerometer
 #define CF_GYR_MAG 0.95    // complementary filter constant for gyro and magnetometer
 
+/**
+ * @brief Read raw data from IMU
+ * @param acc_data_raw, gyr_data_raw, mag_data_raw, return parameters for raw
+ *        accelerometer/gyroscope/magnetometer
+ */
 void readIMURaw(int (&acc_data_raw)[3], int (&gyr_data_raw)[3], int (&mag_data_raw)[3]) {
     IMU::readACC(acc_data_raw);
     IMU::readGYR(gyr_data_raw);
     IMU::readMAG(mag_data_raw);
 }
 
+/**
+ * @brief Read IMU (ideally converted from raw data)
+ * @param acc_data Return parameter for raw accelerometer data
+ * @param gyr_data Return parameter for gyroscope data in deg/s
+ * @param mag_data Return parameter for raw magnetometer data
+ */
 void readIMU(float (&acc_data)[3], float (&gyr_data)[3], float (&mag_data)[3]) {
     // Read raw data
     int acc_data_raw[3] = {0};
@@ -45,6 +56,13 @@ void readIMU(float (&acc_data)[3], float (&gyr_data)[3], float (&mag_data)[3]) {
     }
 }
 
+/**
+ * @brief Calculate roll, pitch, yaw orientation of IMU
+ * @param acc_data, gyr_data, mag_data Data from IMU
+ * @param gyr_angles Gyroscope angles in degrees
+ * @param loop_frequency Frequency of main loop in Hz
+ * @param orientation Return parameter for roll, pitch, yaw orientation in degrees
+ */
 void getOrientation(const float (&acc_data)[3],
     const float (&gyr_data)[3],
     const float (&mag_data)[3],
@@ -64,7 +82,7 @@ void getOrientation(const float (&acc_data)[3],
     float acc_pitch = atan2(acc_data[2], acc_data[0]) * 180 / M_PI;
     
     // Magnetometer angle
-    float mag_yaw = atan2(mag_data[1], mag_data[0]);
+    float mag_yaw = atan2(mag_data[1], mag_data[0]) * 180 / M_PI;
 
     // Combine angle readings
     orientation[0] = CF_GYR_ACC*(orientation[0] + gyr_angles[0]) + (1 - CF_GYR_ACC)*acc_roll;  // Roll
