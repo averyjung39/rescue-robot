@@ -1,16 +1,13 @@
 #include <ros/ros.h>
 #include <vector>
 
+#include "constants/gpio_pins.h"
 #include "constants/topics.h"
 #include "sensors/Encoder.h"
-#include "sensors/GPIOClass.h"
 #include "sensors/MotorEncoder.h"
 #include "sensors/MotorEncoderISR.h"
 
-#define MOTOR_R_ENCODER_A_PIN "16"
-#define MOTOR_R_ENCODER_B_PIN "17"
-#define MOTOR_L_ENCODER_A_PIN "24"
-#define MOTOR_L_ENCODER_B_PIN "25"
+
 
 int main(int argc, char **argv) {
     ros::init(argc, argv, "encoder");

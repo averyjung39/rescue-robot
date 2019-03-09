@@ -17,5 +17,10 @@
 #define HALL_EFFECT_2_H 10
 #define HALL_EFFECT_2_L 11
 
+#define MOTOR_R_ENCODER_A_PIN 16
+#define MOTOR_R_ENCODER_B_PIN 17
+#define MOTOR_L_ENCODER_A_PIN 24
+#define MOTOR_L_ENCODER_B_PIN 25
+
 
 #endif // GPIO_PINS
