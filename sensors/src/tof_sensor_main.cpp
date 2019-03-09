@@ -10,6 +10,16 @@
 #include "sensors/tof.h"
 #include "constants/topics.h"
 
+/*
+1. Reset all sensors by setting all of their XSHUT pins low for delay(10), then set all XSHUT high to bring out of reset
+2. Keep sensor #1 awake by keeping XSHUT pin high
+3. Put all other sensors into shutdown by pulling XSHUT pins low
+4. Initialize sensor #1 with lox.begin(new_i2c_address) Pick any number but 0x29 and it must be under 0x7F. Goingwith 0x30 to 0x3F is probably OK.
+5. Keep sensor #1 awake, and now bring sensor #2 out of reset by setting its XSHUT pin high.
+6. Initialize sensor #2 with lox.begin(new_i2c_address) Pick any number but 0x29 and whatever you set the first sensor to
+Don't forget to remove the protective plastic cover from the sensor before using! 
+7. Repeat for each sensor, turning each one on, setting a unique address.Note you must do this every time you turn on the power, the addresses are not permanent*/
+
 int main(int argc, char **argv) {
     ros::init(argc, argv, "tof_sensor");
 
