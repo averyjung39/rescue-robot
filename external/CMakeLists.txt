@@ -21,7 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
     INCLUDE_DIRS include
-    LIBRARIES wiringPi
+    LIBRARIES wiringPi IMU
 #  CATKIN_DEPENDS roscpp std_msgs
 #  DEPENDS system_lib
 )
@@ -37,11 +37,22 @@ add_library(wiringPi
     src/wiringPi/piHiPri.cpp
     src/wiringPi/softPwm.cpp
     src/wiringPi/softTone.cpp
+    src/wiringPi/wiringPiI2C.cpp
 )
 
 target_link_libraries(wiringPi ${catkin_LIBRARIES})
 
 install(TARGETS wiringPi
+    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+add_library(IMU
+    src/IMU/IMUSensor.cpp
+)
+target_link_libraries(IMU ${catkin_LIBRARIES})
+install(TARGETS IMU
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
