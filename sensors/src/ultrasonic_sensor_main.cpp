@@ -1,11 +1,60 @@
 #include <ros/ros.h>
 #include <ros/time.h>
 #include <ros/duration.h>
-#include <string>
 
 #include "sensors/Ultrasonic.h"
-#include "sensors/GPIOClass.h"
+#include "constants/gpio_pins.h"
 #include "constants/topics.h"
+#include "external/wiringPi/wiringPi.h"
+
+void ultrasonicInit(){
+    if (wiringPiSetupGpio() == -1) {
+        ROS_ERROR("Setting up wiringPi failed.");
+        throw std::runtime_error("");
+    }
+
+    pinMode(ULTRASONIC_R_TRIG, OUTPUT);
+    pinMode(ULTRASONIC_R_ECHO, INPUT);
+    pinMode(ULTRASONIC_L_TRIG, OUTPUT);
+    pinMode(ULTRASONIC_L_ECHO, INPUT);
+    pinMode(ULTRASONIC_B_TRIG, OUTPUT);
+    pinMode(ULTRASONIC_B_ECHO, INPUT);
+}
+
+/**
+ * @param trig_pin trigger pin number of ultrasonic sensor
+ * @param echo_pin echo pin number of ultrasonic sensor
+ * @param elapsed variable to store elapsed time for calculating distance
+ * @return bool true will be returned if the sensor data was read without being timed out
+ */
+bool readUltrasonic(int trig_pin, int echo_pin, ros::Duration &elapsed) {
+    // Set timeout to 100ms
+    ros::Duration timeout(0.1);
+    ros::Time start = ros::Time::now();
+    ros::Time finish = ros::Time::now();
+    bool timed_out = false;
+
+    digitalWrite(trig_pin, HIGH);
+    ros::Duration(0.0001).sleep();
+    digitalWrite(trig_pin, LOW);
+
+    ros::Time begin_read_time = ros::Time::now();
+    while (digitalRead(echo_pin) == LOW && !timed_out) {
+        start = ros::Time::now();
+        timed_out = start - begin_read_time >= timeout;
+    }
+    begin_read_time = ros::Time::now();
+    while (digitalRead(echo_pin) == HIGH && !timed_out) {
+        finish = ros::Time::now();
+        timed_out = finish - begin_read_time >= timeout;
+    }
+    if (timed_out) {
+        return false;
+    }
+
+    elapsed = finish - start;
+    return true;
+}
 
 int main (int argc, char **argv) {
     ros::init(argc, argv, "ultrasonic_sensor");
@@ -13,54 +62,48 @@ int main (int argc, char **argv) {
     ros::NodeHandle nh;
     ros::Publisher ult_data_pub = nh.advertise<sensors::Ultrasonic>(topics::ULTRASONIC_TOPIC, 1);
 
-    GPIOClass* gpio28 = new GPIOClass("28"); // trig
-    gpio28->export_gpio();
-    gpio28->setdir_gpio("out");
+    ultrasonicInit();
 
-    GPIOClass* gpio31 = new GPIOClass("31"); // echo
-    gpio31->export_gpio();
-    gpio31->setdir_gpio("in");
-
-    long counter = 0;
-    bool input_val;
-    float distance = 0;
-    ros::Time start = ros::Time::now();
-    ros::Time finish = ros::Time::now();
-
-    // Set timeout to 100ms
-    ros::Duration timeout(0.1);
     sensors::Ultrasonic ult_data_cm;
-    ult_data_cm.data.resize(1);
+    ult_data_cm.data.resize(3);
+
+    ros::Duration elapsed_r;
+    ros::Duration elapsed_l;
+    ros::Duration elapsed_b;
+
+    bool success_r;
+    bool success_l;
+    bool success_b;
 
     while (ros::ok()) {
-        counter = 0;
-        gpio28->write_gpio("1");
-        ros::Duration(0.0001).sleep();
-        gpio28->write_gpio("0");
+        success_r = readUltrasonic(ULTRASONIC_R_TRIG, ULTRASONIC_R_ECHO, elapsed_r);
+        success_l = readUltrasonic(ULTRASONIC_L_TRIG, ULTRASONIC_L_ECHO, elapsed_l);
+        success_b = readUltrasonic(ULTRASONIC_B_TRIG, ULTRASONIC_B_ECHO, elapsed_b);
 
-        gpio31->read_gpio(input_val);
-        ros::Time begin_read_time = ros::Time::now();
-        bool timed_out = false;
-        while (input_val == 0 && !timed_out) {
-            gpio31->read_gpio(input_val);
-            start = ros::Time::now();
-            timed_out = start - begin_read_time >= timeout;
+        if (success_l) {
+            ult_data_cm.data[0] = (elapsed_l.toSec() * 34300) / 2;
+    	    ROS_INFO("LEFT ELAPSED TIME: %f", elapsed_l.toSec());
+        } else {
+            ult_data_cm.data[0] = sensors::Ultrasonic::INVALID_SENSOR_DATA;
+            ROS_WARN("Timed out while reading left ultrasonic sensor!");
         }
-        begin_read_time = ros::Time::now();
-        while (input_val == 1 && !timed_out) {
-            gpio31->read_gpio(input_val);
-            finish = ros::Time::now();
-            timed_out = start - begin_read_time >= timeout;
+
+        if (success_b) {
+            ult_data_cm.data[1] = (elapsed_b.toSec() * 34300) / 2;
+            ROS_INFO("BACK ELAPSED TIME: %f", elapsed_b.toSec());
+        } else {
+            ult_data_cm.data[1] = sensors::Ultrasonic::INVALID_SENSOR_DATA;
+            ROS_WARN("Timed out while reading back ultrasonic sensor!");
         }
-        if (timed_out) {
-            ROS_WARN("Timed out!");
-            continue;
+
+        if (success_r) {
+            ult_data_cm.data[2] = (elapsed_r.toSec() * 34300) / 2;
+            ROS_INFO("RIGHT ELAPSED TIME: %f", elapsed_r.toSec());
+        } else {
+            ult_data_cm.data[2] = sensors::Ultrasonic::INVALID_SENSOR_DATA;
+            ROS_WARN("Timed out while reading right ultrasonic sensor!");
         }
-        ros::Duration elapsed = finish - start;
-        // convert duration to seconds
-	ROS_INFO("Elapsed time: %f", elapsed.toSec());
-        distance = (elapsed.toSec() * 34300) / 2;
-        ult_data_cm.data[0] = distance;
+
         ult_data_pub.publish(ult_data_cm);
     }
 }
