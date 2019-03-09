@@ -36,7 +36,7 @@ add_executable(tof_sensor src/tof_sensor_main.cpp src/tof.cpp)
 target_link_libraries(tof_sensor ${catkin_LIBRARIES})
 add_dependencies(tof_sensor ${catkin_EXPORTED_TARGETS})
 
-add_executable(ultrasonic_sensor src/ultrasonic_sensor_main.cpp src/GPIOClass.cpp)
+add_executable(ultrasonic_sensor src/ultrasonic_sensor_main.cpp)
 target_link_libraries(ultrasonic_sensor ${catkin_LIBRARIES})
 add_dependencies(ultrasonic_sensor ${catkin_EXPORTED_TARGETS})
 
