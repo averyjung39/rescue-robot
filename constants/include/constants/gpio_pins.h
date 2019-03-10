@@ -28,5 +28,11 @@
 #define HALL_EFFECT_2_H 10
 #define HALL_EFFECT_2_L 11
 
+#define TOF_XSHUT_1 34
+#define TOF_XSHUT_2 35
+#define TOF_XSHUT_3 36
+#define TOF_XSHUT_4 37
+#define TOF_XSHUT_5 38
+
 
 #endif // GPIO_PINS
