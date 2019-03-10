@@ -89,6 +89,8 @@ typedef struct tagSequenceStepTimeouts
 #define GLOBAL_CONFIG_SPAD_ENABLES_REF_0        0xB0
 #define GPIO_HV_MUX_ACTIVE_HIGH                 0x84
 #define SYSTEM_INTERRUPT_CLEAR                  0x0B
+
+#define I2C_SLAVE_DEVICE_ADDRESS                0x8A
 //
 // Opens a file system handle to the I2C device
 // reads the calibration data and sets the device
@@ -858,3 +860,8 @@ int i;
 	return 1;
 
 } /* tofGetModel() */
+
+void setAddress(uint8_t new_addr)
+{
+  writeReg(I2C_SLAVE_DEVICE_ADDRESS, new_addr & 0x7F);
+} /* setAddress() */
