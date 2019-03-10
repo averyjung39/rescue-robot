@@ -7,6 +7,11 @@
 #include "constants/topics.h"
 
 void hallEffectInit() {
+    if (wiringPiSetupGpio() == -1) {
+        ROS_ERROR("Setting up wiringPi failed.");
+        throw std::runtime_error("");
+    }
+    
     pinMode(HALL_EFFECT_1_H, INPUT);
     pinMode(HALL_EFFECT_1_L, INPUT);
     pinMode(HALL_EFFECT_2_H, INPUT);
