@@ -8,6 +8,11 @@
 #include "external/wiringPi/wiringPi.h"
 
 void ultrasonicInit(){
+    if (wiringPiSetupGpio() == -1) {
+        ROS_ERROR("Setting up wiringPi failed.");
+        throw std::runtime_error("");
+    }
+
     pinMode(ULTRASONIC_R_TRIG, OUTPUT);
     pinMode(ULTRASONIC_R_ECHO, INPUT);
     pinMode(ULTRASONIC_L_TRIG, OUTPUT);
