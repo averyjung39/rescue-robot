@@ -7,6 +7,9 @@ namespace topics {
     const char *ENCODER_TOPIC = "encoder_data";
     const char *IMU_TOPIC = "imu_sensor_data";
 
+    // Localization
+    const char *ROBOT_POSE_TOPIC = "robot_pose";
+
     // Path-Planning
     const char *ARC_TOPIC = "arc_data";
 

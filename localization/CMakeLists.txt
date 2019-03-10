@@ -5,6 +5,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   message_generation
+  constants
+  sensors
 )
 
 add_message_files(
@@ -18,5 +20,10 @@ generate_messages(
 )
 
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
+
+add_executable(particle_filter src/localization_main.cpp src/ParticleFilter.cpp)
+target_link_libraries(particle_filter ${catkin_LIBRARIES})
+add_dependencies(particle_filter ${catkin_EXPORTED_TARGETS})
