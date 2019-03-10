@@ -21,7 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
     INCLUDE_DIRS include
-    LIBRARIES wiringPi IMU tof
+    LIBRARIES wiringPi IMU
 #  CATKIN_DEPENDS roscpp std_msgs
 #  DEPENDS system_lib
 )
@@ -58,19 +58,21 @@ install(TARGETS IMU
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-add_library(tof
-    src/tof/core/vl53l0x_api.cpp
-    src/tof/core/vl53l0x_api_calibration.cpp
-    src/tof/core/vl53l0x_api_core.cpp
-    src/tof/core/vl53l0x_api_ranging.cpp
-    src/tof/core/vl53l0x_api_strings.cpp
-    src/tof/platform/vl53l0x_platform.cpp
-    src/tof/platform/vl53l0x_platform_log.cpp
-    src/tof/platform/vl53l0x_i2c_win_serial_comms.cpp
-)
-target_link_libraries(tof ${catkin_LIBRARIES})
-install(TARGETS tof
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+# add_library(tof
+#     src/tof/core/vl53l0x_api.cpp
+#     src/tof/core/vl53l0x_api_calibration.cpp
+#     src/tof/core/vl53l0x_api_core.cpp
+#     src/tof/core/vl53l0x_api_ranging.cpp
+#     src/tof/core/vl53l0x_api_strings.cpp
+#     src/tof/platform/vl53l0x_platform.cpp
+#     src/tof/platform/vl53l0x_platform_log.cpp
+#     src/tof/platform/vl53l0x_i2c_win_serial_comms.cpp
+# )
+
+# target_link_libraries(tof ${catkin_LIBRARIES})
+
+# install(TARGETS tof
+#     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
