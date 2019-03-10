@@ -40,7 +40,7 @@ add_executable(ultrasonic_sensor src/ultrasonic_sensor_main.cpp)
 target_link_libraries(ultrasonic_sensor ${catkin_LIBRARIES})
 add_dependencies(ultrasonic_sensor ${catkin_EXPORTED_TARGETS})
 
-add_executable(photodiode_sensor src/photodiode_sensor_main.cpp src/GPIOClass.cpp)
+add_executable(photodiode_sensor src/photodiode_sensor_main.cpp)
 target_link_libraries(photodiode_sensor ${catkin_LIBRARIES})
 add_dependencies(photodiode_sensor ${catkin_EXPORTED_TARGETS})
 

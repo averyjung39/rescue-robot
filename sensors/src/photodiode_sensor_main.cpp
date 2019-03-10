@@ -1,36 +1,33 @@
 #include <ros/ros.h>
 #include <ros/duration.h>
-#include <string>
 
 #include "sensors/Photodiode.h"
-#include "sensors/GPIOClass.h"
+#include "constants/gpio_pins.h"
 #include "constants/topics.h"
-
-std::vector<GPIOClass*> photodiodes;
+#include "external/wiringPi/wiringPi.h"
 
 void photodiodeInit() {
-    string pin;
-    photodiodes.resize(5);
-    for (int i = 0; i < 5; i++) {
-        // GPIO 4 to 8, from left to right
-        stringstream ss;
-        ss << i+4;
-        pin = ss.str();
-        photodiodes[i] = new GPIOClass(pin);
-        photodiodes[i]->export_gpio();
-        photodiodes[i]->setdir_gpio("in");
+    if (wiringPiSetupGpio() == -1) {
+        ROS_ERROR("Setting up wiringPi failed.");
+        throw std::runtime_error("");
     }
+    
+    pinMode(PHOTODIODE_1, INPUT);
+    pinMode(PHOTODIODE_2, INPUT);
+    pinMode(PHOTODIODE_3, INPUT);
+    pinMode(PHOTODIODE_4, INPUT);
+    pinMode(PHOTODIODE_5, INPUT);
 }
 
 sensors::Photodiode readPhotodiodeSensors() {
     sensors::Photodiode photodiode_data;
     photodiode_data.data.resize(5);
 
-    bool data;
-    for(int i = 0; i < photodiodes.size(); i++) {
-        photodiodes[i]->read_gpio(data);
-        photodiode_data.data[i] = data;
-    }
+    photodiode_data.data[0] = digitalRead(PHOTODIODE_1);
+    photodiode_data.data[1] = digitalRead(PHOTODIODE_2);
+    photodiode_data.data[2] = digitalRead(PHOTODIODE_3);
+    photodiode_data.data[3] = digitalRead(PHOTODIODE_4);
+    photodiode_data.data[4] = digitalRead(PHOTODIODE_5);
 
     return photodiode_data;
 }
@@ -52,8 +49,5 @@ int main(int argc, char **argv) {
         rate.sleep();
     }
 
-    for(int i = 0; i < photodiodes.size(); i++) {
-        delete photodiodes[i];
-    }
     return 0;
 }
