@@ -81,8 +81,18 @@ void getOrientation(const float (&acc_data)[3],
     float acc_roll = atan2(acc_data[1], acc_data[2]) * 180 / M_PI;
     float acc_pitch = atan2(acc_data[2], acc_data[0]) * 180 / M_PI;
     
-    // Magnetometer angle
-    float mag_yaw = atan2(mag_data[1], mag_data[0]) * 180 / M_PI;
+    // Magnetometer angle (with tilt compensation)
+    // float mag_yaw = atan2(mag_data[1], mag_data[0]) * 180 / M_PI;
+    float mag_norm = sqrt(mag_data[0]*mag_data[0] + mag_data[1]*mag_data[1] + mag_data[2]*mag_data[2]);
+    float mag_x = mag_data[0] / mag_norm;
+    float mag_y = mag_data[1] / mag_norm;
+    float mag_z = mag_data[2] / mag_norm;
+    float roll_rad = acc_roll * M_PI / 180;
+    float pitch_rad = acc_pitch * M_PI / 180;
+    mag_x = mag_data[0] * cos(-pitch_rad) + mag_data[2] * sin(-pitch_rad);
+    mag_y = mag_data[0] * sin(roll_rad) * sin(-pitch_rad) + mag_data[1] * cos(roll_rad) - mag_data[2] * sin(roll_rad) * cos(-pitch_rad);
+    float mag_yaw = atan2(mag_y, mag_x) * 180 / M_PI;
+    ROS_INFO("roll: %f, pitch: %f, yaw: %f", acc_roll, acc_pitch, mag_yaw);
 
     // Combine angle readings
     orientation[0] = CF_GYR_ACC*(orientation[0] + gyr_angles[0]) + (1 - CF_GYR_ACC)*acc_roll;  // Roll
