@@ -22,10 +22,43 @@
 Don't forget to remove the protective plastic cover from the sensor before using!
 7. Repeat for each sensor, turning each one on, setting a unique address.Note you must do this every time you turn on the power, the addresses are not permanent*/
 
-VL53L0X tof1;
+VL53L0X tof1 = VL53L0X();
+VL53L0X tof2 = VL53L0X();
 
-void addTofs() {
+#define TOF_ADDR_1 0x30
+#define TOF_ADDR_2 0x31
+#define I2C_SLAVE_DEVICE_ADDRESS 0x8A
 
+void setID() {
+    digitalWrite(TOF_XSHUT_1, LOW);
+    digitalWrite(TOF_XSHUT_2, LOW);
+    ros::Duration(0.01).sleep();
+
+    digitalWrite(TOF_XSHUT_1, HIGH);
+    digitalWrite(TOF_XSHUT_2, HIGH);
+    ros::Duration(0.01).sleep();
+
+    digitalWrite(TOF_XSHUT_1, HIGH);
+    digitalWrite(TOF_XSHUT_2, LOW);
+    tof1.setAddress(TOF_ADDR_1);
+    ros::Duration(0.01).sleep();
+
+    digitalWrite(TOF_XSHUT_2, HIGH);
+    tof2.setAddress(TOF_ADDR_2);
+}
+
+void setup() {
+    pinMode(TOF_XSHUT_1, OUTPUT);
+    pinMode(TOF_XSHUT_2, OUTPUT);
+
+    ROS_INFO("Shutdown pins...");
+
+    digitalWrite(TOF_XSHUT_1, LOW);
+    digitalWrite(TOF_XSHUT_2, LOW);
+
+    ROS_INFO("Both in reset mode...(pins are low)");
+
+    setID();
 }
 
 int main(int argc, char **argv) {
@@ -42,18 +75,13 @@ int main(int argc, char **argv) {
         throw std::runtime_error("");
     }
 
-    pinMode(TOF_XSHUT_1, OUTPUT);
-    pinMode(TOF_XSHUT_2, OUTPUT);
-    digitalWrite(TOF_XSHUT_1, LOW);
-    digitalWrite(TOF_XSHUT_2, LOW);
-    ros::Duration(0.5).sleep();
     // readdress TOF 1
     digitalWrite(TOF_XSHUT_1, HIGH);
     int tof1_init = tof1.tofInit(1, 0x30, 1);
     ros::Duration(0.1).sleep();
     tof1.setAddress(0x30);
-    ROS_INFO(tof1.readReg(0x8A));
-    ROS_INFO(tof1.getAddress());
+    ROS_INFO("REG %x", tof1.readReg(I2C_SLAVE_DEVICE_ADDRESS));
+    ROS_INFO("ADDR %x", tof1.getAddress());
 
     if(tof1_init != 1)
     {
