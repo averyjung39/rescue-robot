@@ -22,18 +22,11 @@
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
 
+#include "sensors/tof.h"
+
 static int file_i2c = 0;
 static unsigned char stop_variable;
 static uint32_t measurement_timing_budget_us;
-
-static unsigned char readReg(unsigned char ucAddr);
-static unsigned short readReg16(unsigned char ucAddr);
-static void writeReg16(unsigned char ucAddr, unsigned short usValue);
-static void writeReg(unsigned char ucAddr, unsigned char ucValue);
-static void writeRegList(unsigned char *ucList);
-static int initSensor(int);
-static int performSingleRefCalibration(uint8_t vhv_init_byte);
-static int setMeasurementTimingBudget(uint32_t budget_us);
 
 #define calcMacroPeriod(vcsel_period_pclks) ((((uint32_t)2304 * (vcsel_period_pclks) * 1655) + 500) / 1000)
 // Encode VCSEL pulse period register value from period in PCLKs
@@ -46,7 +39,6 @@ static int setMeasurementTimingBudget(uint32_t budget_us);
 #define SEQUENCE_ENABLE_DSS         0x08
 #define SEQUENCE_ENABLE_MSRC        0x04
 
-typedef enum vcselperiodtype { VcselPeriodPreRange, VcselPeriodFinalRange } vcselPeriodType;
 static int setVcselPulsePeriod(vcselPeriodType type, uint8_t period_pclks);
 
 typedef struct tagSequenceStepTimeouts
@@ -96,7 +88,7 @@ typedef struct tagSequenceStepTimeouts
 // reads the calibration data and sets the device
 // into auto sensing mode
 //
-int tofInit(int iChan, int iAddr, int bLongRange)
+int VL53L0X::tofInit(int iChan, int iAddr, int bLongRange)
 {
 char filename[32];
 
@@ -122,7 +114,7 @@ char filename[32];
 //
 // Read a pair of registers as a 16-bit value
 //
-static unsigned short readReg16(unsigned char ucAddr)
+unsigned short VL53L0X::readReg16(unsigned char ucAddr)
 {
 unsigned char ucTemp[2];
 int rc;
@@ -138,7 +130,7 @@ int rc;
 //
 // Read a single register value from I2C device
 //
-static unsigned char readReg(unsigned char ucAddr)
+unsigned char VL53L0X::readReg(unsigned char ucAddr)
 {
 unsigned char ucTemp;
 int rc;
@@ -153,7 +145,7 @@ int rc;
 	return ucTemp;
 } /* ReadReg() */
 
-static void readMulti(unsigned char ucAddr, unsigned char *pBuf, int iCount)
+void VL53L0X::readMulti(unsigned char ucAddr, unsigned char *pBuf, int iCount)
 {
 int rc;
 
@@ -165,7 +157,7 @@ int rc;
 	}
 } /* readMulti() */
 
-static void writeMulti(unsigned char ucAddr, unsigned char *pBuf, int iCount)
+void VL53L0X::writeMulti(unsigned char ucAddr, unsigned char *pBuf, int iCount)
 {
 unsigned char ucTemp[16];
 int rc;
@@ -178,7 +170,7 @@ int rc;
 //
 // Write a 16-bit value to a register
 //
-static void writeReg16(unsigned char ucAddr, unsigned short usValue)
+void VL53L0X::writeReg16(unsigned char ucAddr, unsigned short usValue)
 {
 unsigned char ucTemp[4];
 int rc;
@@ -192,7 +184,7 @@ int rc;
 //
 // Write a single register/value pair
 //
-static void writeReg(unsigned char ucAddr, unsigned char ucValue)
+void VL53L0X::writeReg(unsigned char ucAddr, unsigned char ucValue)
 {
 unsigned char ucTemp[2];
 int rc;
@@ -206,7 +198,7 @@ int rc;
 //
 // Write a list of register/value pairs to the I2C device
 //
-static void writeRegList(unsigned char *ucList)
+void VL53L0X::writeRegList(unsigned char *ucList)
 {
 unsigned char ucCount = *ucList++; // count is the first element in the list
 int rc;
@@ -242,7 +234,7 @@ unsigned char ucDefTuning[] = {80, 0xff,0x01, 0x00,0x00, 0xff,0x00, 0x09,0x00,
 0x72,0xfe, 0x76,0x00, 0x77,0x00, 0xff,0x01, 0x0d,0x01, 0xff,0x00, 0x80,0x01,
 0x01,0xf8, 0xff,0x01, 0x8e,0x01, 0x00,0x01, 0xff,0x00, 0x80,0x00};
 
-static int getSpadInfo(unsigned char *pCount, unsigned char *pTypeIsAperture)
+int VL53L0X::getSpadInfo(unsigned char *pCount, unsigned char *pTypeIsAperture)
 {
 int iTimeout;
 unsigned char ucTemp;
@@ -279,7 +271,7 @@ unsigned char ucTemp;
 // based on VL53L0X_decode_timeout()
 // Note: the original function returned a uint32_t, but the return value is
 // always stored in a uint16_t.
-static uint16_t decodeTimeout(uint16_t reg_val)
+uint16_t VL53L0X::decodeTimeout(uint16_t reg_val)
 {
   // format: "(LSByte * 2^MSByte) + 1"
   return (uint16_t)((reg_val & 0x00FF) <<
@@ -288,7 +280,7 @@ static uint16_t decodeTimeout(uint16_t reg_val)
 
 // Convert sequence step timeout from MCLKs to microseconds with given VCSEL period in PCLKs
 // based on VL53L0X_calc_timeout_us()
-static uint32_t timeoutMclksToMicroseconds(uint16_t timeout_period_mclks, uint8_t vcsel_period_pclks)
+uint32_t VL53L0X::timeoutMclksToMicroseconds(uint16_t timeout_period_mclks, uint8_t vcsel_period_pclks)
 {
   uint32_t macro_period_ns = calcMacroPeriod(vcsel_period_pclks);
 
@@ -297,7 +289,7 @@ static uint32_t timeoutMclksToMicroseconds(uint16_t timeout_period_mclks, uint8_
 
 // Convert sequence step timeout from microseconds to MCLKs with given VCSEL period in PCLKs
 // based on VL53L0X_calc_timeout_mclks()
-static uint32_t timeoutMicrosecondsToMclks(uint32_t timeout_period_us, uint8_t vcsel_period_pclks)
+uint32_t VL53L0X::timeoutMicrosecondsToMclks(uint32_t timeout_period_us, uint8_t vcsel_period_pclks)
 {
   uint32_t macro_period_ns = calcMacroPeriod(vcsel_period_pclks);
 
@@ -308,7 +300,7 @@ static uint32_t timeoutMicrosecondsToMclks(uint32_t timeout_period_us, uint8_t v
 // based on VL53L0X_encode_timeout()
 // Note: the original function took a uint16_t, but the argument passed to it
 // is always a uint16_t.
-static uint16_t encodeTimeout(uint16_t timeout_mclks)
+uint16_t VL53L0X::encodeTimeout(uint16_t timeout_mclks)
 {
   // format: "(LSByte * 2^MSByte) + 1"
 
@@ -330,7 +322,7 @@ static uint16_t encodeTimeout(uint16_t timeout_mclks)
   else { return 0; }
 }
 
-static void getSequenceStepTimeouts(uint8_t enables, SequenceStepTimeouts * timeouts)
+void VL53L0X::getSequenceStepTimeouts(uint8_t enables, SequenceStepTimeouts * timeouts)
 {
   timeouts->pre_range_vcsel_period_pclks = ((readReg(PRE_RANGE_CONFIG_VCSEL_PERIOD) +1) << 1);
 
@@ -368,7 +360,7 @@ static void getSequenceStepTimeouts(uint8_t enables, SequenceStepTimeouts * time
 //  pre:  12 to 18 (initialized default: 14)
 //  final: 8 to 14 (initialized default: 10)
 // based on VL53L0X_set_vcsel_pulse_period()
-static int setVcselPulsePeriod(vcselPeriodType type, uint8_t period_pclks)
+int VL53L0X::setVcselPulsePeriod(vcselPeriodType type, uint8_t period_pclks)
 {
   uint8_t vcsel_period_reg = encodeVcselPeriod(period_pclks);
 
@@ -550,7 +542,7 @@ static int setVcselPulsePeriod(vcselPeriodType type, uint8_t period_pclks)
 // factor of N decreases the range measurement standard deviation by a factor of
 // sqrt(N). Defaults to about 33 milliseconds; the minimum is 20 ms.
 // based on VL53L0X_set_measurement_timing_budget_micro_seconds()
-static int setMeasurementTimingBudget(uint32_t budget_us)
+int VL53L0X::setMeasurementTimingBudget(uint32_t budget_us)
 {
 uint32_t used_budget_us;
 uint32_t final_range_timeout_us;
@@ -640,7 +632,7 @@ uint16_t final_range_timeout_mclks;
   return 1;
 }
 
-static uint32_t getMeasurementTimingBudget(void)
+uint32_t VL53L0X::getMeasurementTimingBudget(void)
 {
   uint8_t enables;
   SequenceStepTimeouts timeouts;
@@ -687,7 +679,7 @@ static uint32_t getMeasurementTimingBudget(void)
   return budget_us;
 }
 
-static int performSingleRefCalibration(uint8_t vhv_init_byte)
+int VL53L0X::performSingleRefCalibration(uint8_t vhv_init_byte)
 {
 int iTimeout;
   writeReg(SYSRANGE_START, 0x01 | vhv_init_byte); // VL53L0X_REG_SYSRANGE_MODE_START_STOP
@@ -710,7 +702,7 @@ int iTimeout;
 //
 // Initialize the vl53l0x
 //
-static int initSensor(int bLongRangeMode)
+int VL53L0X::initSensor(int bLongRangeMode)
 {
 unsigned char spad_count=0, spad_type_is_aperture=0, ref_spad_map[6];
 unsigned char ucFirstSPAD, ucSPADsEnabled;
@@ -777,7 +769,7 @@ int i;
   return 1;
 } /* initSensor() */
 
-uint16_t readRangeContinuousMillimeters(void)
+uint16_t VL53L0X::readRangeContinuousMillimeters(void)
 {
 int iTimeout = 0;
 uint16_t range;
@@ -803,7 +795,7 @@ uint16_t range;
 //
 // Read the current distance in mm
 //
-int tofReadDistance(void)
+int VL53L0X::tofReadDistance(void)
 {
 int iTimeout;
 
@@ -833,7 +825,7 @@ int iTimeout;
 
 } /* tofReadDistance() */
 
-int tofGetModel(int *model, int *revision)
+int VL53L0X::tofGetModel(int *model, int *revision)
 {
 unsigned char ucTemp[2];
 int i;
@@ -861,7 +853,7 @@ int i;
 
 } /* tofGetModel() */
 
-void setAddress(uint8_t new_addr)
+void VL53L0X::setAddress(uint8_t new_addr)
 {
   writeReg(I2C_SLAVE_DEVICE_ADDRESS, new_addr & 0x7F);
 } /* setAddress() */

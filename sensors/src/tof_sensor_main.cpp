@@ -22,25 +22,10 @@
 Don't forget to remove the protective plastic cover from the sensor before using!
 7. Repeat for each sensor, turning each one on, setting a unique address.Note you must do this every time you turn on the power, the addresses are not permanent*/
 
+VL53L0X tof1;
+
 void addTofs() {
-    if (wiringPiSetupGpio() == -1) {
-        ROS_ERROR("Setting up wiringPi failed.");
-        throw std::runtime_error("");
-    }
 
-    pinMode(TOF_XSHUT_1, INPUT);
-    pinMode(TOF_XSHUT_1, INPUT);
-
-    digitalWrite(TOF_XSHUT_1, LOW);
-    digitalWrite(TOF_XSHUT_2, LOW);
-    ros::Duration(0.01).sleep();
-    // readdress TOF 1
-    digitalWrite(TOF_XSHUT_1, HIGH);
-    setAddress(0x30);
-    ros::Duration(0.01).sleep();
-    // readdress TOF 2
-    digitalWrite(TOF_XSHUT_2, HIGH);
-    setAddress(0x31);
 }
 
 int main(int argc, char **argv) {
@@ -49,15 +34,28 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
 
     ros::Publisher tof_data_pub = nh.advertise<sensors::TimeOfFlight>(topics::TOF_TOPIC, 1);
-    int tof1, tof2;
     int tof_distance;
     int model, revision;
 
-    addTofs();
+    if (wiringPiSetupGpio() == -1) {
+        ROS_ERROR("Setting up wiringPi failed.");
+        throw std::runtime_error("");
+    }
 
-    tof1 = tofInit(1, 0x30, 1); // set long range mode (up to 2m)
-    tof2 = tofInit(1, 0x31, 1); // set long range mode (up to 2m)
-    if(tof1 != 1 || tof2 != 1)
+    pinMode(TOF_XSHUT_1, OUTPUT);
+    pinMode(TOF_XSHUT_2, OUTPUT);
+    digitalWrite(TOF_XSHUT_1, LOW);
+    digitalWrite(TOF_XSHUT_2, LOW);
+    ros::Duration(0.5).sleep();
+    // readdress TOF 1
+    digitalWrite(TOF_XSHUT_1, HIGH);
+    int tof1_init = tof1.tofInit(1, 0x30, 1);
+    ros::Duration(0.1).sleep();
+    tof1.setAddress(0x30);
+    ROS_INFO(tof1.readReg(0x8A));
+    ROS_INFO(tof1.getAddress());
+
+    if(tof1_init != 1)
     {
         ROS_ERROR("Problem initializing ToF sensor");
         return -1; // problem - quit
