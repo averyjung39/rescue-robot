@@ -40,11 +40,11 @@ void setID() {
 
     digitalWrite(TOF_XSHUT_1, HIGH);
     digitalWrite(TOF_XSHUT_2, LOW);
-    tof1.setAddress(TOF_ADDR_1);
+    tof1.tofInit(1, TOF_ADDR_1, 1);
     ros::Duration(0.01).sleep();
 
     digitalWrite(TOF_XSHUT_2, HIGH);
-    tof2.setAddress(TOF_ADDR_2);
+    tof2.tofInit(1, TOF_ADDR_2, 1);
 }
 
 void setup() {
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
 
     ros::Publisher tof_data_pub = nh.advertise<sensors::TimeOfFlight>(topics::TOF_TOPIC, 1);
-    int tof_distance;
+    int tof_distance1, tof_distance2;
     int model, revision;
 
     if (wiringPiSetupGpio() == -1) {
@@ -75,19 +75,13 @@ int main(int argc, char **argv) {
         throw std::runtime_error("");
     }
 
-    // readdress TOF 1
-    digitalWrite(TOF_XSHUT_1, HIGH);
-    int tof1_init = tof1.tofInit(1, 0x30, 1);
+    // Readdress ToF sensors
+    setup();
     ros::Duration(0.1).sleep();
-    tof1.setAddress(0x30);
     ROS_INFO("REG %x", tof1.readReg(I2C_SLAVE_DEVICE_ADDRESS));
     ROS_INFO("ADDR %x", tof1.getAddress());
-
-    if(tof1_init != 1)
-    {
-        ROS_ERROR("Problem initializing ToF sensor");
-        return -1; // problem - quit
-    }
+    ROS_INFO("REG %x", tof2.readReg(I2C_SLAVE_DEVICE_ADDRESS));
+    ROS_INFO("ADDR %x", tof2.getAddress());
 
     ROS_INFO("VL53L0X device successfully opened.\n");
     /*tof = tofGetModel(&model, &revision);

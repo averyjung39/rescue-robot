@@ -131,8 +131,8 @@ public:
     uint8_t readReg(uint8_t ucAddr);
     uint16_t readReg16Bit(uint8_t ucAddr);
 
-    void writeMulti(uint8_t ucAddr, uint8_t *pBuf, int iCount);
-    void readMulti(uint8_t ucAddr, uint8_t *pBuf, int iCount);
+    bool writeMulti(uint8_t ucAddr, uint8_t *pBuf, int iCount);
+    bool readMulti(uint8_t ucAddr, uint8_t *pBuf, int iCount);
 
     bool setSignalRateLimit(float limit_Mcps);
     float getSignalRateLimit(void);

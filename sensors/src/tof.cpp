@@ -25,6 +25,7 @@
 #include "sensors/tof.h"
 
 static int file_i2c = 0;
+static char filename[32];
 // Defines /////////////////////////////////////////////////////////////////////
 #define REG_IDENTIFICATION_MODEL_ID		0xc0
 #define REG_IDENTIFICATION_REVISION_ID	0xc2
@@ -305,29 +306,27 @@ bool VL53L0X::init(bool bLongRangeMode, bool io_2v8)
 //
 int VL53L0X::tofInit(int iChan, uint8_t iAddr, bool bLongRange, bool io_2v8)
 {
-char filename[32];
-
 	sprintf(filename,"/dev/i2c-%d", iChan);
 	if ((file_i2c = open(filename, O_RDWR)) < 0)
 	{
 		fprintf(stderr, "Failed to open the i2c bus; need to run as sudo?\n");
 		return 0;
 	}
-
-	if (ioctl(file_i2c, I2C_SLAVE, iAddr) < 0)
-	{
-		fprintf(stderr, "Failed to acquire bus access or talk to slave\n");
-		close(file_i2c);
-		file_i2c = -1;
-		return 0;
-	}
-
+    setAddress(iAddr);
 	return init(bLongRange, io_2v8); // finally, initialize the magic numbers in the sensor
 
 } /* tofInit() */
 
 int VL53L0X::tofGetModel(int *model, int *revision)
 {
+    if (ioctl(file_i2c, I2C_SLAVE, address) < 0)
+	{
+		fprintf(stderr, "Failed to acquire bus access or talk to slave\n");
+		close(file_i2c);
+		file_i2c = -1;
+		return false;
+	}
+
     uint8_t ucTemp[2];
     int i;
 
@@ -360,6 +359,14 @@ int VL53L0X::tofGetModel(int *model, int *revision)
 //
 uint16_t VL53L0X::readReg16Bit(uint8_t ucAddr)
 {
+    if (ioctl(file_i2c, I2C_SLAVE, address) < 0)
+	{
+		fprintf(stderr, "Failed to acquire bus access or talk to slave\n");
+		close(file_i2c);
+		file_i2c = -1;
+		return false;
+	}
+
     uint8_t ucTemp[2];
     int rc;
 
@@ -376,6 +383,14 @@ uint16_t VL53L0X::readReg16Bit(uint8_t ucAddr)
 //
 uint8_t VL53L0X::readReg(uint8_t ucAddr)
 {
+    if (ioctl(file_i2c, I2C_SLAVE, address) < 0)
+	{
+		fprintf(stderr, "Failed to acquire bus access or talk to slave\n");
+		close(file_i2c);
+		file_i2c = -1;
+		return false;
+	}
+
     uint8_t ucTemp;
     int rc;
 
@@ -389,9 +404,17 @@ uint8_t VL53L0X::readReg(uint8_t ucAddr)
 	return ucTemp;
 } /* ReadReg() */
 
-void VL53L0X::readMulti(uint8_t ucAddr, uint8_t *pBuf, int iCount)
+bool VL53L0X::readMulti(uint8_t ucAddr, uint8_t *pBuf, int iCount)
 {
-int rc;
+    if (ioctl(file_i2c, I2C_SLAVE, address) < 0)
+	{
+		fprintf(stderr, "Failed to acquire bus access or talk to slave\n");
+		close(file_i2c);
+		file_i2c = -1;
+		return false;
+	}
+
+    int rc;
 
 	rc = write(file_i2c, &ucAddr, 1);
 	if (rc == 1)
@@ -401,8 +424,16 @@ int rc;
 	}
 } /* readMulti() */
 
-void VL53L0X::writeMulti(uint8_t ucAddr, uint8_t *pBuf, int iCount)
+bool VL53L0X::writeMulti(uint8_t ucAddr, uint8_t *pBuf, int iCount)
 {
+    if (ioctl(file_i2c, I2C_SLAVE, address) < 0)
+	{
+		fprintf(stderr, "Failed to acquire bus access or talk to slave\n");
+		close(file_i2c);
+		file_i2c = -1;
+		return false;
+	}
+
     uint8_t ucTemp[16];
     int rc;
 
@@ -414,6 +445,14 @@ void VL53L0X::writeMulti(uint8_t ucAddr, uint8_t *pBuf, int iCount)
 
 bool VL53L0X::writeReg32Bit(uint8_t ucAddr, uint32_t usValue)
 {
+    if (ioctl(file_i2c, I2C_SLAVE, address) < 0)
+	{
+		fprintf(stderr, "Failed to acquire bus access or talk to slave\n");
+		close(file_i2c);
+		file_i2c = -1;
+		return false;
+	}
+
     uint8_t ucTemp[6];
     int rc;
 
@@ -432,8 +471,16 @@ bool VL53L0X::writeReg32Bit(uint8_t ucAddr, uint32_t usValue)
 //
 bool VL53L0X::writeReg16Bit(uint8_t ucAddr, uint16_t usValue)
 {
-uint8_t ucTemp[4];
-int rc;
+    if (ioctl(file_i2c, I2C_SLAVE, address) < 0)
+	{
+		fprintf(stderr, "Failed to acquire bus access or talk to slave\n");
+		close(file_i2c);
+		file_i2c = -1;
+		return false;
+	}
+
+    uint8_t ucTemp[4];
+    int rc;
 
 	ucTemp[0] = ucAddr;
 	ucTemp[1] = (uint8_t)(usValue >> 8); // MSB first
@@ -447,8 +494,16 @@ int rc;
 //
 bool VL53L0X::writeReg(uint8_t ucAddr, uint8_t ucValue)
 {
-uint8_t ucTemp[2];
-int rc;
+    if (ioctl(file_i2c, I2C_SLAVE, address) < 0)
+	{
+		fprintf(stderr, "Failed to acquire bus access or talk to slave\n");
+		close(file_i2c);
+		file_i2c = -1;
+		return false;
+	}
+
+    uint8_t ucTemp[2];
+    int rc;
 
 	ucTemp[0] = ucAddr;
 	ucTemp[1] = ucValue;
