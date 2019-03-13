@@ -55,15 +55,18 @@ public:
         const std::pair<int, int> &end_pos);
 
 private:
-    static const int NUM_SEARCH_DIRECTIONS = 8;
+    static const int NUM_SEARCH_DIRECTIONS = 4;
     int VALID_SEARCH_DIRECTIONS[NUM_SEARCH_DIRECTIONS][2]; // This gets initialized in constructor
+    static const float TURN_COST = 10; // Cost for turning, experimentally determined
 
     /**
      * @brief Calculate heuristic (h-cost) based on Euclidean distance to goal
      * @param start_pos, end_pos: Current position and goal position, in (row, col) format 
+     * @param is_turn: Whether the robot requires turning to get to this next cell
      */
     float costHeuristic(const std::pair<int, int> &start_pos,
-        const std::pair<int, int> &end_pos) const;
+        const std::pair<int, int> &end_pos,
+        const bool &is_turn) const;
 
     // These functions and constants would ideally be part of some Map data structure later
     static const int OBSTACLE_COST = 100;

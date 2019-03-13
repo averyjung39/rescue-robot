@@ -13,10 +13,10 @@ AStarPlanner::AStarPlanner() {
     VALID_SEARCH_DIRECTIONS[1][0] = 1; VALID_SEARCH_DIRECTIONS[1][1] = 0;   // right
     VALID_SEARCH_DIRECTIONS[2][0] = 0; VALID_SEARCH_DIRECTIONS[2][1] = -1;  // up
     VALID_SEARCH_DIRECTIONS[3][0] = 0; VALID_SEARCH_DIRECTIONS[3][1] = 1;   // down
-    VALID_SEARCH_DIRECTIONS[4][0] = -1; VALID_SEARCH_DIRECTIONS[4][1] = 1;
-    VALID_SEARCH_DIRECTIONS[5][0] = -1; VALID_SEARCH_DIRECTIONS[5][1] = -1;
-    VALID_SEARCH_DIRECTIONS[6][0] = 1; VALID_SEARCH_DIRECTIONS[6][1] = 1;
-    VALID_SEARCH_DIRECTIONS[7][0] = 1; VALID_SEARCH_DIRECTIONS[7][1] = -1;
+    // VALID_SEARCH_DIRECTIONS[4][0] = -1; VALID_SEARCH_DIRECTIONS[4][1] = 1;
+    // VALID_SEARCH_DIRECTIONS[5][0] = -1; VALID_SEARCH_DIRECTIONS[5][1] = -1;
+    // VALID_SEARCH_DIRECTIONS[6][0] = 1; VALID_SEARCH_DIRECTIONS[6][1] = 1;
+    // VALID_SEARCH_DIRECTIONS[7][0] = 1; VALID_SEARCH_DIRECTIONS[7][1] = -1;
 }
 
 RobotPath AStarPlanner::planPath(int **map,
@@ -78,8 +78,14 @@ RobotPath AStarPlanner::planPath(int **map,
             adj_cell->g_cost = adj_cell->parent->g_cost + sqrt((direction_pair.first * direction_pair.first
                 + direction_pair.second * direction_pair.second) * (getCost(adj_cell_indices, map, map_w, map_h) + 1));
             // h_cost is defined by the cost heuristic function
-            adj_cell->h_cost = costHeuristic(adj_cell_indices, end_pos);
-
+            bool is_turn = false;
+            if (curr_cell->parent) {
+                std::pair<int, int> parent_indices = curr_cell->parent->indices;
+                int x_change = parent_indices.first - curr_cell->indices.first;
+                int y_change = parent_indices.second - curr_cell->indices.second;
+                is_turn = !(x_change == curr_cell->indices.first - adj_cell_indices.first && y_change == curr_cell->indices.second - adj_cell_indices.second); 
+            }
+            adj_cell->h_cost = costHeuristic(adj_cell_indices, end_pos, is_turn);
             // Add cell to open set
             open_set.insert(adj_cell);
         }
@@ -98,9 +104,15 @@ RobotPath AStarPlanner::planPath(int **map,
 }
 
 float AStarPlanner::costHeuristic(const std::pair<int, int> &start_pos,
-    const std::pair<int, int> &end_pos) const {
-    return sqrt((start_pos.first - end_pos.first) * (start_pos.first - end_pos.first) +
+    const std::pair<int, int> &end_pos,
+    const bool &is_turn) const {
+    float cost = sqrt((start_pos.first - end_pos.first) * (start_pos.first - end_pos.first) +
         (start_pos.second - end_pos.second) * (start_pos.second - end_pos.second));
+    // Punish turns
+    if (is_turn) {
+        cost += TURN_COST;
+    }
+    return cost;
 }
 
 bool AStarPlanner::isValidIndices(std::pair<int, int> indices,
