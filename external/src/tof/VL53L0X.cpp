@@ -20,8 +20,9 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
+#include <iostream>
 
-#include "sensors/tof.h"
+#include "external/tof/VL53L0X.h"
 
 // Defines /////////////////////////////////////////////////////////////////////
 #define REG_IDENTIFICATION_MODEL_ID		0xc0
@@ -69,13 +70,13 @@ bool VL53L0X::tofInit(int channel, bool bLongRangeMode, bool io_2v8) {
     // If I2C bus is not opened yet, open.
     if (file_i2c == 0) {
         char filename[32];
-        sprintf(filename,"/dev/i2c-%d", channel);
-    	if ((file_i2c = open(filename, O_RDWR)) < 0)
-    	{
-            fprintf(stderr, "Failed to open the I2C bus. Try running as sudo\n");
-    		return false;
-    	}
+        sprintf(filename, "/dev/i2c-%d", channel);
+        if((file_i2c = open(filename, O_RDWR)) < 0) {
+        	printf("failed to open i2c bus");
+        	return false;
+        }
     }
+    printf("OPENED BUS FD: %d\n", file_i2c);
 
     return init(bLongRangeMode, io_2v8);
 }
@@ -461,7 +462,10 @@ bool VL53L0X::writeReg32Bit(uint8_t ucAddr, uint32_t usValue)
 	ucTemp[3] = (uint8_t)(usValue >> 8); // MSB first
 	ucTemp[4] = (uint8_t)usValue;
 	rc = write(file_i2c, ucTemp, 5);
-	if (rc != 5) { return false; }
+	if (rc != 5) {
+        perror("Error while writing 32 bit msg.");
+        return false;
+    }
     return true;
 } /* writeReg16() */
 
@@ -485,7 +489,10 @@ bool VL53L0X::writeReg16Bit(uint8_t ucAddr, uint16_t usValue)
 	ucTemp[1] = (uint8_t)(usValue >> 8); // MSB first
 	ucTemp[2] = (uint8_t)usValue;
 	rc = write(file_i2c, ucTemp, 3);
-	if (rc != 3) { return false; }
+	if (rc != 3) {
+        perror("Error while writing 16 bit msg.");
+        return false;
+    }
     return true;
 } /* writeReg16() */
 //
@@ -507,7 +514,10 @@ bool VL53L0X::writeReg(uint8_t ucAddr, uint8_t ucValue)
 	ucTemp[0] = ucAddr;
 	ucTemp[1] = ucValue;
 	rc = write(file_i2c, ucTemp, 2);
-	if (rc != 2) { return false; } // suppress warning
+	if (rc != 2) {
+        perror("Error while writing 8 bit msg.");
+		return false;
+    } // suppress warning
     return true;
 } /* writeReg() */
 

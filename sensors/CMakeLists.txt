@@ -32,7 +32,7 @@ include_directories(
   include
 )
 
-add_executable(tof_sensor src/tof_sensor_main.cpp src/tof.cpp)
+add_executable(tof_sensor src/tof_sensor_main.cpp)
 target_link_libraries(tof_sensor ${catkin_LIBRARIES})
 add_dependencies(tof_sensor ${catkin_EXPORTED_TARGETS})
 

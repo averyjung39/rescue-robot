@@ -22,6 +22,9 @@
 // Read the model and revision of the
 // tof sensor
 //
+
+// https://github.com/bitbank2/VL53L0X/blob/master/tof.c
+// https://github.com/pololu/vl53l0x-arduino/blob/master/VL53L0X.cpp
 typedef enum vcselperiodtype { VcselPeriodPreRange, VcselPeriodFinalRange } vcselPeriodType;
 #define ADDRESS_DEFAULT 0b0101001
 
