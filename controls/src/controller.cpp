@@ -2,6 +2,7 @@
 
 #include "controls/controller.h"
 #include "planning/Arc.h"
+#include "constants/robot_model.h"
 #include "constants/gpio_pins.h"
 #include "external/wiringPi/wiringPi.h"
 #include "external/wiringPi/softPwm.h"
@@ -95,6 +96,13 @@ std::pair<float, float> Controller::getVelocities(const planning::Arc &arc_cmd) 
         int direction_sign = direction_is_right ? -1 : 1;
         right_left_velocities.first = rampVelocity(direction_sign*speed_r, true);
         right_left_velocities.second = rampVelocity(direction_sign*speed_l, false);
+    } else if (radius == planning::Arc::TURN_WITH_RADIUS) {
+        float velocity_ratio = (robot_model::TURNING_RADIUS_CM + robot_model::CENTRE_TO_CENTRE_TRACK_WIDTH_CM / 2) / 
+            (robot_model::TURNING_RADIUS_CM - robot_model::CENTRE_TO_CENTRE_TRACK_WIDTH_CM / 2);
+        float max_velocity = speed_r > speed_l ? speed_r : speed_l;
+        float min_velocity = max_velocity / velocity_ratio;
+        right_left_velocities.first = direction_is_right ? rampVelocity(min_velocity, true) : rampVelocity(max_velocity, true);
+        right_left_velocities.second = direction_is_right ? rampVelocity(max_velocity, false) : rampVelocity(max_velocity, false);
     } else {
         ROS_ERROR("UNHANDLED CONTROLS CASE: radius=%f, direction=%d", radius, direction_is_right);
     }
