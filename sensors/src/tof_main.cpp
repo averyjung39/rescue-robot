@@ -5,12 +5,12 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
+#include <iostream>
+#include <stdexcept>
 
-#include "sensors/TimeOfFlight.h"
-#include "sensors/tof.h"
-#include "constants/topics.h"
-#include "constants/gpio_pins.h"
-#include "external/wiringPi/wiringPi.h"
+#include "../include/sensors/tof.h"
+#include "../../constants/include/constants/gpio_pins.h"
+#include "../../external/include/external/wiringPi/wiringPi.h"
 
 /*
 1. Reset all sensors by setting all of their XSHUT pins low for delay(10), then set all XSHUT high to bring out of reset
@@ -40,37 +40,34 @@ bool setup() {
 
     std::cout << "Shutdown pins..." << std::endl;
 
-    digitalWrite(TOF_XSHUT_1, LOW);
-    digitalWrite(TOF_XSHUT_2, LOW);
-
+    digitalWrite(TOF_XSHUT_1, HIGH);
+    digitalWrite(TOF_XSHUT_2, HIGH);
     std::cout << "Both in reset mode...(pins are low)" << std::endl;
 
-    tof1.tofInit(1);
-    tof2.tofInit(1);
+    usleep(10);
 
+    //digitalWrite(TOF_XSHUT_1, HIGH);
+    //digitalWrite(TOF_XSHUT_2, HIGH);
+    //usleep(10);
     digitalWrite(TOF_XSHUT_1, LOW);
-    digitalWrite(TOF_XSHUT_2, LOW);
     usleep(10);
-
-    digitalWrite(TOF_XSHUT_1, HIGH);
-    digitalWrite(TOF_XSHUT_2, HIGH);
-    usleep(10);
-
-    digitalWrite(TOF_XSHUT_1, HIGH);
-    digitalWrite(TOF_XSHUT_2, LOW);
-    usleep(10);
+    tof1.tofInit(1);
+    printf("REG BEFORE 1 %x\n", tof1.readReg(0x8a));
     if (!tof1.setAddress(TOF_ADDR_1)) {
-        std::cout << "Failed to set address for ToF1. Connected to GPIO %d", TOF_XSHUT_1 << std::endl;
+        std::cout << "Failed to set address for ToF1. Connected to GPIO " << TOF_XSHUT_1 << std::endl;
         return false;
     }
-    usleep(10);
+   printf("REG  AFTER 1 %x\n", tof1.readReg(0x8a));
+//    usleep(10);
+    digitalWrite(TOF_XSHUT_2, LOW);    
+//    usleep(10);
+ //  printf("REG BEFORE  2 %x\n", tof2.readReg(0x8a));
+//    tof2.tofInit(1);  
+//  if (!tof2.setAddress(TOF_ADDR_2)) {
+//        std::cout << "Failed to set address for ToF2. Connected to GPIO " << TOF_XSHUT_2 << std::endl;
+//        return false;
+//    }
 
-    digitalWrite(TOF_XSHUT_2, HIGH);
-    usleep(10);
-    if (!tof2.setAddress(TOF_ADDR_2)) {
-        std::cout << "Failed to set address for ToF2. Connected to GPIO %d", TOF_XSHUT_2 << std::endl;
-        return false;
-    }
 
     return true;
 }
@@ -81,15 +78,5 @@ int main(int argc, char **argv) {
 
     // Readdress ToF sensors
     setup();
-    usleep(10);
-    ROS_INFO("REG %x", tof1.readReg(I2C_SLAVE_DEVICE_ADDRESS));
-    ROS_INFO("ADDR %x", tof1.getAddress());
-    ROS_INFO("REG %x", tof2.readReg(I2C_SLAVE_DEVICE_ADDRESS));
-    ROS_INFO("ADDR %x", tof2.getAddress());
-
-    ROS_INFO("VL53L0X device successfully opened.\n");
-
-    sensors::TimeOfFlight tof_data_cm;
-
     return 0;
 }
