@@ -16,7 +16,6 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <stdbool.h>
 #include <string.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -24,8 +23,6 @@
 
 #include "sensors/tof.h"
 
-static int file_i2c = 0;
-static char filename[32];
 // Defines /////////////////////////////////////////////////////////////////////
 #define REG_IDENTIFICATION_MODEL_ID		0xc0
 #define REG_IDENTIFICATION_REVISION_ID	0xc2
@@ -47,9 +44,10 @@ static char filename[32];
 // PLL_period_ps = 1655; macro_period_vclks = 2304
 #define calcMacroPeriod(vcsel_period_pclks) ((((uint32_t)2304 * (vcsel_period_pclks) * 1655) + 500) / 1000)
 
-// Constructors ////////////////////////////////////////////////////////////////
+int VL53L0X::file_i2c = 0;
 
-VL53L0X::VL53L0X(void)
+// Constructors ////////////////////////////////////////////////////////////////
+VL53L0X::VL53L0X()
   : address(ADDRESS_DEFAULT)
   , io_timeout(0) // no timeout
   , did_timeout(false)
@@ -58,10 +56,28 @@ VL53L0X::VL53L0X(void)
 
 // Public Methods //////////////////////////////////////////////////////////////
 
-void VL53L0X::setAddress(uint8_t new_addr)
+bool VL53L0X::setAddress(uint8_t new_addr)
 {
-  writeReg(I2C_SLAVE_DEVICE_ADDRESS, new_addr & 0x7F);
-  address = new_addr;
+    if (!writeReg(I2C_SLAVE_DEVICE_ADDRESS, new_addr & 0x7F)) {
+        return false;
+    }
+    address = new_addr;
+    return true;
+}
+
+bool VL53L0X::tofInit(int channel, bool bLongRangeMode, bool io_2v8) {
+    // If I2C bus is not opened yet, open.
+    if (file_i2c == 0) {
+        char filename[32];
+        sprintf(filename,"/dev/i2c-%d", channel);
+    	if ((file_i2c = open(filename, O_RDWR)) < 0)
+    	{
+            fprintf(stderr, "Failed to open the I2C bus. Try running as sudo\n");
+    		return false;
+    	}
+    }
+
+    return init(bLongRangeMode, io_2v8);
 }
 
 // Initialize sensor using sequence based on VL53L0X_DataInit(),
@@ -79,7 +95,7 @@ bool VL53L0X::init(bool bLongRangeMode, bool io_2v8)
   // sensor uses 1V8 mode for I/O by default; switch to 2V8 mode if necessary
   if (io_2v8)
   {
-    writeReg(VHV_CONFIG_PAD_SCL_SDA__EXTSUP_HV,
+      writeReg(VHV_CONFIG_PAD_SCL_SDA__EXTSUP_HV,
       readReg(VHV_CONFIG_PAD_SCL_SDA__EXTSUP_HV) | 0x01); // set bit 0
   }
 
@@ -299,23 +315,6 @@ bool VL53L0X::init(bool bLongRangeMode, bool io_2v8)
 
   return true;
 }
-//
-// Opens a file system handle to the I2C device
-// reads the calibration data and sets the device
-// into auto sensing mode
-//
-int VL53L0X::tofInit(int iChan, uint8_t iAddr, bool bLongRange, bool io_2v8)
-{
-	sprintf(filename,"/dev/i2c-%d", iChan);
-	if ((file_i2c = open(filename, O_RDWR)) < 0)
-	{
-		fprintf(stderr, "Failed to open the i2c bus; need to run as sudo?\n");
-		return 0;
-	}
-    setAddress(iAddr);
-	return init(bLongRange, io_2v8); // finally, initialize the magic numbers in the sensor
-
-} /* tofInit() */
 
 int VL53L0X::tofGetModel(int *model, int *revision)
 {

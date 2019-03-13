@@ -2,9 +2,11 @@
 #include <ros/duration.h>
 #include <vector>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <linux/i2c-dev.h>
 
 #include "sensors/TimeOfFlight.h"
 #include "sensors/tof.h"
@@ -29,25 +31,12 @@ VL53L0X tof2 = VL53L0X();
 #define TOF_ADDR_2 0x31
 #define I2C_SLAVE_DEVICE_ADDRESS 0x8A
 
-void setID() {
-    digitalWrite(TOF_XSHUT_1, LOW);
-    digitalWrite(TOF_XSHUT_2, LOW);
-    ros::Duration(0.01).sleep();
+bool setup() {
+    if (wiringPiSetupGpio() == -1) {
+        ROS_ERROR("Setting up wiringPi failed.");
+        throw std::runtime_error("");
+    }
 
-    digitalWrite(TOF_XSHUT_1, HIGH);
-    digitalWrite(TOF_XSHUT_2, HIGH);
-    ros::Duration(0.01).sleep();
-
-    digitalWrite(TOF_XSHUT_1, HIGH);
-    digitalWrite(TOF_XSHUT_2, LOW);
-    tof1.tofInit(1, TOF_ADDR_1, 1);
-    ros::Duration(0.01).sleep();
-
-    digitalWrite(TOF_XSHUT_2, HIGH);
-    tof2.tofInit(1, TOF_ADDR_2, 1);
-}
-
-void setup() {
     pinMode(TOF_XSHUT_1, OUTPUT);
     pinMode(TOF_XSHUT_2, OUTPUT);
 
@@ -58,7 +47,34 @@ void setup() {
 
     ROS_INFO("Both in reset mode...(pins are low)");
 
-    setID();
+    tof1.tofInit(1);
+    tof2.tofInit(1);
+
+    digitalWrite(TOF_XSHUT_1, LOW);
+    digitalWrite(TOF_XSHUT_2, LOW);
+    ros::Duration(0.01).sleep();
+
+    digitalWrite(TOF_XSHUT_1, HIGH);
+    digitalWrite(TOF_XSHUT_2, HIGH);
+    ros::Duration(0.01).sleep();
+
+    digitalWrite(TOF_XSHUT_1, HIGH);
+    digitalWrite(TOF_XSHUT_2, LOW);
+    ros::Duration(0.01).sleep();
+    if (!tof1.setAddress(TOF_ADDR_1)) {
+        ROS_ERROR("Failed to set address for ToF1. Connected to GPIO %d", TOF_XSHUT_1);
+        return false;
+    }
+    ros::Duration(0.01).sleep();
+
+    digitalWrite(TOF_XSHUT_2, HIGH);
+    ros::Duration(0.01).sleep();
+    if (!tof2.setAddress(TOF_ADDR_2)) {
+        ROS_ERROR("Failed to set address for ToF2. Connected to GPIO %d", TOF_XSHUT_2);
+        return false;
+    }
+
+    return true;
 }
 
 int main(int argc, char **argv) {
@@ -69,11 +85,6 @@ int main(int argc, char **argv) {
     ros::Publisher tof_data_pub = nh.advertise<sensors::TimeOfFlight>(topics::TOF_TOPIC, 1);
     int tof_distance1, tof_distance2;
     int model, revision;
-
-    if (wiringPiSetupGpio() == -1) {
-        ROS_ERROR("Setting up wiringPi failed.");
-        throw std::runtime_error("");
-    }
 
     // Readdress ToF sensors
     setup();

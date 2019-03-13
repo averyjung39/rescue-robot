@@ -120,7 +120,7 @@ public:
 
     VL53L0X(void);
 
-    void setAddress(uint8_t new_addr);
+    bool setAddress(uint8_t new_addr);
     inline uint8_t getAddress(void) { return address; }
 
     bool init(bool bLongRangeMode, bool io_2v8);
@@ -152,13 +152,9 @@ public:
     inline uint16_t getTimeout(void) { return io_timeout; }
     bool timeoutOccurred(void);
 
-    int tofGetModel(int *model, int *revision);
+    bool tofInit(int channel, bool bLongRangeMode = true, bool io_2v8 = true);
 
-    //
-    // Opens a file system handle to the I2C device
-    // sets the device continous capture mode
-    //
-    int tofInit(int iChan, uint8_t iAddr, bool bLongRangeMode = true, bool io_2v8 = true);
+    int tofGetModel(int *model, int *revision);
 
     //
     // Read the current distance in mm
@@ -183,6 +179,7 @@ private:
       uint32_t msrc_dss_tcc_us,    pre_range_us,    final_range_us;
     };
 
+    static int file_i2c;
     uint8_t address;
     uint16_t io_timeout;
     bool did_timeout;
