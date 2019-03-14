@@ -11,9 +11,9 @@ void BaseMap::print() const {
         for (int j = 0; j < _size; ++j) {
                 int cost = _map[i][j];
                 if (cost < 100) {
-                    oss << "  ";
+                    oss << "X";
                 } else {
-                    oss << " X";
+                    oss << " 0";
                 }
         }
         oss << "]\n";

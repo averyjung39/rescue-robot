@@ -54,20 +54,20 @@ int main(int argc, char **argv) {
 
         ros::spinOnce();
 
-        mapper.modifyCostMap(tof_sensor_data, robot_x, robot_y, robot_angle);
-        cost_map = mapper.modifyCostMap(ult_sensor_data, robot_x, robot_y, robot_angle);
-
+        cost_map = mapper.modifyCostMap(tof_sensor_data, robot_x, robot_y, robot_angle);
         cost_map_rows.resize(cost_map.size());
         published_cost_map.map.resize(cost_map.size());
+
         for(int i = 0; i < cost_map.size(); i++) {
             cost_map_rows[i].row = cost_map[i];
         }
 
         published_cost_map.map = cost_map_rows;
-
         cost_map_pub.publish(published_cost_map);
 
         mapper.getCostMap().print();
+
+        counter++;
 
     }
 

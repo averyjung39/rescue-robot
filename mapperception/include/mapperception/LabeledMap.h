@@ -22,10 +22,10 @@ public:
         _resolution = 1;
         _size = 6;
         _map.resize(_size);
-        _map[0].resize(_size);
         for(int i = 0; i < _size; i++) {
+            _map[i].resize(_size);
             for(int j = 0; j < _size; j++) {
-                _map[j][i] = 0;
+                _map[i][j] = 0;
             }
         }
     }
