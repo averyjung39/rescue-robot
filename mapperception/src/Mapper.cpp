@@ -26,9 +26,9 @@ std::vector< std::vector<int> > Mapper::modifyCostMap(std::vector<float> dists, 
 }
 
 std::vector< std::vector<int> > Mapper::modifyLabeledMap(float x, float y, Labels label) {
-    std::pair<int,int> points = coordinateToPoints(x, y, _labeled_map.getResolution());
-    _labeled_map.setValue(points.first, points.second, label);
-    return _labeled_map.getMap();
+    std::pair<int,int> points = coordinateToPoints(x, y, _cost_map.getResolution());
+    _cost_map.setValue(points.first, points.second, label);
+    return _cost_map.getMap();
 }
 
 std::pair<int,int> Mapper::distToCoordinates(float d, float rx, float ry, float rangle, int sensor) {
