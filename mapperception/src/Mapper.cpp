@@ -2,11 +2,11 @@
 #include <ros/ros.h>
 #include <math.h>
 
-std::vector< std::vector<int> > Mapper::modifyLabeledMap(std::vector<float> dists, float robot_x, float robot_y, float robot_angle) {
+std::vector< std::vector<int> > Mapper::modifyCostMap(std::vector<float> dists, float robot_x, float robot_y, float robot_angle) {
     for(int i = robot_x-RADIUS; i <= robot_x+RADIUS; i++) {
         for(int j = robot_y-RADIUS; j <= robot_y+RADIUS; j++) {
             if(i < 0 || j < 0) continue;
-            _labeled_map.setValue(i, j, 50);
+            _cost_map.setValue(i, j, 50);
         }
     }
 
@@ -19,15 +19,15 @@ std::vector< std::vector<int> > Mapper::modifyLabeledMap(std::vector<float> dist
         }
         std::pair<int,int> coords = distToCoordinates(dists[i], robot_x, robot_y, robot_angle, sensor);
         std::pair<int,int> points = coordinateToPoints(coords.first, coords.second, _labeled_map.getResolution());
-        _labeled_map.setValue(points.first, points.second, 100);
+        _cost_map.setValue(points.first, points.second, 100);
     }
-    return _labeled_map.getMap();
+    return _cost_map.getMap();
 }
 
-std::vector< std::vector<int> > Mapper::modifyTerrainMap(float x, float y, Terrain terrain) {
-    std::pair<int,int> points = coordinateToPoints(x, y, _terrain_map.getResolution());
-    _terrain_map.setValue(points.first, points.second, terrain);
-    return _terrain_map.getMap();
+std::vector< std::vector<int> > Mapper::modifyLabeledMap(float x, float y, Labels label) {
+    std::pair<int,int> points = coordinateToPoints(x, y, _labeled_map.getResolution());
+    _labeled_map.setValue(points.first, points.second, label);
+    return _labeled_map.getMap();
 }
 
 std::pair<int,int> Mapper::distToCoordinates(float d, float rx, float ry, float rangle, int sensor) {

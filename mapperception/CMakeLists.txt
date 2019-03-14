@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   sensors
   localization
+  constants
 )
 
 add_message_files(
@@ -29,6 +30,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(mapping src/mapping_main.cpp src/Mapper.cpp)
+add_executable(mapping src/mapping_main.cpp src/Mapper.cpp src/BaseMap.cpp src/LabeledMap.cpp src/CostMap.cpp)
 target_link_libraries(mapping ${catkin_LIBRARIES})
-add_dependencies(mapping sensors localization)
+add_dependencies(mapping ${catkin_EXPORTED_TARGETS})

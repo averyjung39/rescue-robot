@@ -9,6 +9,10 @@ namespace topics {
     // Path-Planning
     const char *ARC_TOPIC = "arc_data";
 
+    // Mapperception
+    const char *COST_MAP_TOPIC = "cost_map";
+    const char *LABELED_MAP_TOPIC = "labeled_map";
+
     // Construction Check Demos
     const char *DRIVE_DEMO_COMPLETE_TOPIC = "drive_demo_complete";
     const char *TURN_DEMO_COMPLETE_TOPIC = "turn_demo_complete";

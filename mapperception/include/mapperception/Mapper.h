@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "LabeledMap.h"
-#include "TerrainMap.h"
+#include "CostMap.h"
 
 
 // Radius to mark searched grids. This radius means the cells that are offset by this amount
@@ -32,13 +32,16 @@ enum SensorType {
 class Mapper {
 public:
     Mapper() {};
-    std::vector< std::vector<int> > modifyLabeledMap(std::vector<float> dists, float robot_x, float robot_y, float robot_angle);
-    std::vector< std::vector<int> > modifyTerrainMap(float x, float y, Terrain terrain);
+    std::vector< std::vector<int> > modifyCostMap(std::vector<float> dists, float robot_x, float robot_y, float robot_angle);
+    std::vector< std::vector<int> > modifyLabeledMap(float x, float y, Labels label);
+
+    LabeledMap getLabeledMap() { return _labeled_map; }
+    CostMap getCostMap() { return _cost_map; }
 private:
     std::pair<int, int> distToCoordinates(float d, float rx, float ry, float rangle, int sensor);
     std::pair<int, int> coordinateToPoints(float x, float y, int resolution);
     LabeledMap _labeled_map;
-    TerrainMap _terrain_map;
+    CostMap _cost_map;
 };
 
 #endif // MAPPER

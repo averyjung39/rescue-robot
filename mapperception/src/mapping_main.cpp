@@ -1,12 +1,13 @@
+#include <ros/ros.h>
 #include <vector>
 
-#include "ros/ros.h"
 #include "mapperception/Mapper.h"
 #include "mapperception/Map.h"
 #include "mapperception/MapRow.h"
 #include "sensors/TimeOfFlight.h"
 #include "sensors/Ultrasonic.h"
 #include "localization/Pose.h"
+#include "constants/topics.h"
 
 std::vector<float> tof_sensor_data;
 std::vector<float> ult_sensor_data;
@@ -36,31 +37,33 @@ int main(int argc, char **argv) {
 
     // Create subscribers and publishers
     // NOTE: buffer only 1 message for now
-    ros::Subscriber tof_data_sub = n.subscribe("tof_sensor_data", 1, tofSensorDataCallback);
-    ros::Subscriber ult_data_sub = n.subscribe("ultrasonic_sensor_data", 1, ultSensorDataCallback);
+    ros::Subscriber tof_data_sub = n.subscribe(topics::TOF_TOPIC, 1, tofSensorDataCallback);
+    ros::Subscriber ult_data_sub = n.subscribe(topics::ULTRASONIC_TOPIC, 1, ultSensorDataCallback);
 
-    ros::Publisher labeled_map_pub = n.advertise<mapperception::Map>("labeled_map", 1);
-    ros::Publisher terrain_map_pub = n.advertise<mapperception::Map>("terrain_map", 1);
+    ros::Publisher labeled_map_pub = n.advertise<mapperception::Map>(topics::LABELED_MAP_TOPIC, 1);
+    ros::Publisher cost_map_pub = n.advertise<mapperception::Map>(topics::COST_MAP_TOPIC, 1);
 
     Mapper mapper;
-    std::vector< std::vector<int> > labeled_map;
-    std::vector<mapperception::MapRow> map_rows;
-    mapperception::Map pub_labeled_map;
+    std::vector< std::vector<int> > cost_map;
+    std::vector<mapperception::MapRow> cost_map_rows;
+    mapperception::Map published_cost_map;
 
     while(ros::ok()) {
 
         ros::spinOnce();
 
-        mapper.modifyLabeledMap(tof_sensor_data, robot_x, robot_y, robot_angle);
-        labeled_map = mapper.modifyLabeledMap(ult_sensor_data, robot_x, robot_y, robot_angle);
+        mapper.modifyCostMap(tof_sensor_data, robot_x, robot_y, robot_angle);
+        cost_map = mapper.modifyCostMap(ult_sensor_data, robot_x, robot_y, robot_angle);
 
-        for(int i = 0; i < labeled_map.size(); i++) {
-            map_rows[i].row = labeled_map[i];
+        cost_map_rows.resize(cost_map.size());
+        published_cost_map.map.resize(cost_map.size());
+        for(int i = 0; i < cost_map.size(); i++) {
+            cost_map_rows[i].row = cost_map[i];
         }
 
-        pub_labeled_map.map = map_rows;
+        published_cost_map.map = cost_map_rows;
 
-        labeled_map_pub.publish(pub_labeled_map);
+        cost_map_pub.publish(published_cost_map);
     }
 
     return 0;
