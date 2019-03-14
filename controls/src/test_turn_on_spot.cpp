@@ -45,15 +45,15 @@ int main(int argc, char **argv) {
         if (turn_now) {
             turn_now = imu_msg.yaw - yaw > 90;
         } else {
-            // Go straight and check ultrasonics
+            // Stay still and check ultrasonics
             for (int i = 0; i < 3; ++i) {
                 if (ultrasonic_msg.data[i] < 10 && ultrasonic_msg.data[i] != sensors::Ultrasonic::INVALID_SENSOR_DATA) {
-                    arc_command.radius = planning::Arc::TURN_WITH_RADIUS;
+                    arc_command.radius = planning::Arc::TURN_ON_SPOT;
                     turn_now = true;
                     yaw = imu_msg.yaw;
                     break;
                 } else {
-                    arc_command.radius = planning::Arc::STRAIGHT_LINE;
+                    arc_command.radius = planning::Arc::STOP;
                 }
             }
         }
