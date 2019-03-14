@@ -6,7 +6,10 @@
 #include "external/IMU/IMUSensor.h"
 #include "sensors/IMU.h"
 
-#define G_GAIN 0.070       // [deg/s/LSB]
+#define G_GAIN 0.07       // [deg/s/LSB]
+#define GYR_X_ZERO_OFFSET 2.461824  // 0.307728  // Experimentally determined, deg/s
+#define GYR_Y_ZERO_OFFSET 1.460976  // 0.182622  // TODO: calculate these at runtime
+#define GYR_Z_ZERO_OFFSET 0.960920  // 0.120115
 #define CF_GYR_ACC 0.98    // complementary filter constant for gyro and accelerometer
 #define CF_GYR_MAG 0.95    // complementary filter constant for gyro and magnetometer
 
@@ -45,10 +48,22 @@ void readIMU(float (&acc_data)[3], float (&gyr_data)[3], float (&mag_data)[3]) {
 
     // Gyro to deg / s
     // https://github.com/mwilliams03/Raspberry-Gyro-Acc/blob/master/main.c#L116
-
-    for (int i = 0; i < 3; ++i) {
-        gyr_data[i] = gyr_data_raw[i] * G_GAIN;
+    gyr_data[0] = gyr_data[1] = gyr_data[2] = 0;
+    int NUM_GYR_ITERATIONS = 10;
+    for (int j = 0; j < NUM_GYR_ITERATIONS; ++j) {
+        for (int i = 0; i < 3; ++i) {
+            IMU::readGYR(gyr_data_raw);
+            gyr_data[i] += gyr_data_raw[i] * G_GAIN;
+        }
     }
+    // Subtract zero offset
+    for (int i = 0; i < 3; ++i) {
+        gyr_data[i] /= NUM_GYR_ITERATIONS;
+    }
+    gyr_data[0] -= GYR_X_ZERO_OFFSET;
+    gyr_data[1] -= GYR_Y_ZERO_OFFSET;
+    gyr_data[2] -= GYR_Z_ZERO_OFFSET;
+    // ROS_INFO("gyr_data [deg/s]: %f, %f, %f", gyr_data[0], gyr_data[1], gyr_data[2]);
 
     // Mag raw values
     for (int i = 0; i < 3; ++i) {
@@ -72,22 +87,34 @@ void getOrientation(const float (&acc_data)[3],
 
     // Gyroscope angle update
     // https://github.com/mwilliams03/Raspberry-Gyro-Acc/blob/master/main.c#L123
+    // TODO measure time elapsed to make this more accurate
     for (int i = 0; i < 3; ++i) {
         gyr_angles[i] += gyr_data[i] / loop_frequency;
     }
+    ROS_INFO("gyr_angles: %f, %f, %f", gyr_angles[0], gyr_angles[1], gyr_angles[2]);
 
     // Accelerometer angles
     // https://github.com/mwilliams03/Raspberry-Gyro-Acc/blob/master/main.c#L131
-    float acc_roll = atan2(acc_data[1], acc_data[2]) * 180 / M_PI;
-    float acc_pitch = atan2(acc_data[2], acc_data[0]) * 180 / M_PI;
-    
-    // Magnetometer angle
-    float mag_yaw = atan2(mag_data[1], mag_data[0]) * 180 / M_PI;
+    float acc_roll = atan2(acc_data[1], sqrt(acc_data[2]*acc_data[2] + acc_data[0]*acc_data[0])) * 180 / M_PI;
+    float acc_pitch = atan2(acc_data[0], sqrt(acc_data[1]*acc_data[1] + acc_data[2]*acc_data[2])) * 180 / M_PI;
+
+    // Magnetometer angle (with tilt compensation)
+    // // float mag_yaw = atan2(mag_data[1], mag_data[0]) * 180 / M_PI;
+    // float mag_norm = sqrt(mag_data[0]*mag_data[0] + mag_data[1]*mag_data[1] + mag_data[2]*mag_data[2]);
+    // float mag_x = mag_data[0] / mag_norm;
+    // float mag_y = mag_data[1] / mag_norm;
+    // float mag_z = mag_data[2] / mag_norm;
+    // float roll_rad = acc_roll * M_PI / 180;
+    // float pitch_rad = acc_pitch * M_PI / 180;
+    // mag_x = mag_x * cos(-pitch_rad) + mag_z * sin(-pitch_rad);
+    // mag_y = mag_x * sin(roll_rad) * sin(-pitch_rad) + mag_y * cos(roll_rad) - mag_z * sin(roll_rad) * cos(-pitch_rad);
+    // float mag_yaw = atan2(mag_y, mag_x) * 180 / M_PI;
+    // ROS_INFO("roll: %f, pitch: %f, yaw: %f", acc_roll, acc_pitch, mag_yaw);
 
     // Combine angle readings
     orientation[0] = CF_GYR_ACC*(orientation[0] + gyr_angles[0]) + (1 - CF_GYR_ACC)*acc_roll;  // Roll
     orientation[1] = CF_GYR_ACC*(orientation[1] + gyr_angles[1]) + (1 - CF_GYR_ACC)*acc_pitch; // Pitch
-    orientation[2] = CF_GYR_MAG*(orientation[2] + gyr_angles[2]) + (1 - CF_GYR_MAG)*mag_yaw;   // Yaw
+    orientation[2] = gyr_angles[2];   // Yaw
 }
 
 int main(int argc, char **argv) {
