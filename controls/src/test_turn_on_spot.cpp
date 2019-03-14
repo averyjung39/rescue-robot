@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
     while (ros::ok()) {
         ros::spinOnce();
         if (turn_now) {
+            // TODO Need to change this to abs? 
             turn_now = imu_msg.yaw - yaw > 90;
         } else {
             // Stay still and check ultrasonics
