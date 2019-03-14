@@ -13,6 +13,9 @@ namespace topics {
     const char *COST_MAP_TOPIC = "cost_map";
     const char *LABELED_MAP_TOPIC = "labeled_map";
 
+    // Localization
+    const char *POSE_TOPIC = "pose";
+
     // Construction Check Demos
     const char *DRIVE_DEMO_COMPLETE_TOPIC = "drive_demo_complete";
     const char *TURN_DEMO_COMPLETE_TOPIC = "turn_demo_complete";

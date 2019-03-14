@@ -39,6 +39,7 @@ int main(int argc, char **argv) {
     // NOTE: buffer only 1 message for now
     ros::Subscriber tof_data_sub = n.subscribe(topics::TOF_TOPIC, 1, tofSensorDataCallback);
     ros::Subscriber ult_data_sub = n.subscribe(topics::ULTRASONIC_TOPIC, 1, ultSensorDataCallback);
+    ros::Subscriber pose_sub = n.subscribe(topics::POSE_TOPIC, 1, poseCallback);
 
     ros::Publisher labeled_map_pub = n.advertise<mapperception::Map>(topics::LABELED_MAP_TOPIC, 1);
     ros::Publisher cost_map_pub = n.advertise<mapperception::Map>(topics::COST_MAP_TOPIC, 1);
