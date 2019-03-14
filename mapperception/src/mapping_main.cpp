@@ -48,7 +48,9 @@ int main(int argc, char **argv) {
     std::vector<mapperception::MapRow> cost_map_rows;
     mapperception::Map published_cost_map;
 
-    while(ros::ok()) {
+    int counter = 0;
+
+    while(counter < 3) {
 
         ros::spinOnce();
 
@@ -64,6 +66,9 @@ int main(int argc, char **argv) {
         published_cost_map.map = cost_map_rows;
 
         cost_map_pub.publish(published_cost_map);
+
+        mapper.getCostMap().print();
+
     }
 
     return 0;

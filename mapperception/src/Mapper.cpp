@@ -17,6 +17,7 @@ std::vector< std::vector<int> > Mapper::modifyCostMap(std::vector<float> dists, 
         } else {
             sensor = 5+i;
         }
+        if (dists[i] == -1) continue;
         std::pair<int,int> coords = distToCoordinates(dists[i], robot_x, robot_y, robot_angle, sensor);
         std::pair<int,int> points = coordinateToPoints(coords.first, coords.second, _labeled_map.getResolution());
         _cost_map.setValue(points.first, points.second, 100);
