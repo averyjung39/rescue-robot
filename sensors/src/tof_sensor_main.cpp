@@ -131,7 +131,10 @@ bool readdress() {
 int main(int argc, char **argv) {
     ros::init(argc, argv, "tof_sensor");
 
-    ros::NodeHandle nh;
+    ros::NodeHandle nh("~");
+
+    bool print_data;
+    nh.param<bool>("print_data", print_data, false);
 
     ros::Publisher tof_data_pub = nh.advertise<sensors::TimeOfFlight>(topics::TOF_TOPIC, 1);
     int tof_distance1, tof_distance2, tof_distance3, tof_distance4, tof_distance5;
@@ -162,7 +165,15 @@ int main(int argc, char **argv) {
         tof_data_cm.data[4] = (tof_distance5 < 4096) ? tof_distance5 / 10.0 : sensors::TimeOfFlight::INVALID_SENSOR_DATA;
 
         tof_data_pub.publish(tof_data_cm);
-            rate.sleep();
+        if (print_data) {
+            ROS_INFO("Data [cm]: %.3f; %.3f; %.3f; %.3f; %.3f",
+                tof_data_cm.data[0],
+                tof_data_cm.data[1],
+                tof_data_cm.data[2],
+                tof_data_cm.data[3],
+                tof_data_cm.data[4]);
+        }
+        rate.sleep();
     }
 
     return 0;
