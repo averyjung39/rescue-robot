@@ -32,7 +32,7 @@ include_directories(
   include
 )
 
-add_executable(tof_sensor src/tof_sensor_main.cpp src/tof.cpp)
+add_executable(tof_sensor src/tof_sensor_main.cpp)
 target_link_libraries(tof_sensor ${catkin_LIBRARIES})
 add_dependencies(tof_sensor ${catkin_EXPORTED_TARGETS})
 
@@ -47,3 +47,11 @@ add_dependencies(photodiode_sensor ${catkin_EXPORTED_TARGETS})
 add_executable(hall_effect_sensor src/hall_effect_sensor_main.cpp)
 target_link_libraries(hall_effect_sensor ${catkin_LIBRARIES})
 add_dependencies(hall_effect_sensor ${catkin_EXPORTED_TARGETS})
+
+add_executable(encoder src/encoder_main.cpp src/MotorEncoder.cpp src/GPIOClass.cpp)
+target_link_libraries(encoder ${catkin_LIBRARIES})
+add_dependencies(encoder ${catkin_EXPORTED_TARGETS})
+
+add_executable(imu_sensor src/imu_sensor_main.cpp)
+target_link_libraries(imu_sensor ${catkin_LIBRARIES})
+add_dependencies(imu_sensor ${catkin_EXPORTED_TARGETS})

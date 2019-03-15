@@ -28,5 +28,22 @@
 #define HALL_EFFECT_2_H 10
 #define HALL_EFFECT_2_L 11
 
+#define MOTOR_R_ENCODER_A_PIN 16
+#define MOTOR_R_ENCODER_B_PIN 17
+#define MOTOR_L_ENCODER_A_PIN 24
+#define MOTOR_L_ENCODER_B_PIN 25
+
+#define TOF_XSHUT_1 34
+#define TOF_XSHUT_2 35
+#define TOF_XSHUT_3 36
+#define TOF_XSHUT_4 37
+#define TOF_XSHUT_5 38
+
+#define TOF_ADDR_1 0x30
+#define TOF_ADDR_2 0x31
+#define TOF_ADDR_3 0x32
+#define TOF_ADDR_4 0x33
+#define TOF_ADDR_5 0x34
+
 
 #endif // GPIO_PINS
