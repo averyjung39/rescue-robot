@@ -10,7 +10,7 @@ void LabelMap::print() const {
         oss << i << (i < 10 ? "  : [" : (i < 100 ? " : [" : ": ["));
         for (int j = 0; j < _size; ++j) {
                 int cost = _map[i][j];
-                if (cost < 100) {
+                if (cost != 0) {
                     oss << "X";
                 } else {
                     oss << " 0";

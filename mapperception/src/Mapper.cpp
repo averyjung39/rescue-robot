@@ -19,7 +19,7 @@ void Mapper::modifyLabelMapWithLabels(int robot_i, int robot_j, int label) {
 }
 
 std::pair<int, int> Mapper::robotPosToPoints(float robot_x, float robot_y) {
-    return coordinateToPoints(robot_x, robot_y, _label_map.getResolution);
+    return coordinateToPoints(robot_x, robot_y, _label_map.getResolution());
 }
 
 std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, float rangle, int sensor) {
