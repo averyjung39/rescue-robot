@@ -7,4 +7,3 @@ int32 speed_l
 float32 TURN_ON_SPOT = 0
 float32 STRAIGHT_LINE = -1
 float32 STOP = -2
-float32 TURN_WITH_RADIUS = -3
