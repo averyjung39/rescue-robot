@@ -8,6 +8,8 @@
 #include "external/wiringPi/wiringPi.h"
 #include "external/tof/VL53L0X.h"
 
+#define MAX_TOF 4096
+
 /*
 1. Reset all sensors by setting all of their XSHUT pins low for delay(10), then set all XSHUT high to bring out of reset
 2. Keep sensor #1 awake by keeping XSHUT pin high
@@ -96,18 +98,18 @@ int main(int argc, char **argv) {
     while (ros::ok()) {
         // Read data from the sensors
         tof_distance1 = tof1.tofReadDistance();
-	    tof_distance2 = tof2.tofReadDistance();
+        tof_distance2 = tof2.tofReadDistance();
         tof_distance3 = tof3.tofReadDistance();
         tof_distance4 = tof4.tofReadDistance();
         tof_distance5 = tof5.tofReadDistance();
 
 
         // Check if they are in valid range and populate the ToF data msg
-        low_dist_data_cm.data[0] = (tof_distance1 < 4096) ? tof_distance1 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
-        low_dist_data_cm.data[1] = (tof_distance2 < 4096) ? tof_distance2 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
-        low_dist_data_cm.data[2] = (tof_distance3 < 4096) ? tof_distance3 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
-        high_dist_data_cm.data[0] = (tof_distance4 < 4096) ? tof_distance4 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
-        high_dist_data_cm.data[1] = (tof_distance5 < 4096) ? tof_distance5 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
+        low_dist_data_cm.data[0] = (tof_distance1 < MAX_TOF) ? tof_distance1 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
+        low_dist_data_cm.data[1] = (tof_distance2 < MAX_TOF) ? tof_distance2 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
+        low_dist_data_cm.data[2] = (tof_distance3 < MAX_TOF) ? tof_distance3 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
+        high_dist_data_cm.data[0] = (tof_distance4 < MAX_TOF) ? tof_distance4 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
+        high_dist_data_cm.data[1] = (tof_distance5 < MAX_TOF) ? tof_distance5 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
 
         low_dist_pub.publish(low_dist_data_cm);
         high_dist_pub.publish(high_dist_data_cm);
