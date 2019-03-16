@@ -2,7 +2,6 @@
 
 #include "controls/controller.h"
 #include "planning/Arc.h"
-#include "constants/robot_model.h"
 #include "constants/gpio_pins.h"
 #include "external/wiringPi/wiringPi.h"
 #include "external/wiringPi/softPwm.h"
