@@ -21,7 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
     INCLUDE_DIRS include
-    LIBRARIES wiringPi
+    LIBRARIES wiringPi tof
 #  CATKIN_DEPENDS roscpp std_msgs
 #  DEPENDS system_lib
 )
@@ -42,6 +42,18 @@ add_library(wiringPi
 target_link_libraries(wiringPi ${catkin_LIBRARIES})
 
 install(TARGETS wiringPi
+    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+add_library(tof
+    src/tof/VL53L0X.cpp
+)
+
+target_link_libraries(tof ${catkin_LIBRARIES})
+
+install(TARGETS tof
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
