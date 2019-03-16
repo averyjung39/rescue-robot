@@ -1,9 +1,9 @@
-#include <ros/ros.h>
 #include <set>
+#include <ros/ros.h>
 
-#include "mapperception/BaseMap.h"
+#include "mapperception/LabelMap.h"
 
-void BaseMap::print() const {
+void LabelMap::print() const {
     std::ostringstream oss;
     oss << "\n";
     for (int i = 0; i < _size; ++i) {
