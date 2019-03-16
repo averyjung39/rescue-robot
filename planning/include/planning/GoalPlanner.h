@@ -22,7 +22,7 @@ struct GoalPose {
 class GoalPlanner {
 public:
     GoalPlanner();
-    std::pair<int, int> getGoal(
+    GoalPose getGoal(
         const localization::Pose &pose,
         const mapperception::Map &map,
         const objectives::ActiveObjectives &objectives);
