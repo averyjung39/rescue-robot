@@ -28,7 +28,7 @@ struct PlannerCell {
     float h_cost; // Heuristic cost (estimated cost to travel from PlannerCell to end)
 };
 
-// Comparator class to order PlannerCells by cost
+// Comparator struct to order PlannerCells by cost
 struct PlannerCellPtrComp {
     bool operator()(const PlannerCell* lhs, const PlannerCell* rhs) const {
         if (lhs->cost() == rhs->cost()) return lhs->indices < rhs->indices;
