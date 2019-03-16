@@ -1,4 +1,4 @@
-float32 radius
+int32 command_type
 bool direction_is_right
 int32 speed_r
 int32 speed_l

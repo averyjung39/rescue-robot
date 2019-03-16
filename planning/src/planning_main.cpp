@@ -3,7 +3,7 @@
 #include "mapperception/Map.h"
 #include "mapperception/MapRow.h"
 #include "planning/AStarPlanner.h"
-#include "planning/Arc.h"
+#include "planning/ControlCommand.h"
 #include "planning/RobotPath.h"
 
 

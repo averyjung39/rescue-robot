@@ -1,20 +1,20 @@
 #ifndef CONTROLLER
 #define CONTROLLER
 
-#include "planning/Arc.h"
+#include "planning/ControlCommand.h"
 
 class Controller {
 public:
     Controller();
 
-    void actuate(const planning::Arc &arc_cmd);
+    void actuate(const planning::ControlCommand &control_cmd);
 private:
     static const float MAX_ALLOWABLE_RPM_CHANGE = 5;
     static const float MAX_ALLOWABLE_RPM = 150;
     static const float MAX_ACTUAL_RPM = 350;
     static const float MAX_PWM = 100;
 
-    std::pair<float, float> getVelocities(const planning::Arc &arc_cmd) const;
+    std::pair<float, float> getVelocities(const planning::ControlCommand &control_cmd) const;
     float rampVelocity(float target_rpm, const bool &is_right_motor) const;
 
     void motorInit();
