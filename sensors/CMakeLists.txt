@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_message_files(
   FILES
-  TimeOfFlight.msg
+  Distance.msg
   Ultrasonic.msg
   Photodiode.msg
   IMU.msg

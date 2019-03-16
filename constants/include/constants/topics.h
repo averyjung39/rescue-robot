@@ -1,6 +1,7 @@
 namespace topics {
     // Sensors
-    const char *TOF_TOPIC = "tof_sensor_data";
+    const char *LOW_DIST_TOPIC = "low_dist_data";
+    const char *HIGH_DIST_TOPIC = "high_dist_data";
     const char *ULTRASONIC_TOPIC = "ultrasonic_sensor_data";
     const char *PHOTODIODE_TOPIC = "photodiode_sensor_data";
     const char *HALL_EFFECT_TOPIC = "hall_effect_sensor_data";
