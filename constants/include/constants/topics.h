@@ -10,10 +10,13 @@ namespace topics {
     const char *ARC_TOPIC = "arc_data";
 
     // Mapperception
-    const char *LABEL_MAP_TOPIC = "labeled_map";
+    const char *LABEL_MAP_TOPIC = "label_map";
 
     // Localization
     const char *POSE_TOPIC = "pose";
+
+    // Objectives
+    const char *OBJECTIVE_TOPIC = "active_objectives";
 
     // Construction Check Demos
     const char *DRIVE_DEMO_COMPLETE_TOPIC = "drive_demo_complete";
