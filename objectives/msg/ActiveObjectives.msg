@@ -1,1 +1,1 @@
-bool32[] active_objectives
+bool[] active_objectives

@@ -11,6 +11,7 @@ namespace topics {
 
     // Mapperception
     const char *LABEL_MAP_TOPIC = "label_map";
+    const char *OBJECT_LOCATION_SERVICE = "object_location";
 
     // Localization
     const char *POSE_TOPIC = "pose";

@@ -5,6 +5,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   message_generation
+  external
+  constants
+  mapperception
 )
 
 add_message_files(
@@ -22,5 +25,10 @@ catkin_package(
 )
 
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
+
+add_executable(objectives srr/ObjectiveManager.cpp src/objectives_main.cpp)
+target_link_libraries(objectives ${catkin_LIBRARIES})
+add_dependencies(objectives ${catkin_EXPORTED_TARGETS})

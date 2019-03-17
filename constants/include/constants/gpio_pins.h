@@ -41,10 +41,10 @@
 #define TOF_ADDR_5 0x34
 
 // TODO: define these with actual pin numbers used
-#define INDICATOR_1 40
-#define INDICATOR_2 41
-#define INDICATOR_3 42
-#define INDICATOR_4 43
+#define FOOD_INDICATOR 40
+#define PERSON_INDICATOR 41
+#define SURVIVORS_INDICATOR 42
+#define HOME_INDICATOR 43
 
 #define FAN 44
 
