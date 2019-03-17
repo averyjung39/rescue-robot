@@ -2,9 +2,11 @@
 #define MAPPER
 
 #include <vector>
+#include <map>
 
 #include "LabelMap.h"
 #include "constants/labels.h"
+#include "mapperception/ObjectLocation.h"
 
 // Offsets are in cm and from the center of the robot
 const float TOF15_X_OFFSET = 3.048;
@@ -42,6 +44,8 @@ public:
 
     LabelMap getLabelMap() { return _label_map; }
 
+    bool getObjectLocs(mapperception::ObjectLocation::Request &req, mapperception::ObjectLocation::Response &res) {}
+
 private:
     /**
      * @brief convert distance sensor data to coordinates in the global axis
@@ -53,7 +57,10 @@ private:
      */
     std::pair<float, float> distToCoordinates(float d, float rx, float ry, float rangle, int sensor);
     std::pair<int, int> coordinateToPoints(float x, float y, int resolution);
+
     LabelMap _label_map;
+    std::map<int, std::vector<int> > _object_rows;
+    std::map<int, std::vector<int> > _object_cols;
 };
 
 #endif // MAPPER

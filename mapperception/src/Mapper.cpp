@@ -16,6 +16,12 @@ Mapper::Mapper() {
     _object_cols.insert(std::pair<int, std::vector<int> >(labels::BIG_HOUSE, std::vector<int>()));
 }
 
+bool Mapper::getObjectLocs(mapperception::ObjectLocation::Request &req, mapperception::ObjectLocation::Response &res) {
+    res.row_vector = _object_rows[req.label];
+    res.col_vector = _object_cols[req.label];
+    return true;
+}
+
 void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data,
                                      float robot_x, float robot_y,
                                      float robot_angle) {
@@ -35,6 +41,8 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data,
 
 void Mapper::modifyLabelMapWithLabels(int robot_i, int robot_j, int label) {
     _label_map.setLabel(robot_i, robot_j, label);
+    _object_rows[label].push_back(robot_i);
+    _object_cols[label].push_back(robot_j);
 }
 
 std::pair<int, int> Mapper::robotPosToPoints(float robot_x, float robot_y) {

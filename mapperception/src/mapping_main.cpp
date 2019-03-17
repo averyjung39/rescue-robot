@@ -4,15 +4,10 @@
 
 #include "mapperception/Mapper.h"
 #include "mapperception/Map.h"
-#include "mapperception/ObjectLocation.h"
 #include "sensors/Distance.h"
 #include "sensors/Ultrasonic.h"
 #include "localization/Pose.h"
 #include "constants/topics.h"
-
-// Variables to store the location of objects
-std::map<int, std::vector<int> > object_rows;
-std::map<int, std::vector<int> > object_cols;
 
 std::vector<float> low_dists;
 std::vector<float> high_dists;
@@ -40,17 +35,12 @@ void poseCallback(const localization::Pose::ConstPtr& msg) {
     robot_angle = msg->theta;
 }
 
-bool getObjectLocs(mapperception::ObjectLocation::Request &req, mapperception::ObjectLocation::Response &res) {
-    res.row_vector = object_rows[req.label];
-    res.col_vector = object_cols[req.label];
-    return true;
-}
-
 int main(int argc, char **argv) {
     // create "mapping" node
     ros::init(argc, argv, "mapping");
 
     ros::NodeHandle nh;
+    Mapper mapper;
 
     // Create subscribers and publishers
     // NOTE: buffer only 1 message for now
@@ -58,12 +48,9 @@ int main(int argc, char **argv) {
     ros::Subscriber high_dist_sub = nh.subscribe(topics::HIGH_DIST_TOPIC, 1, highDistDataCallback);
     ros::Subscriber ult_data_sub = nh.subscribe(topics::ULTRASONIC_TOPIC, 1, ultSensorDataCallback);
     ros::Subscriber pose_sub = nh.subscribe(topics::POSE_TOPIC, 1, poseCallback);
-
     ros::Publisher label_map_publisher = nh.advertise<mapperception::Map>(topics::LABEL_MAP_TOPIC, 1);
+    ros::ServiceServer obj_loc_service = n.advertiseService(topics::OBJECT_LOCATION_SERVICE, &Mapper::getObjectLocs, &mapper);
 
-    ros::ServiceServer obj_loc_service = n.advertiseService("object_location", getObjectLocs);
-
-    Mapper mapper;
     std::vector< std::vector<int> > label_map;
     std::vector<mapperception::MapRow> label_map_rows;
     mapperception::Map published_label_map;
@@ -71,11 +58,6 @@ int main(int argc, char **argv) {
     while(ros::ok()) {
 
         ros::spinOnce();
-
-        /* Peception code
-            object_rows[label].push_back(robot_i);
-            object_cols[label].push_back(robot_j);
-        */
 
         mapper.modifyLabelMapWithDists(low_dists, robot_x, robot_y, robot_angle);
         label_map = mapper.getLabelMap().getMap();
