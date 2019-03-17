@@ -1,7 +1,6 @@
 #ifndef MAPPER
 #define MAPPER
 
-#include <utility>
 #include <vector>
 
 #include "LabelMap.h"
@@ -21,7 +20,7 @@ const float U123_OFFSET = 10.16;
 
 class Mapper {
 public:
-    Mapper() {};
+    Mapper();
     /**
      * @brief modify the label map with distance sensor data. It marks the cells as "obstacle"
      * @param dist_data: vector of distance data
@@ -42,6 +41,7 @@ public:
     std::pair<int, int> robotPosToPoints(float robot_x, float robot_y);
 
     LabelMap getLabelMap() { return _label_map; }
+
 private:
     /**
      * @brief convert distance sensor data to coordinates in the global axis

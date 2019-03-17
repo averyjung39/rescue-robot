@@ -2,6 +2,20 @@
 #include <ros/ros.h>
 #include <math.h>
 
+Mapper::Mapper() {
+    _object_rows.insert(std::pair<int, std::vector<int> >(labels::MAGNET, std::vector<int>()));
+    _object_rows.insert(std::pair<int, std::vector<int> >(labels::FIRE, std::vector<int>()));
+    _object_rows.insert(std::pair<int, std::vector<int> >(labels::NO_FIRE, std::vector<int>()));
+    _object_rows.insert(std::pair<int, std::vector<int> >(labels::SMALL_HOUSE, std::vector<int>()));
+    _object_rows.insert(std::pair<int, std::vector<int> >(labels::BIG_HOUSE, std::vector<int>()));
+
+    _object_cols.insert(std::pair<int, std::vector<int> >(labels::MAGNET, std::vector<int>()));
+    _object_cols.insert(std::pair<int, std::vector<int> >(labels::FIRE, std::vector<int>()));
+    _object_cols.insert(std::pair<int, std::vector<int> >(labels::NO_FIRE, std::vector<int>()));
+    _object_cols.insert(std::pair<int, std::vector<int> >(labels::SMALL_HOUSE, std::vector<int>()));
+    _object_cols.insert(std::pair<int, std::vector<int> >(labels::BIG_HOUSE, std::vector<int>()));
+}
+
 void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data,
                                      float robot_x, float robot_y,
                                      float robot_angle) {
@@ -15,6 +29,7 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data,
             continue;
         }
         _label_map.setLabel(points.first, points.second, labels::OBJECT);
+
     }
 }
 

@@ -16,6 +16,11 @@ add_message_files(
   Map.msg
 )
 
+add_service_files(
+  FILES
+  ObjectLocation.srv
+)
+
 generate_messages(
   DEPENDENCIES
   std_msgs
