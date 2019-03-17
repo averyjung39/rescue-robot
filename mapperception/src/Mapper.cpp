@@ -10,6 +10,10 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data,
         if (dist_data[i] == -1) continue;
         std::pair<float, float> coords = distToCoordinates(dist_data[i], robot_x, robot_y, robot_angle, i);
         std::pair<int, int> points = coordinateToPoints(coords.first, coords.second, _label_map.getResolution());
+        if (points.first > 5 || points.second > 5 || points.first < 0 || points.second < 0) {
+            ROS_WARN("Out of bound {%d, %d}", points.first, points.second);
+            continue;
+        }
         _label_map.setLabel(points.first, points.second, labels::OBJECT);
     }
 }
@@ -29,15 +33,15 @@ std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, f
 
     switch(sensor) {
         case LEFT:
-            xr = -TOF24_X_OFFSET;
-            yr = d+TOF234_Y_OFFSET;
+            xr = d+TOF234_Y_OFFSET;
+            yr = -TOF24_X_OFFSET;
             break;
         case MIDDLE:
-            yr = d+TOF234_Y_OFFSET;
+            xr = d+TOF234_Y_OFFSET;
             break;
         case RIGHT:
-            xr = TOF24_X_OFFSET;
-            yr = d+TOF234_Y_OFFSET;
+            xr = d+TOF234_Y_OFFSET;
+            yr = TOF24_X_OFFSET;
             break;
         default:
             ROS_ERROR("Unknown sensor type.");
@@ -53,7 +57,7 @@ std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, f
 
 std::pair<int, int> Mapper::coordinateToPoints(float x, float y, int resolution) {
     float cm_per_px = 30.48/resolution;
-    int row = ceil(y/cm_per_px);
-    int col = ceil(x/cm_per_px);
+    int row = _label_map.getSize() - floor(y/cm_per_px) - 1;
+    int col = floor(x/cm_per_px);
     return std::make_pair(row, col);
 }

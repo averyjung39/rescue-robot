@@ -11,7 +11,7 @@ void LabelMap::print() const {
         for (int j = 0; j < _size; ++j) {
                 int cost = _map[i][j];
                 if (cost != 0) {
-                    oss << "X";
+                    oss << " X";
                 } else {
                     oss << " 0";
                 }

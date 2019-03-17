@@ -53,9 +53,7 @@ int main(int argc, char **argv) {
     std::vector<mapperception::MapRow> label_map_rows;
     mapperception::Map published_label_map;
 
-    int counter = 0;
-
-    while(counter < 3) {
+    while(ros::ok()) {
 
         ros::spinOnce();
 
@@ -72,8 +70,6 @@ int main(int argc, char **argv) {
         label_map_publisher.publish(published_label_map);
 
         mapper.getLabelMap().print();
-
-        counter++;
 
     }
 
