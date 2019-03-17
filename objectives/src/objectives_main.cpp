@@ -1,5 +1,4 @@
 #include <ros/ros.h>
-
 #include "objectives/ObjectiveManager.h"
 #include "objectives/ActiveObjectives.h"
 #include "mapperception/Map.h"
@@ -23,9 +22,7 @@ int main(int argc, char** argv) {
     ros::Publisher active_objs_pub = nh.advertise<objectives::ActiveObjectives>(topics::OBJECTIVE_TOPIC, 1);
 
     ObjectiveManager obj_manger;
-
     while(ros::ok()) {
         ros::spinOnce();
-
     }
 }
