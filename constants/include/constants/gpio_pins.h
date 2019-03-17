@@ -40,5 +40,13 @@
 #define TOF_ADDR_4 0x33
 #define TOF_ADDR_5 0x34
 
+// TODO: define these with actual pin numbers used
+#define INDICATOR_1 40
+#define INDICATOR_2 41
+#define INDICATOR_3 42
+#define INDICATOR_4 43
+
+#define FAN 44
+
 
 #endif // GPIO_PINS
