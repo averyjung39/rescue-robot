@@ -6,7 +6,7 @@ namespace topics {
     const char *HALL_EFFECT_TOPIC = "hall_effect_sensor_data";
 
     // Path-Planning
-    const char *ARC_TOPIC = "arc_data";
+    const char *CONTROL_COMMAND_TOPIC = "control_commands";
 
     // Construction Check Demos
     const char *DRIVE_DEMO_COMPLETE_TOPIC = "drive_demo_complete";

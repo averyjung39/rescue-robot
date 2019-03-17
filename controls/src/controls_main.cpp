@@ -2,13 +2,13 @@
 #include <ros/duration.h>
 
 #include "controls/controller.h"
-#include "planning/Arc.h"
+#include "planning/ControlCommand.h"
 #include "constants/topics.h"
 
-planning::Arc::ConstPtr arc_msg;
+planning::ControlCommand::ConstPtr control_cmd_msg;
 
-void planningArcCallback(const planning::Arc::ConstPtr &msg) {
-    arc_msg = msg;
+void planningControlCmdCallback(const planning::ControlCommand::ConstPtr &msg) {
+    control_cmd_msg = msg;
 }
 
 int main(int argc, char **argv) {
@@ -16,15 +16,15 @@ int main(int argc, char **argv) {
 
     ros::NodeHandle nh;
 
-    ros::Subscriber planning_arc_sub = nh.subscribe(topics::ARC_TOPIC, 1, planningArcCallback);
+    ros::Subscriber control_cmd_sub = nh.subscribe(topics::CONTROL_COMMAND_TOPIC, 1, planningControlCmdCallback);
     Controller controller;
     ros::Rate rate(10);
 
     while (ros::ok()) {
         ros::spinOnce();
 
-        if (arc_msg) {
-            controller.actuate(*arc_msg);
+        if (control_cmd_msg) {
+            controller.actuate(*control_cmd_msg);
         }
         rate.sleep();
     }

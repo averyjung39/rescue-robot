@@ -1,15 +1,15 @@
 #include <ros/ros.h>
 
-#include "planning/Arc.h"
+#include "planning/ControlCommand.h"
 #include "constants/topics.h"
 
 int main(int argc, char **argv) {
     ros::init(argc, argv, "arc_test");
 
     ros::NodeHandle nh;
-    ros::Publisher arc_pub = nh.advertise<planning::Arc>(topics::ARC_TOPIC, 1);
+    ros::Publisher arc_pub = nh.advertise<planning::ControlCommand>(topics::CONTROL_COMMAND_TOPIC, 1);
 
-    planning::Arc arc_cmd;
+    planning::ControlCommand arc_cmd;
 
     int speed_r;
     int speed_l;
@@ -33,14 +33,14 @@ int main(int argc, char **argv) {
 
         if (speed_r > 0 && speed_l < 0) {
             // turn left on spot
-            arc_cmd.radius = planning::Arc::TURN_ON_SPOT;
+            arc_cmd.command_type = planning::ControlCommand::TURN_ON_SPOT;
             arc_cmd.direction_is_right = false;
         } else if (speed_r < 0 && speed_l > 0) {
             // turn right on spot
-            arc_cmd.radius = planning::Arc::TURN_ON_SPOT;
+            arc_cmd.command_type = planning::ControlCommand::TURN_ON_SPOT;
             arc_cmd.direction_is_right = true;
         } else {
-            arc_cmd.radius = planning::Arc::STRAIGHT_LINE;
+            arc_cmd.command_type = planning::ControlCommand::STRAIGHT_LINE;
             if (speed_r > 0 || speed_l > 0) {
                 // forward direction
                 arc_cmd.direction_is_right = true;
