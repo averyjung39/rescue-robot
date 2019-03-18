@@ -1,16 +1,20 @@
-#include <ros/Duration.h>
+#include <ros/duration.h>
 #include "objectives/ObjectiveManager.h"
 #include "external/wiringPi/wiringPi.h"
 #include "constants/gpio_pins.h"
 #include "constants/labels.h"
 #include "constants/objectives_list.h"
 
-ObjectiveManager::ObjectiveManager(const ros::NodeHandle& nh) {
+ObjectiveManager::ObjectiveManager(ros::NodeHandle& nh, const char* service_name) {
     // Activate FIND_FIRE and unativate all other objectives
     // FIND FIRE = 0, FIND_FOOD = 1, FIND_SURVIVORS = 2,
     // FIND_PERSON = 3, RETURN_HOME = 4
-    _active_objectives = {true, false, false, false, false};
-    _obj_loc_client = nh.serviceClient<mapperception::ObjectLocation>(topics::OBJECT_LOCATION_SERVICE);
+    _active_objectives.push_back(true);
+    _active_objectives.push_back(false);
+    _active_objectives.push_back(false);
+    _active_objectives.push_back(false);
+    _active_objectives.push_back(false);
+    _obj_loc_client = nh.serviceClient<mapperception::ObjectLocation>(service_name);
     setupGpio();
 }
 
@@ -26,6 +30,16 @@ void ObjectiveManager::setupGpio() {
     pinMode(FAN, OUTPUT);
 }
 
+std::pair< std::vector<int>, std::vector<int> > ObjectiveManager::findObjectLocation(int label) {
+    _srv.request.label = label;
+    if (_obj_loc_client.call(_srv)) {
+        return std::make_pair(_srv.response.row_vector, _srv.response.col_vector);
+    } else {
+        ROS_ERROR("Failed to call service object_location");
+        return std::make_pair(std::vector<int>(), std::vector<int>());
+    }
+}
+
 std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j) {
     std::pair< std::vector<int>, std::vector<int> > obj_loc;
     std::vector<int> obj_row;
@@ -34,13 +48,13 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j)
     if (_active_objectives[objectives_list::FIND_FIRE]) {
         obj_loc = findObjectLocation(labels::FIRE);
         obj_row = obj_loc.first;
-        obj_col = obj_loc.secrond;
+        obj_col = obj_loc.second;
 
         if (obj_row.empty()) {
             // Fire hasn't been found or it has been put out, or an error occured while calling service
             obj_loc = findObjectLocation(labels::NO_FIRE);
             obj_row = obj_loc.first;
-            obj_col = obj_loc.secrond;
+            obj_col = obj_loc.second;
             if (!obj_row.empty()) {
                 // Fire has been extinguished, turn off the fan
                 turnFanOnOff(false);
@@ -64,7 +78,7 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j)
     if (_active_objectives[objectives_list::FIND_FOOD]) {
         obj_loc = findObjectLocation(labels::MAGNET);
         obj_row = obj_loc.first;
-        obj_col = obj_loc.secrond;
+        obj_col = obj_loc.second;
 
         if (!obj_row.empty()) {
             // Found food, check if we are near the food
@@ -81,7 +95,7 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j)
     if (_active_objectives[objectives_list::FIND_PERSON]) {
         obj_loc = findObjectLocation(labels::SMALL_HOUSE);
         obj_row = obj_loc.first;
-        obj_col = obj_loc.secrond;
+        obj_col = obj_loc.second;
 
         if (!obj_row.empty()) {
             // Found small house, check if we are near the small house
@@ -103,7 +117,7 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j)
     if (_active_objectives[objectives_list::FIND_SURVIVORS]) {
         obj_loc = findObjectLocation(labels::BIG_HOUSE);
         obj_row = obj_loc.first;
-        obj_col = obj_loc.secrond;
+        obj_col = obj_loc.second;
 
         if (!obj_row.empty()) {
             // Found big house, check if we are near the big house
@@ -135,14 +149,4 @@ void ObjectiveManager::turnOnIndicator(int pin) {
     digitalWrite(pin, HIGH);
     ros::Duration(1).sleep();
     digitalWrite(pin, LOW);
-}
-
-std::pair< std::vector<int>, std::vector<int> > ObjectiveManager::findObjectLocation(int label) {
-    _srv.request.label = label;
-    if (_obj_loc_client.call(_srv)) {
-        return std::make_pair(_srv.response.row_vector, _srv.response.col_vector);
-    } else {
-        ROS_ERROR("Failed to call service object_location");
-        return std::make_pair(std::vector<int>(), std::vector<int>());
-    }
 }

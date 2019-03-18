@@ -17,8 +17,8 @@ Mapper::Mapper() {
 }
 
 bool Mapper::getObjectLocs(mapperception::ObjectLocation::Request &req, mapperception::ObjectLocation::Response &res) {
-    res.row_vector = _object_rows[req.label];
-    res.col_vector = _object_cols[req.label];
+    res.row_vector = _object_rows.at(req.label);
+    res.col_vector = _object_cols.at(req.label);
     return true;
 }
 

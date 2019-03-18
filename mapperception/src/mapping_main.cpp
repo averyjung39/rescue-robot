@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     ros::Subscriber ult_data_sub = nh.subscribe(topics::ULTRASONIC_TOPIC, 1, ultSensorDataCallback);
     ros::Subscriber pose_sub = nh.subscribe(topics::POSE_TOPIC, 1, poseCallback);
     ros::Publisher label_map_publisher = nh.advertise<mapperception::Map>(topics::LABEL_MAP_TOPIC, 1);
-    ros::ServiceServer obj_loc_service = n.advertiseService(topics::OBJECT_LOCATION_SERVICE, &Mapper::getObjectLocs, &mapper);
+    ros::ServiceServer obj_loc_service = nh.advertiseService(topics::OBJECT_LOCATION_SERVICE, &Mapper::getObjectLocs, &mapper);
 
     std::vector< std::vector<int> > label_map;
     std::vector<mapperception::MapRow> label_map_rows;

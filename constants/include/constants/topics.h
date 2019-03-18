@@ -1,3 +1,6 @@
+#ifndef TOPICS
+#define TOPICS
+
 namespace topics {
     // Sensors
     const char *LOW_DIST_TOPIC = "low_dist_data";
@@ -24,3 +27,4 @@ namespace topics {
     const char *TURN_DEMO_COMPLETE_TOPIC = "turn_demo_complete";
     const char *TOF_DEMO_COMPLETE_TOPIC = "tof_demo_complete";
 }
+#endif // TOPICS

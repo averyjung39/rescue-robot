@@ -44,7 +44,7 @@ public:
 
     LabelMap getLabelMap() { return _label_map; }
 
-    bool getObjectLocs(mapperception::ObjectLocation::Request &req, mapperception::ObjectLocation::Response &res) {}
+    bool getObjectLocs(mapperception::ObjectLocation::Request &req, mapperception::ObjectLocation::Response &res);
 
 private:
     /**

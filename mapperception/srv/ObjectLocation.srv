@@ -1,4 +1,4 @@
-string label
+int32 label
 ---
 int32[] row_vector
 int32[] col_vector

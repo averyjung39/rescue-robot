@@ -29,6 +29,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(objectives srr/ObjectiveManager.cpp src/objectives_main.cpp)
+add_executable(objectives src/objectives_main.cpp src/ObjectiveManager.cpp)
 target_link_libraries(objectives ${catkin_LIBRARIES})
 add_dependencies(objectives ${catkin_EXPORTED_TARGETS})
