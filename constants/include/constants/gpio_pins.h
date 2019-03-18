@@ -9,12 +9,8 @@
 #define MOTOR_LEFT_2 23
 #define MOTOR_ENABLE_2 19
 
-#define ULTRASONIC_R_TRIG 28
-#define ULTRASONIC_R_ECHO 31
-#define ULTRASONIC_L_TRIG 29
-#define ULTRASONIC_L_ECHO 32
-#define ULTRASONIC_B_TRIG 30
-#define ULTRASONIC_B_ECHO 33
+#define ULTRASONIC_F_TRIG 28
+#define ULTRASONIC_F_ECHO 31
 
 // Photodiode on robot left = 1 robot right = 5
 #define PHOTODIODE_1 4
@@ -47,6 +43,9 @@
 #define HOME_INDICATOR 43
 
 #define FAN 44
+
+#define SAND 45
+#DEFINE ROCK 46
 
 
 #endif // GPIO_PINS
