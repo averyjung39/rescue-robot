@@ -67,7 +67,9 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j)
         } else {
             // Fire is located
             // Note: assume the object is in 1 tile for now
-            if (abs(robot_i - obj_row[0]) == 1 && abs(robot_j - obj_col[0]) == 1) {
+            // cases: (1,0) (-1,0) (0,1) (0,-1)
+            if ((abs(robot_i - obj_row[0]) == 1 && (robot_j - obj_col[0]) == 0)
+                || (abs(robot_j - obj_col[0]) == 1 && (robot_i - obj_row[0]) == 0)) {
                 // robot and candle are right beside each other, turn on the fan
                 turnFanOnOff(true);
             }
@@ -82,7 +84,9 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j)
 
         if (!obj_row.empty()) {
             // Found food, check if we are near the food
-            if (abs(robot_i - obj_row[0]) <= 1 && abs(robot_j - obj_col[0]) <= 1) {
+            // cases: (1,0) (-1,0) (0,1) (0,-1) (0,0)
+            if ((abs(robot_i - obj_row[0]) <= 1 && (robot_j - obj_col[0]) == 0)
+                || (abs(robot_j - obj_col[0]) <= 1 && (robot_i - obj_col[0]) == 0)) {
                 turnOnIndicator(FOOD_INDICATOR);
                 // Deactivate FIND_FOOD objective, activate FIND_SURVIVORS objective
                 _active_objectives[objectives_list::FIND_FOOD] = false;
@@ -99,7 +103,9 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j)
 
         if (!obj_row.empty()) {
             // Found small house, check if we are near the small house
-            if (abs(robot_i - obj_row[0]) == 1 && abs(robot_j - obj_col[0]) == 1) {
+            // cases: (1,0) (-1,0) (0,1) (0,-1)
+            if ((abs(robot_i - obj_row[0]) == 1 && (robot_j - obj_col[0]) == 0)
+                || (abs(robot_j - obj_col[0]) == 1 && (robot_i - obj_row[0]) == 0)) {
                 turnOnIndicator(PERSON_INDICATOR);
                 // Deactivate FIND_PERSON objective
                 _active_objectives[objectives_list::FIND_PERSON] = false;
@@ -121,7 +127,9 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j)
 
         if (!obj_row.empty()) {
             // Found big house, check if we are near the big house
-            if (abs(robot_i - obj_row[0]) == 1 && abs(robot_j - obj_col[0]) == 1) {
+            // cases: (1,0) (-1,0) (0,1) (0,-1)
+            if ((abs(robot_i - obj_row[0]) == 1 && (robot_j - obj_col[0]) == 0)
+                || (abs(robot_j - obj_col[0]) == 1 && (robot_i - obj_row[0]) == 0)) {
                 turnOnIndicator(SURVIVORS_INDICATOR);
                 // Deactivate FIND_SURVIVORS objective
                 _active_objectives[objectives_list::FIND_SURVIVORS] = false;
@@ -138,11 +146,7 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j)
 }
 
 void ObjectiveManager::turnFanOnOff(bool on) {
-    if (on) {
-        digitalWrite(FAN, HIGH);
-    } else {
-        digitalWrite(FAN, LOW);
-    }
+    digitalWrite(FAN, on);
 }
 
 void ObjectiveManager::turnOnIndicator(int pin) {
