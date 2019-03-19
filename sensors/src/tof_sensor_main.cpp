@@ -2,21 +2,14 @@
 #include <ros/duration.h>
 #include <vector>
 
-<<<<<<< HEAD
-#include "sensors/TimeOfFlight.h"
-=======
 #include "sensors/Distance.h"
->>>>>>> master
 #include "constants/topics.h"
 #include "constants/gpio_pins.h"
 #include "external/wiringPi/wiringPi.h"
 #include "external/tof/VL53L0X.h"
 
-<<<<<<< HEAD
-=======
 #define MAX_TOF 4096
 
->>>>>>> master
 /*
 1. Reset all sensors by setting all of their XSHUT pins low for delay(10), then set all XSHUT high to bring out of reset
 2. Keep sensor #1 awake by keeping XSHUT pin high
@@ -30,13 +23,8 @@ Don't forget to remove the protective plastic cover from the sensor before using
 VL53L0X tof1 = VL53L0X();
 VL53L0X tof2 = VL53L0X();
 VL53L0X tof3 = VL53L0X();
-<<<<<<< HEAD
 //VL53L0X tof4 = VL53L0X();
 //VL53L0X tof5 = VL53L0X();
-=======
-VL53L0X tof4 = VL53L0X();
-VL53L0X tof5 = VL53L0X();
->>>>>>> master
 
 #define I2C_SLAVE_DEVICE_ADDRESS 0x8A
 

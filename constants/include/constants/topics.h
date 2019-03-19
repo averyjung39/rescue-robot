@@ -21,9 +21,6 @@ namespace topics {
     // Mapperception
     const char *LABEL_MAP_TOPIC = "labeled_map";
 
-    // Localization
-    const char *POSE_TOPIC = "pose";
-
     // Construction Check Demos
     const char *DRIVE_DEMO_COMPLETE_TOPIC = "drive_demo_complete";
     const char *TURN_DEMO_COMPLETE_TOPIC = "turn_demo_complete";
