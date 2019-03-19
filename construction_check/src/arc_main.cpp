@@ -33,14 +33,14 @@ int main(int argc, char **argv) {
 
         if (speed_r > 0 && speed_l < 0) {
             // turn left on spot
-            arc_cmd.radius = messages::Arc::TURN_ON_SPOT;
+            arc_cmd.command_type = messages::Arc::TURN_ON_SPOT;
             arc_cmd.direction_is_right = false;
         } else if (speed_r < 0 && speed_l > 0) {
             // turn right on spot
-            arc_cmd.radius = messages::Arc::TURN_ON_SPOT;
+            arc_cmd.command_type = messages::Arc::TURN_ON_SPOT;
             arc_cmd.direction_is_right = true;
         } else {
-            arc_cmd.radius = messages::Arc::STRAIGHT_LINE;
+            arc_cmd.command_type = messages::Arc::STRAIGHT_LINE;
             if (speed_r > 0 || speed_l > 0) {
                 // forward direction
                 arc_cmd.direction_is_right = true;

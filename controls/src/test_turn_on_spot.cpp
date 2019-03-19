@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
     }
     pinMode(45, INPUT);
 
-    ros::init(argc, argv, "planning_test_turn_with_radius");
+    ros::init(argc, argv, "planning_test_turn_on_spot");
     ros::NodeHandle nh;
 
     ros::Subscriber ultrasonic_sub = nh.subscribe(topics::ULTRASONIC_TOPIC, 1, ultrasonicCallback);
@@ -55,22 +55,22 @@ int main(int argc, char **argv) {
         } else {
             // Wait for gpio pin
             if (digitalRead(45)) {
-                arc_command.radius = messages::Arc::TURN_ON_SPOT;
+                arc_command.command_type = messages::Arc::TURN_ON_SPOT;
                 turn_now = true;
                 yaw = imu_msg.yaw;
             } else {
-                arc_command.radius = messages::Arc::STOP;
+                arc_command.command_type = messages::Arc::STOP;
             }
 /*
             // Stay still and check ultrasonics
             for (int i = 0; i < 3; ++i) {
                 if (ultrasonic_msg.data[i] < 10 && ultrasonic_msg.data[i] != sensors::Ultrasonic::INVALID_SENSOR_DATA) {
-                    arc_command.radius = messages::Arc::TURN_ON_SPOT;
+                    arc_command.command_type = messages::Arc::TURN_ON_SPOT;
                     turn_now = true;
                     yaw = imu_msg.yaw;
                     break;
                 } else {
-                    arc_command.radius = messages::Arc::STOP;
+                    arc_command.command_type = messages::Arc::STOP;
                 }
             }
 */
