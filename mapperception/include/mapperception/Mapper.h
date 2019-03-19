@@ -9,11 +9,8 @@
 #include "mapperception/ObjectLocation.h"
 
 // Offsets are in cm and from the center of the robot
-const float TOF15_X_OFFSET = 3.048;
-const float TOF15_Y_OFFSET = 0.4572+5.08;
-const float TOF24_X_OFFSET = 1.905;
-const float TOF234_Y_OFFSET = 5.08;
-const float U123_OFFSET = 10.16;
+const float BOTTOM_TOF_X_OFFSET = 1.905;
+const float BOTTOM_TOF_Y_OFFSET = 5.08;
 
 // index of sensors in distance data vector
 #define LEFT 0
@@ -40,7 +37,10 @@ public:
      */
     void modifyLabelMapWithLabels(int robot_i, int robot_j, int label);
 
-    std::pair<int, int> robotPosToPoints(float robot_x, float robot_y);
+    int classifyObject(std::vector<float> high_dist_data, std::vector<bool> photodiode_data, bool hall_effect_data);
+
+    void detectTerrain(float ultrasonic_data, std::vector<bool> colour_data, bool hall_effect_data,
+                       float robot_x, float robot_y, float robot_angle);
 
     LabelMap getLabelMap() { return _label_map; }
 
@@ -59,8 +59,11 @@ private:
     std::pair<int, int> coordinateToPoints(float x, float y, int resolution);
 
     LabelMap _label_map;
+    // row, col
+    std::pair<int,int> _robot_pos;
     std::map<int, std::vector<int> > _object_rows;
     std::map<int, std::vector<int> > _object_cols;
+    float _prev_ult_data;
 };
 
 #endif // MAPPER

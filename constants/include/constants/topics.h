@@ -12,6 +12,7 @@ namespace topics {
 
     // Path-Planning
     const char *ARC_TOPIC = "arc_data";
+    const char *SCANNING = "scan_topic";
 
     // Mapperception
     const char *LABEL_MAP_TOPIC = "label_map";

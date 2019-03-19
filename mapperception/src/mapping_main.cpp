@@ -6,12 +6,19 @@
 #include "mapperception/Map.h"
 #include "sensors/Distance.h"
 #include "sensors/Ultrasonic.h"
+#include "sensors/Photodiode.h"
+#include "sensors/Colour.h"
 #include "localization/Pose.h"
+#include "std_msgs/Bool.h"
 #include "constants/topics.h"
 
 std::vector<float> low_dists;
 std::vector<float> high_dists;
-std::vector<float> ult_sensor_data;
+std::vector<bool> photodiode_data;
+std::vector<bool> colour_data;
+float ultrasonic_data;
+bool hall_effect_data;
+bool scanning;
 
 float robot_x;
 float robot_y;
@@ -29,10 +36,26 @@ void ultSensorDataCallback(const sensors::Distance::ConstPtr& msg) {
     ult_sensor_data = msg->data;
 }
 
+void flameSensorDataCallback(const sensors::Photodiode::ConstPtr& msg) {
+    photodiode_sensor_data = msg->data;
+}
+
+void hallEffectDataCallback(const std_msgs::Bool::ConstPtr& msg) {
+    hall_effect_data = msg->data;
+}
+
+void colourSensorDataCallback(const sensors::Colour::ConstPtr& msg) {
+    colour_data = msg->data;
+}
+
 void poseCallback(const localization::Pose::ConstPtr& msg) {
     robot_x = msg->x;
     robot_y = msg->y;
     robot_angle = msg->theta;
+}
+
+void scanningCallback(const std_msgs::Bool::ConstPtr& msg) {
+    scanning = msg->data;
 }
 
 int main(int argc, char **argv) {
@@ -47,7 +70,11 @@ int main(int argc, char **argv) {
     ros::Subscriber low_dist_sub = nh.subscribe(topics::LOW_DIST_TOPIC, 1, lowDistDataCallback);
     ros::Subscriber high_dist_sub = nh.subscribe(topics::HIGH_DIST_TOPIC, 1, highDistDataCallback);
     ros::Subscriber ult_data_sub = nh.subscribe(topics::ULTRASONIC_TOPIC, 1, ultSensorDataCallback);
+    ros::Subscriber photodiode_sub = nh.subscribe(topics::PHOTODIODE_TOPIC, 1, flameSensorDataCallback);
+    ros::Subscriber hall_effect_sub = nh.subscribe(topics::HALL_EFFECT_TOPIC, 1, hallEffectDataCallback);
+    ros::Subscriber colour_data_sub = nh.subscribe(topics::COLOUR_TOPIC, 1, colourSensorDataCallback);
     ros::Subscriber pose_sub = nh.subscribe(topics::POSE_TOPIC, 1, poseCallback);
+    ros::Subscriber scanning = nh.subscribe(topics::SCANNING, 1, scanningCallback);
     ros::Publisher label_map_publisher = nh.advertise<mapperception::Map>(topics::LABEL_MAP_TOPIC, 1);
     ros::ServiceServer obj_loc_service = nh.advertiseService(topics::OBJECT_LOCATION_SERVICE, &Mapper::getObjectLocs, &mapper);
 
@@ -59,7 +86,12 @@ int main(int argc, char **argv) {
 
         ros::spinOnce();
 
+        // Try detecting what the terrain is right in front the robot
+        mapper.detectTerrain(ultrasonic_data, colour_data, robot_x, robot_y, robot_angle);
         mapper.modifyLabelMapWithDists(low_dists, robot_x, robot_y, robot_angle);
+        if (scanning) {
+            
+        }
         label_map = mapper.getLabelMap().getMap();
         label_map_rows.resize(label_map.size());
         published_label_map.map.resize(label_map.size());
