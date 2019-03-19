@@ -79,24 +79,31 @@ bool readdress(bool all = true, int sensor = 0) {
 
     ros::Duration(0.01).sleep();
 
-    if (all || sensot == BOTTOM_LEFT) {
+    if (all || sensor == BOTTOM_LEFT) {
         if (!setId(b_left, BOTTOM_LEFT_ADDR, TOF_BOTTOM_LEFT)) { return false; }
     }
-    if (all || sensot == BOTTOM_RIGHT) {
+    if (all || sensor == BOTTOM_RIGHT) {
         if (!setId(b_right, BOTTOM_RIGHT_ADDR, TOF_BOTTOM_RIGHT)) { return false; }
     }
-    if (all || sensot == TOP_FRONT) {
+    if (all || sensor == TOP_FRONT) {
         if (!setId(t_front, TOP_FRONT_ADDR, TOF_TOP_FRONT)) { return false; }
     }
-    if (all || sensot == TOP_BACK) {
+    if (all || sensor == TOP_BACK) {
         if (!setId(t_back, TOP_BACK_ADDR, TOF_TOP_BACK)) { return false; }
     }
-    if (all || sensot == TOP_LEFT) {
+    if (all || sensor == TOP_LEFT) {
         if (!setId(t_left, TOP_LEFT_ADDR, TOF_TOP_LEFT)) { return false; }
     }
-    if (all || sensot == TOP_RIGHT) {
+    if (all || sensor == TOP_RIGHT) {
         if (!setId(t_right, TOP_RIGHT_ADDR, TOF_TOP_RIGHT)) { return false; }
     }
+
+    digitalWrite(TOF_BOTTOM_LEFT, HIGH);
+    digitalWrite(TOF_BOTTOM_RIGHT, HIGH);
+    digitalWrite(TOF_TOP_FRONT, HIGH);
+    digitalWrite(TOF_TOP_BACK, HIGH);
+    digitalWrite(TOF_TOP_LEFT, HIGH);
+    digitalWrite(TOF_TOP_RIGHT, HIGH);
 
     return true;
 }
