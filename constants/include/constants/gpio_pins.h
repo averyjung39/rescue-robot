@@ -24,17 +24,19 @@
 #define HALL_EFFECT_2_H 10
 #define HALL_EFFECT_2_L 11
 
-#define TOF_XSHUT_1 34
-#define TOF_XSHUT_2 35
-#define TOF_XSHUT_3 36
-#define TOF_XSHUT_4 37
-#define TOF_XSHUT_5 38
+#define TOF_BOTTOM_LEFT 34
+#define TOF_BOTTOM_RIGHT 35
+#define TOF_TOP_FRONT 37
+#define TOF_TOP_BACK 36
+#define TOF_TOP_LEFT 38
+#define TOF_TOP_RIGHT 39
 
-#define TOF_ADDR_1 0x30
-#define TOF_ADDR_2 0x31
-#define TOF_ADDR_3 0x32
-#define TOF_ADDR_4 0x33
-#define TOF_ADDR_5 0x34
+#define BOTTOM_LEFT_ADDR 0x30
+#define BOTTOM_RIGHT_ADDR 0x31
+#define TOP_FRONT_ADDR 0x32
+#define TOP_BACK_ADDR 0x33
+#define TOP_LEFT_ADDR 0x34
+#define TOP_RIGHT_ADDR 0x35
 
 // TODO: define these with actual pin numbers used
 #define FOOD_INDICATOR 40
@@ -44,8 +46,8 @@
 
 #define FAN 44
 
-#define SAND 45
-#DEFINE ROCK 46
+#define SAND_PIN 45
+#define ROCK_PIN 46
 
 
 #endif // GPIO_PINS
