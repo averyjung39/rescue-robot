@@ -2,6 +2,7 @@
 #define LABELS
 
 namespace labels {
+    const int UNSEARCHED = 0;
     const int FLAT_WOOD = 1;
     const int PIT = 2;
     const int GRAVEL = 3;

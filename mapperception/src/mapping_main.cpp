@@ -76,7 +76,6 @@ int main(int argc, char **argv) {
     ros::Subscriber pose_sub = nh.subscribe(topics::POSE_TOPIC, 1, poseCallback);
     ros::Subscriber scanning = nh.subscribe(topics::SCANNING, 1, scanningCallback);
     ros::Publisher label_map_publisher = nh.advertise<mapperception::Map>(topics::LABEL_MAP_TOPIC, 1);
-    ros::ServiceServer obj_loc_service = nh.advertiseService(topics::OBJECT_LOCATION_SERVICE, &Mapper::getObjectLocs, &mapper);
 
     std::vector< std::vector<int> > label_map;
     std::vector<mapperception::MapRow> label_map_rows;
@@ -90,7 +89,7 @@ int main(int argc, char **argv) {
         mapper.detectTerrain(ultrasonic_data, colour_data, robot_x, robot_y, robot_angle);
         mapper.modifyLabelMapWithDists(low_dists, robot_x, robot_y, robot_angle);
         if (scanning) {
-            
+
         }
         label_map = mapper.getLabelMap().getMap();
         label_map_rows.resize(label_map.size());

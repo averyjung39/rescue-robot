@@ -5,26 +5,8 @@
 #include "sensors/Distance.h"
 
 Mapper::Mapper() {
-    _object_rows.insert(std::pair<int, std::vector<int> >(labels::MAGNET, std::vector<int>()));
-    _object_rows.insert(std::pair<int, std::vector<int> >(labels::FIRE, std::vector<int>()));
-    _object_rows.insert(std::pair<int, std::vector<int> >(labels::NO_FIRE, std::vector<int>()));
-    _object_rows.insert(std::pair<int, std::vector<int> >(labels::SMALL_HOUSE, std::vector<int>()));
-    _object_rows.insert(std::pair<int, std::vector<int> >(labels::BIG_HOUSE, std::vector<int>()));
-
-    _object_cols.insert(std::pair<int, std::vector<int> >(labels::MAGNET, std::vector<int>()));
-    _object_cols.insert(std::pair<int, std::vector<int> >(labels::FIRE, std::vector<int>()));
-    _object_cols.insert(std::pair<int, std::vector<int> >(labels::NO_FIRE, std::vector<int>()));
-    _object_cols.insert(std::pair<int, std::vector<int> >(labels::SMALL_HOUSE, std::vector<int>()));
-    _object_cols.insert(std::pair<int, std::vector<int> >(labels::BIG_HOUSE, std::vector<int>()));
-
     // TODO: hardcoded value of 25 cm, measure what we actually see from ultrasonic on the flat ground
     _prev_ult_data = 25;
-}
-
-bool Mapper::getObjectLocs(mapperception::ObjectLocation::Request &req, mapperception::ObjectLocation::Response &res) {
-    res.row_vector = _object_rows.at(req.label);
-    res.col_vector = _object_cols.at(req.label);
-    return true;
 }
 
 void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data,
@@ -49,8 +31,6 @@ void Mapper::modifyLabelMapWithLabels(int row, int col, int label) {
         ROS_WARN("Out of bound {%d, %d}", row, col);
     } else {
         _label_map.setLabel(row, col, label);
-        _object_rows[label].push_back(row);
-        _object_cols[label].push_back(col);
     }
 }
 
@@ -86,8 +66,9 @@ int Mapper::classifyObject(std::vector<float> high_dist_data, std::vector<bool> 
 void Mapper::detectTerrain(float ultrasonic_data, std::vector<bool> colour_data, bool hall_effect_data,
                            float robot_x, float robot_y, float robot_angle) {
     _robot_pos = coordinateToPoints(robot_x, robot_y, _label_map.getResolution());
-    // TODO: hardcoded difference of 5 cm, measure what utrasonic actually sees from the pit to determine this difference
+
     int label = 0;
+    // TODO: hardcoded difference of 5 cm, measure what utrasonic actually sees from the pit to determine this difference
     if(abs(_prev_ult_data - ultrasonic_data) > 5) {
         // Detected the pit
         label = labels::PIT;

@@ -5,7 +5,7 @@
 #include "constants/labels.h"
 #include "constants/objectives_list.h"
 
-ObjectiveManager::ObjectiveManager(ros::NodeHandle& nh, const char* service_name) {
+ObjectiveManager::ObjectiveManager() {
     // Activate FIND_FIRE and unativate all other objectives
     // FIND FIRE = 0, FIND_FOOD = 1, FIND_SURVIVORS = 2,
     // FIND_PERSON = 3, RETURN_HOME = 4
@@ -14,7 +14,6 @@ ObjectiveManager::ObjectiveManager(ros::NodeHandle& nh, const char* service_name
     _active_objectives.push_back(false);
     _active_objectives.push_back(false);
     _active_objectives.push_back(false);
-    _obj_loc_client = nh.serviceClient<mapperception::ObjectLocation>(service_name);
     setupGpio();
 }
 
@@ -30,63 +29,42 @@ void ObjectiveManager::setupGpio() {
     pinMode(FAN, OUTPUT);
 }
 
-std::pair< std::vector<int>, std::vector<int> > ObjectiveManager::findObjectLocation(int label) {
-    _srv.request.label = label;
-    if (_obj_loc_client.call(_srv)) {
-        return std::make_pair(_srv.response.row_vector, _srv.response.col_vector);
-    } else {
-        ROS_ERROR("Failed to call service object_location");
-        return std::make_pair(std::vector<int>(), std::vector<int>());
-    }
-}
-
-std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j) {
-    std::pair< std::vector<int>, std::vector<int> > obj_loc;
-    std::vector<int> obj_row;
-    std::vector<int> obj_col;
-
-    if (_active_objectives[objectives_list::FIND_FIRE]) {
-        obj_loc = findObjectLocation(labels::FIRE);
-        obj_row = obj_loc.first;
-        obj_col = obj_loc.second;
-
-        if (obj_row.empty()) {
-            // Fire hasn't been found or it has been put out, or an error occured while calling service
-            obj_loc = findObjectLocation(labels::NO_FIRE);
-            obj_row = obj_loc.first;
-            obj_col = obj_loc.second;
-            if (!obj_row.empty()) {
-                // Fire has been extinguished, turn off the fan
-                turnFanOnOff(false);
-                // Deactivate FIND_FIRE objective, activate FIND_FOOD and FIND_PERSON objectives
-                _active_objectives[objectives_list::FIND_FIRE] = false;
-                _active_objectives[objectives_list::FIND_FOOD] = true;
-                _active_objectives[objectives_list::FIND_PERSON] = true;
-                return _active_objectives;
-            }
-        } else {
-            // Fire is located
-            // Note: assume the object is in 1 tile for now
-            // cases: (1,0) (-1,0) (0,1) (0,-1)
-            if ((abs(robot_i - obj_row[0]) == 1 && (robot_j - obj_col[0]) == 0)
-                || (abs(robot_j - obj_col[0]) == 1 && (robot_i - obj_row[0]) == 0)) {
-                // robot and candle are right beside each other, turn on the fan
-                turnFanOnOff(true);
-            }
-            return _active_objectives;
+std::pair<int,int> ObjectiveManager::findObjectLocation(int label, std::vector< std::vector<int> > label_map) {
+    for (int i = 0; i < label_map.size(); i++) {
+        for (int j = 0; j < label_map.size(); j++) {
+            if (label_map[i][j] == label) return std::make_pair(i,j);
         }
     }
+    // label not found
+    return std::make_pair(-1, -1);
+}
 
-    if (_active_objectives[objectives_list::FIND_FOOD]) {
-        obj_loc = findObjectLocation(labels::MAGNET);
-        obj_row = obj_loc.first;
-        obj_col = obj_loc.second;
+std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j, std::vector< std::vector<int> > label_map) {
+    std::set<int> near_labels = getNearLabels(robot_i, robot_j, label_map);
 
-        if (!obj_row.empty()) {
-            // Found food, check if we are near the food
-            // cases: (1,0) (-1,0) (0,1) (0,-1) (0,0)
-            if ((abs(robot_i - obj_row[0]) <= 1 && (robot_j - obj_col[0]) == 0)
-                || (abs(robot_j - obj_col[0]) <= 1 && (robot_i - obj_col[0]) == 0)) {
+    if (!near_labels.empty()) {
+        if (_active_objectives[objectives_list::FIND_FIRE]) {
+            if (near_labels.find(labels::FIRE) == near_labels.end()) {
+                // Fire hasn't been found or it has been put out, or an error occured while calling service
+                if (near_labels.find(labels::NO_FIRE) != near_labels.end()) {
+                    // Fire has been extinguished, turn off the fan
+                    digitalWrite(FAN, LOW);
+                    // Deactivate FIND_FIRE objective, activate FIND_FOOD and FIND_PERSON objectives
+                    _active_objectives[objectives_list::FIND_FIRE] = false;
+                    _active_objectives[objectives_list::FIND_FOOD] = true;
+                    _active_objectives[objectives_list::FIND_PERSON] = true;
+                    return _active_objectives;
+                }
+            } else {
+                // Fire is located
+                digitalWrite(FAN, HIGH);
+                return _active_objectives;
+            }
+        }
+
+        if (_active_objectives[objectives_list::FIND_FOOD]) {
+            if (near_labels.find(labels::MAGNET) != near_labels.end()) {
+                // Found food
                 turnOnIndicator(FOOD_INDICATOR);
                 // Deactivate FIND_FOOD objective, activate FIND_SURVIVORS objective
                 _active_objectives[objectives_list::FIND_FOOD] = false;
@@ -94,18 +72,10 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j)
                 return _active_objectives;
             }
         }
-    }
 
-    if (_active_objectives[objectives_list::FIND_PERSON]) {
-        obj_loc = findObjectLocation(labels::SMALL_HOUSE);
-        obj_row = obj_loc.first;
-        obj_col = obj_loc.second;
-
-        if (!obj_row.empty()) {
-            // Found small house, check if we are near the small house
-            // cases: (1,0) (-1,0) (0,1) (0,-1)
-            if ((abs(robot_i - obj_row[0]) == 1 && (robot_j - obj_col[0]) == 0)
-                || (abs(robot_j - obj_col[0]) == 1 && (robot_i - obj_row[0]) == 0)) {
+        if (_active_objectives[objectives_list::FIND_PERSON]) {
+            if (near_labels.find(labels::SMALL_HOUSE) != near_labels.end()) {
+                // Found small house
                 turnOnIndicator(PERSON_INDICATOR);
                 // Deactivate FIND_PERSON objective
                 _active_objectives[objectives_list::FIND_PERSON] = false;
@@ -118,18 +88,10 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j)
                 return _active_objectives;
             }
         }
-    }
 
-    if (_active_objectives[objectives_list::FIND_SURVIVORS]) {
-        obj_loc = findObjectLocation(labels::BIG_HOUSE);
-        obj_row = obj_loc.first;
-        obj_col = obj_loc.second;
-
-        if (!obj_row.empty()) {
-            // Found big house, check if we are near the big house
-            // cases: (1,0) (-1,0) (0,1) (0,-1)
-            if ((abs(robot_i - obj_row[0]) == 1 && (robot_j - obj_col[0]) == 0)
-                || (abs(robot_j - obj_col[0]) == 1 && (robot_i - obj_row[0]) == 0)) {
+        if (_active_objectives[objectives_list::FIND_SURVIVORS]) {
+            if(near_labels.find(labels::BIG_HOUSE) != near_labels.end()) {
+                // Found big house
                 turnOnIndicator(SURVIVORS_INDICATOR);
                 // Deactivate FIND_SURVIVORS objective
                 _active_objectives[objectives_list::FIND_SURVIVORS] = false;
@@ -145,8 +107,22 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j)
     }
 }
 
-void ObjectiveManager::turnFanOnOff(bool on) {
-    digitalWrite(FAN, on);
+std::set<int> ObjectiveManager::getNearLabels(int robot_i, int robot_j, std::vector<int> map) {
+    // {left, right, front, back}
+    std::set<int> labels;
+    if (robot_i != 0) {
+        labels.insert(map[robot_i-1][robot_j]);
+    }
+    if (robot_i != 5) {
+        labels.insert(map[robot_i+1][robot_j]);
+    }
+    if (robot_j != 5) {
+        labels.insert(map[robot_i][robot_j+1]);
+    }
+    if (robot_j != 0) {
+        labels.insert(map[robot_i][robot_j-1]);
+    }
+    return labels;
 }
 
 void ObjectiveManager::turnOnIndicator(int pin) {
