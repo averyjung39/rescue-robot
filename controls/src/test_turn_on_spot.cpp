@@ -2,7 +2,7 @@
 
 #include "constants/topics.h"
 #include "external/wiringPi/wiringPi.h"
-#include "planning/Arc.h"
+#include "messages/Arc.h"
 #include "sensors/IMU.h"
 #include "sensors/Ultrasonic.h"
 
@@ -31,14 +31,14 @@ int main(int argc, char **argv) {
 
     ros::Subscriber ultrasonic_sub = nh.subscribe(topics::ULTRASONIC_TOPIC, 1, ultrasonicCallback);
     ros::Subscriber imu_sub = nh.subscribe(topics::IMU_TOPIC, 1, imuCallback);
-    ros::Publisher arc_pub = nh.advertise<planning::Arc>(topics::ARC_TOPIC, 1);
+    ros::Publisher arc_pub = nh.advertise<messages::Arc>(topics::ARC_TOPIC, 1);
     std::vector<float> ultrasonic_data;
     for (int i = 0; i < 3; ++i) {
         ultrasonic_data.push_back(sensors::Ultrasonic::INVALID_SENSOR_DATA);
     }
     ultrasonic_msg.data = ultrasonic_data;
     bool turn_now = false;
-    planning::Arc arc_command;
+    messages::Arc arc_command;
     float speed;
     bool direction_is_right;
     nh.param<float>("speed", speed, 70);
@@ -55,22 +55,22 @@ int main(int argc, char **argv) {
         } else {
             // Wait for gpio pin
             if (digitalRead(45)) {
-                arc_command.radius = planning::Arc::TURN_ON_SPOT;
+                arc_command.radius = messages::Arc::TURN_ON_SPOT;
                 turn_now = true;
                 yaw = imu_msg.yaw;
             } else {
-                arc_command.radius = planning::Arc::STOP;
+                arc_command.radius = messages::Arc::STOP;
             }
 /*
             // Stay still and check ultrasonics
             for (int i = 0; i < 3; ++i) {
                 if (ultrasonic_msg.data[i] < 10 && ultrasonic_msg.data[i] != sensors::Ultrasonic::INVALID_SENSOR_DATA) {
-                    arc_command.radius = planning::Arc::TURN_ON_SPOT;
+                    arc_command.radius = messages::Arc::TURN_ON_SPOT;
                     turn_now = true;
                     yaw = imu_msg.yaw;
                     break;
                 } else {
-                    arc_command.radius = planning::Arc::STOP;
+                    arc_command.radius = messages::Arc::STOP;
                 }
             }
 */

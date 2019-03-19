@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   external
   constants
   sensors
+  messages
 )
 
 catkin_package(
