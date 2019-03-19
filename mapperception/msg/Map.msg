@@ -1,2 +1,5 @@
 MapRow[] map
-int32 size
+
+# Current robot positions
+int32 robot_i
+int32 robot_j

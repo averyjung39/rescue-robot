@@ -5,6 +5,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   message_generation
+  sensors
+  localization
+  constants
 )
 
 add_message_files(
@@ -18,6 +21,15 @@ generate_messages(
   std_msgs
 )
 
+catkin_package(
+  INCLUDE_DIRS include
+)
+
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
+
+add_executable(mapping src/mapping_main.cpp src/Mapper.cpp src/LabelMap.cpp)
+target_link_libraries(mapping ${catkin_LIBRARIES})
+add_dependencies(mapping ${catkin_EXPORTED_TARGETS})
