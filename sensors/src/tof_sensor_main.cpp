@@ -21,8 +21,8 @@ Don't forget to remove the protective plastic cover from the sensor before using
 VL53L0X tof1 = VL53L0X();
 VL53L0X tof2 = VL53L0X();
 VL53L0X tof3 = VL53L0X();
-VL53L0X tof4 = VL53L0X();
-VL53L0X tof5 = VL53L0X();
+//VL53L0X tof4 = VL53L0X();
+//VL53L0X tof5 = VL53L0X();
 
 #define I2C_SLAVE_DEVICE_ADDRESS 0x8A
 
@@ -49,16 +49,16 @@ bool readdress() {
     pinMode(TOF_XSHUT_1, OUTPUT);
     pinMode(TOF_XSHUT_2, OUTPUT);
     pinMode(TOF_XSHUT_3, OUTPUT);
-    pinMode(TOF_XSHUT_4, OUTPUT);
-    pinMode(TOF_XSHUT_5, OUTPUT);
+//    pinMode(TOF_XSHUT_4, OUTPUT);
+//    pinMode(TOF_XSHUT_5, OUTPUT);
 
     ROS_INFO("Shutdown pins...");
 
     digitalWrite(TOF_XSHUT_1, LOW);
     digitalWrite(TOF_XSHUT_2, LOW);
     digitalWrite(TOF_XSHUT_3, LOW);
-    digitalWrite(TOF_XSHUT_4, LOW);
-    digitalWrite(TOF_XSHUT_5, LOW);
+//    digitalWrite(TOF_XSHUT_4, LOW);
+//    digitalWrite(TOF_XSHUT_5, LOW);
 
     ROS_INFO("All sensors in reset mode...(pins are low)");
 
@@ -66,9 +66,9 @@ bool readdress() {
 
     if (!setId(tof1, TOF_ADDR_1, TOF_XSHUT_1)) { return false; }
     if (!setId(tof2, TOF_ADDR_2, TOF_XSHUT_2)) { return false; }
-    if (!setId(tof3, TOF_ADDR_3, TOF_XSHUT_3)) { return false; }
-    if (!setId(tof4, TOF_ADDR_4, TOF_XSHUT_4)) { return false; }
-    if (!setId(tof5, TOF_ADDR_5, TOF_XSHUT_5)) { return false; }
+   // if (!setId(tof3, TOF_ADDR_3, TOF_XSHUT_3)) { return false; }
+//    if (!setId(tof4, TOF_ADDR_4, TOF_XSHUT_4)) { return false; }
+//    if (!setId(tof5, TOF_ADDR_5, TOF_XSHUT_5)) { return false; }
     /*
     digitalWrite(TOF_XSHUT_1, HIGH);
     ros::Duration(0.01).sleep();
@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
 
     ros::Publisher tof_data_pub = nh.advertise<sensors::TimeOfFlight>(topics::TOF_TOPIC, 1);
-    int tof_distance1, tof_distance2, tof_distance3, tof_distance4, tof_distance5;
+    int tof_distance1, tof_distance2, tof_distance3;
     int model, revision;
 
     // Readdress ToF sensors
@@ -150,16 +150,16 @@ int main(int argc, char **argv) {
         // Read data from the sensors
         tof_distance1 = tof1.tofReadDistance();
 	    tof_distance2 = tof2.tofReadDistance();
-        tof_distance3 = tof3.tofReadDistance();
-        tof_distance4 = tof4.tofReadDistance();
-        tof_distance5 = tof5.tofReadDistance();
+     //   tof_distance3 = tof3.tofReadDistance();
+//        tof_distance4 = tof4.tofReadDistance();
+//        tof_distance5 = tof5.tofReadDistance();
 
         // Check if they are in valid range and populate the ToF data msg
         tof_data_cm.data[0] = (tof_distance1 < 4096) ? tof_distance1 / 10.0 : sensors::TimeOfFlight::INVALID_SENSOR_DATA;
         tof_data_cm.data[1] = (tof_distance2 < 4096) ? tof_distance2 / 10.0 : sensors::TimeOfFlight::INVALID_SENSOR_DATA;
-        tof_data_cm.data[2] = (tof_distance3 < 4096) ? tof_distance3 / 10.0 : sensors::TimeOfFlight::INVALID_SENSOR_DATA;
-        tof_data_cm.data[3] = (tof_distance4 < 4096) ? tof_distance4 / 10.0 : sensors::TimeOfFlight::INVALID_SENSOR_DATA;
-        tof_data_cm.data[4] = (tof_distance5 < 4096) ? tof_distance5 / 10.0 : sensors::TimeOfFlight::INVALID_SENSOR_DATA;
+       // tof_data_cm.data[2] = (tof_distance3 < 4096) ? tof_distance3 / 10.0 : sensors::TimeOfFlight::INVALID_SENSOR_DATA;
+//        tof_data_cm.data[3] = (tof_distance4 < 4096) ? tof_distance4 / 10.0 : sensors::TimeOfFlight::INVALID_SENSOR_DATA;
+//        tof_data_cm.data[4] = (tof_distance5 < 4096) ? tof_distance5 / 10.0 : sensors::TimeOfFlight::INVALID_SENSOR_DATA;
 
         tof_data_pub.publish(tof_data_cm);
             rate.sleep();

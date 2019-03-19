@@ -8,7 +8,7 @@
 #include "sensors/MotorEncoder.h"
 #include "sensors/MotorEncoderISR.h"
 
-const int COUNTS_PER_REV = 480;
+const int COUNTS_PER_REV = 1920;
 
 bool encoderSetup() {
     if (wiringPiSetup() < 0) {
@@ -17,18 +17,18 @@ bool encoderSetup() {
     }
     pinMode(MOTOR_R_ENCODER_A_PIN, INPUT);
     pinMode(MOTOR_R_ENCODER_B_PIN, INPUT);
-    // pinMode(MOTOR_L_ENCODER_A_PIN, INPUT);
-    // pinMode(MOTOR_L_ENCODER_B_PIN, INPUT);
+//    pinMode(MOTOR_L_ENCODER_A_PIN, INPUT);
+//    pinMode(MOTOR_L_ENCODER_B_PIN, INPUT);
 
     // ISR setup
-    // if (wiringPiISR(MOTOR_R_ENCODER_A_PIN, INT_EDGE_RISING, &MotorEncoderISR::ISR1) < 0) {
-    //     ROS_ERROR("Unable to set up wiringPiISR for motor encoder A");
-    //     return false;
-    // }
-    // if (wiringPiISR(MOTOR_L_ENCODER_A_PIN, INT_EDGE_RISING, &MotorEncoderISR::ISR2) < 0) {
-    //     ROS_ERROR("Unable to set up wiringPiISR for motor encoder B");
-    //     return false;
-    // }
+    if (wiringPiISR(MOTOR_R_ENCODER_A_PIN, INT_EDGE_RISING, &MotorEncoderISR::ISR1) < 0) {
+        ROS_ERROR("Unable to set up wiringPiISR for motor encoder A");
+        return false;
+    }
+//    if (wiringPiISR(MOTOR_L_ENCODER_A_PIN, INT_EDGE_RISING, &MotorEncoderISR::ISR2) < 0) {
+//        ROS_ERROR("Unable to set up wiringPiISR for motor encoder B");
+//        return false;
+//    }
     return true;
 }  
 
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
     ros::Publisher encoder_data_pub = nh.advertise<sensors::Encoder>
         (topics::ENCODER_TOPIC, 1);
-    
+        
     if (!encoderSetup()) {
         return -1;
     }
@@ -47,32 +47,34 @@ int main(int argc, char **argv) {
     encoder_data.push_back(0);
     encoder_data.push_back(0);
 
-    ros::Time time = ros::Time::now();
-    int encoder_count = 0;
-    const int NUM_REVOLUTIONS_TO_COUNT = 10;
-
-    bool a_last_state = digitalRead(MOTOR_R_ENCODER_A_PIN);
-    bool a_state = a_last_state = false;
-    bool n = false;
-    int counter = 0;
-    ros::Time prev_time = ros::Time::now();
+    ros::Time time_r = ros::Time::now();
+    ros::Time time_l = ros::Time::now();
+    int rising_edges_1_local = 0, rising_edges_2_local = 0;
+    const int NUM_REVOLUTIONS_TO_COUNT = 3;
     while (ros::ok()) {
-        n = digitalRead(MOTOR_R_ENCODER_A_PIN);        
-	// Rising edge detected
-        if  ((a_last_state == 0) && n) {
-
-		if (digitalRead(MOTOR_R_ENCODER_B_PIN)) {
-        	    ++counter;
-        	} else {
-         	   	--counter;
-        	}
+        // TODO check for a timeout (i.e. we get stuck)
+        // TODO account for direction
+        if (MotorEncoderISR::rising_edges_1 >= NUM_REVOLUTIONS_TO_COUNT*COUNTS_PER_REV) {
+            rising_edges_1_local = MotorEncoderISR::rising_edges_1;
+            float time_min = (ros::Time::now() - time_r).toSec() / 60.0;
+            encoder_data[0] = 1.0*rising_edges_1_local / COUNTS_PER_REV / time_min; // RPM
+            MotorEncoderISR::rising_edges_1 -= rising_edges_1_local;
+//            encoder_msg.data = encoder_data;
+//            encoder_data_pub.publish(encoder_msg);
+            ROS_INFO("%f", encoder_data[0]);
+            time_r = ros::Time::now();
         }
-	if (counter == COUNTS_PER_REV*NUM_REVOLUTIONS_TO_COUNT || counter == -COUNTS_PER_REV*NUM_REVOLUTIONS_TO_COUNT) {
-            ROS_INFO("RPM: %f", NUM_REVOLUTIONS_TO_COUNT / (ros::Time::now() - prev_time).toSec() * 60.0);
-            counter = 0;
-            prev_time = ros::Time::now();
+  /*      if (MotorEncoderISR::rising_edges_2 >= NUM_REVOLUTIONS_TO_COUNT*COUNTS_PER_REV) {
+            rising_edges_2_local = MotorEncoderISR::rising_edges_2;
+            float time_min = (ros::Time::now() - time_l).toSec() / 60.0;
+            encoder_data[1] = 1.0*rising_edges_2_local / COUNTS_PER_REV / time_min; // RPM
+            MotorEncoderISR::rising_edges_2 -= rising_edges_2_local;
+            time_l = ros::Time::now();
         }
-    	a_last_state = n;
+        encoder_msg.data = encoder_data;
+        encoder_data_pub.publish(encoder_msg);
+//        ROS_INFO("HERE");
+*/
     }
 
     return 0;
