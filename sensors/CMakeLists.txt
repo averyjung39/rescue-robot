@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_message_files(
   FILES
-  TimeOfFlight.msg
+  Distance.msg
   Ultrasonic.msg
   Photodiode.msg
   IMU.msg
@@ -23,9 +23,7 @@ generate_messages(
   std_msgs
 )
 
-catkin_package(
-    INCLUDE_DIRS include
-)
+catkin_package()
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
