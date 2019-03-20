@@ -1,6 +1,5 @@
 #include <ros/ros.h>
 #include <vector>
-#include <map>
 
 #include "mapperception/Mapper.h"
 #include "mapperception/Map.h"

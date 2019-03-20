@@ -1,6 +1,7 @@
 #ifndef MAPPER
 #define MAPPER
 
+#include <utility>
 #include <vector>
 #include <set>
 
@@ -25,9 +26,11 @@ const float TOP_TOF_OFFSET = 10.56;
 
 class Mapper {
 public:
+
     Mapper(int orientation);
 
     void setRobotPose(float robot_x, float robot_y, float robot_angle);
+
     /**
      * @brief modify the label map with distance sensor data. It marks the cells as "obstacle"
      * @param dist_data: vector of distance data
@@ -49,6 +52,7 @@ private:
      * @param label: label to modify the label of the cell in front of the robot
      */
     void modifyLabelMapWithLabels(int robot_i, int robot_j, int label);
+
     /**
      * @brief convert distance sensor data to coordinates in the global axis
      * @param d: distance data in cm

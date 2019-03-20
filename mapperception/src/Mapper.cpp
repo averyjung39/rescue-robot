@@ -63,6 +63,7 @@ void Mapper::setRobotPose(float robot_x, float robot_y, float robot_angle) {
 void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sensor)
 {
     int label = high_sensor ? labels::TALL_OBJECT : labels::OBJECT;
+
     for(int i = 0; i < dist_data.size(); i++) {
         // -1 is INVALID_SENSOR_DATA
         if (dist_data[i] == -1) continue;
@@ -80,6 +81,7 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
                 modifyLabelMapWithLabels(points.first, points.second, label);
             }
         }
+
     }
 }
 
