@@ -47,8 +47,6 @@ Mapper::Mapper(int orientation) {
         _label_map.setLabel(1, 4, labels::GRAVEL);
         _label_map.setLabel(0, 3, labels::PIT);
     }
-    // TODO: hardcoded value of 25 cm, measure what we actually see from ultrasonic on the flat ground
-    _prev_ult_data = 25;
 }
 
 void Mapper::setRobotPose(float robot_x, float robot_y, float robot_angle) {
@@ -63,6 +61,7 @@ void Mapper::setRobotPose(float robot_x, float robot_y, float robot_angle) {
 void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sensor)
 {
     int label = high_sensor ? labels::TALL_OBJECT : labels::OBJECT;
+
     for(int i = 0; i < dist_data.size(); i++) {
         // -1 is INVALID_SENSOR_DATA
         if (dist_data[i] == -1) continue;
@@ -80,6 +79,7 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
                 modifyLabelMapWithLabels(points.first, points.second, label);
             }
         }
+
     }
 }
 

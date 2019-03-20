@@ -1,11 +1,9 @@
 #include <ros/ros.h>
 #include <vector>
-#include <map>
 
 #include "mapperception/Mapper.h"
 #include "mapperception/Map.h"
 #include "sensors/Distance.h"
-#include "sensors/Ultrasonic.h"
 #include "sensors/Photodiode.h"
 #include "localization/Pose.h"
 #include "std_msgs/Bool.h"
@@ -14,7 +12,6 @@
 std::vector<float> low_dists;
 std::vector<float> high_dists;
 std::vector<int> photodiode_data;
-float ultrasonic_data;
 bool hall_effect_data;
 bool scanning;
 
@@ -28,10 +25,6 @@ void lowDistDataCallback(const sensors::Distance::ConstPtr& msg) {
 
 void highDistDataCallback(const sensors::Distance::ConstPtr& msg) {
     high_dists = msg->data;
-}
-
-void ultSensorDataCallback(const sensors::Ultrasonic::ConstPtr& msg) {
-    ultrasonic_data = msg->data;
 }
 
 void flameSensorDataCallback(const sensors::Photodiode::ConstPtr& msg) {
@@ -62,7 +55,6 @@ int main(int argc, char **argv) {
     // NOTE: buffer only 1 message for now
     ros::Subscriber low_dist_sub = nh.subscribe(topics::LOW_DIST_TOPIC, 1, lowDistDataCallback);
     ros::Subscriber high_dist_sub = nh.subscribe(topics::HIGH_DIST_TOPIC, 1, highDistDataCallback);
-    ros::Subscriber ult_data_sub = nh.subscribe(topics::ULTRASONIC_TOPIC, 1, ultSensorDataCallback);
     ros::Subscriber photodiode_sub = nh.subscribe(topics::PHOTODIODE_TOPIC, 1, flameSensorDataCallback);
     ros::Subscriber hall_effect_sub = nh.subscribe(topics::HALL_EFFECT_TOPIC, 1, hallEffectDataCallback);
     ros::Subscriber pose_sub = nh.subscribe(topics::POSE_TOPIC, 1, poseCallback);

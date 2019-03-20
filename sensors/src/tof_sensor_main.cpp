@@ -36,7 +36,6 @@ VL53L0X t_back = VL53L0X();
 VL53L0X t_left = VL53L0X();
 VL53L0X t_right = VL53L0X();
 
-
 #define I2C_SLAVE_DEVICE_ADDRESS 0x8A
 
 bool setId(VL53L0X &tof, uint8_t address, int xshut_pin) {
@@ -172,7 +171,7 @@ int main(int argc, char **argv) {
         high_dist_data_cm.data[3] = (t_right_dist < MAX_TOF && t_right_dist != -1) ? t_right_dist / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
 
         low_dist_pub.publish(low_dist_data_cm);
-        high_dist_pub.publish(high_dist_data_cm);
+        // high_dist_pub.publish(high_dist_data_cm);
         rate.sleep();
     }
 

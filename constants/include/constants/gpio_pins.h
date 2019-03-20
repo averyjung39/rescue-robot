@@ -9,9 +9,6 @@
 #define MOTOR_LEFT_2 23
 #define MOTOR_ENABLE_2 19
 
-#define ULTRASONIC_F_TRIG 28
-#define ULTRASONIC_F_ECHO 31
-
 // Photodiode on robot left = 1 robot right = 5
 #define PHOTODIODE_1 4
 #define PHOTODIODE_2 5
