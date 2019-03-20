@@ -2,26 +2,6 @@
 #include <ros/ros.h>
 #include <math.h>
 
-Mapper::Mapper() {
-    _object_rows.insert(std::pair<int, std::vector<int> >(labels::MAGNET, std::vector<int>()));
-    _object_rows.insert(std::pair<int, std::vector<int> >(labels::FIRE, std::vector<int>()));
-    _object_rows.insert(std::pair<int, std::vector<int> >(labels::NO_FIRE, std::vector<int>()));
-    _object_rows.insert(std::pair<int, std::vector<int> >(labels::SMALL_HOUSE, std::vector<int>()));
-    _object_rows.insert(std::pair<int, std::vector<int> >(labels::BIG_HOUSE, std::vector<int>()));
-
-    _object_cols.insert(std::pair<int, std::vector<int> >(labels::MAGNET, std::vector<int>()));
-    _object_cols.insert(std::pair<int, std::vector<int> >(labels::FIRE, std::vector<int>()));
-    _object_cols.insert(std::pair<int, std::vector<int> >(labels::NO_FIRE, std::vector<int>()));
-    _object_cols.insert(std::pair<int, std::vector<int> >(labels::SMALL_HOUSE, std::vector<int>()));
-    _object_cols.insert(std::pair<int, std::vector<int> >(labels::BIG_HOUSE, std::vector<int>()));
-}
-
-bool Mapper::getObjectLocs(mapperception::ObjectLocation::Request &req, mapperception::ObjectLocation::Response &res) {
-    res.row_vector = _object_rows.at(req.label);
-    res.col_vector = _object_cols.at(req.label);
-    return true;
-}
-
 void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data,
                                      float robot_x, float robot_y,
                                      float robot_angle) {
@@ -35,14 +15,11 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data,
             continue;
         }
         _label_map.setLabel(points.first, points.second, labels::OBJECT);
-
     }
 }
 
 void Mapper::modifyLabelMapWithLabels(int robot_i, int robot_j, int label) {
     _label_map.setLabel(robot_i, robot_j, label);
-    _object_rows[label].push_back(robot_i);
-    _object_cols[label].push_back(robot_j);
 }
 
 std::pair<int, int> Mapper::robotPosToPoints(float robot_x, float robot_y) {

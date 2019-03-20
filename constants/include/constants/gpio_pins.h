@@ -9,8 +9,8 @@
 #define MOTOR_LEFT_2 23
 #define MOTOR_ENABLE_2 19
 
-#define ULTRASONIC_R_TRIG 28
-#define ULTRASONIC_R_ECHO 31
+#define ULTRASONIC_R_TRIG 31
+#define ULTRASONIC_R_ECHO 28
 #define ULTRASONIC_L_TRIG 29
 #define ULTRASONIC_L_ECHO 32
 #define ULTRASONIC_B_TRIG 30
@@ -28,11 +28,16 @@
 #define HALL_EFFECT_2_H 10
 #define HALL_EFFECT_2_L 11
 
+#define MOTOR_R_ENCODER_A_PIN 16
+#define MOTOR_R_ENCODER_B_PIN 17
+#define MOTOR_L_ENCODER_A_PIN 24
+#define MOTOR_L_ENCODER_B_PIN 25
+
 #define TOF_XSHUT_1 34
 #define TOF_XSHUT_2 35
-#define TOF_XSHUT_3 36
-#define TOF_XSHUT_4 37
-#define TOF_XSHUT_5 38
+#define TOF_XSHUT_3 37
+//#define TOF_XSHUT_4 37
+//#define TOF_XSHUT_5 38
 
 #define TOF_ADDR_1 0x30
 #define TOF_ADDR_2 0x31
