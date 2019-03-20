@@ -54,7 +54,7 @@ void Mapper::setRobotPose(float robot_x, float robot_y, float robot_angle) {
     _robot_angle = robot_angle;
     std::pair<int,int> robot_points = coordinateToPoints(robot_x, robot_y, _label_map.getResolution());
     if (_label_map.queryMap(robot_points.first,robot_points.second) == labels::UNSEARCHED) {
-        modifyLabelMapWithLabels(robot_points.first, robot_points.second, labels::FLAT_WOOD);
+        _label_map.setLabel(robot_points.first, robot_points.second, labels::FLAT_WOOD);
     }
 }
 
@@ -71,23 +71,15 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
         if (high_sensor) {
             // label it as TALL_OBJECT only if the cell is labeled as OBJECT, UNSEARCHED, or SAND
             if (map_label == labels::OBJECT || map_label == labels::UNSEARCHED || map_label == labels::SAND) {
-                modifyLabelMapWithLabels(points.first, points.second, label);
+                _label_map.setLabel(points.first, points.second, label);
             }
         } else {
             // label it as OBJECT only if the cell is labeled as UNSEARCHED, or SAND
             if (map_label == labels::UNSEARCHED || map_label == labels::SAND) {
-                modifyLabelMapWithLabels(points.first, points.second, label);
+                _label_map.setLabel(points.first, points.second, label);
             }
         }
 
-    }
-}
-
-void Mapper::modifyLabelMapWithLabels(int row, int col, int label) {
-    if (row > 5 || col > 5 || row < 0 || col < 0) {
-        ROS_WARN("Out of bound {%d, %d}", row, col);
-    } else {
-        _label_map.setLabel(row, col, label);
     }
 }
 
@@ -103,7 +95,8 @@ void Mapper::detectFire(std::vector<int> photodiode_data)
                 if (photodiode_data[i]) {
                     // At least one of the photodiode is seeing the fire, label it in the map
                     _found_labels.insert(labels::FIRE);
-                    modifyLabelMapWithLabels(fire_location.first, fire_location.second, labels::FIRE);
+                    _label_map.setLabel(fire_location.first, fire_location.second, labels::FIRE);
+                    break;
                 }
             }
         } else if (_found_labels.find(labels::NO_FIRE) == _found_labels.end()) {
@@ -114,7 +107,7 @@ void Mapper::detectFire(std::vector<int> photodiode_data)
             }
             // Fire has been extinguished, label the indices as NO_FIRE
             _found_labels.insert(labels::NO_FIRE);
-            modifyLabelMapWithLabels(fire_location.first, fire_location.second, labels::NO_FIRE);
+            _label_map.setLabel(fire_location.first, fire_location.second, labels::NO_FIRE);
         }
     }
 }
@@ -126,11 +119,11 @@ void Mapper::detectHouses(bool big_house_detected) {
     {
         if (big_house_detected && _found_labels.find(labels::BIG_HOUSE) == _found_labels.end()) {
             _found_labels.insert(labels::BIG_HOUSE);
-            modifyLabelMapWithLabels(house_location.first, house_location.second, labels::BIG_HOUSE);
+            _label_map.setLabel(house_location.first, house_location.second, labels::BIG_HOUSE);
 
         } else if (!big_house_detected && _found_labels.find(labels::SMALL_HOUSE) == _found_labels.end()) {
             _found_labels.insert(labels::SMALL_HOUSE);
-            modifyLabelMapWithLabels(house_location.first, house_location.second, labels::SMALL_HOUSE);
+            _label_map.setLabel(house_location.first, house_location.second, labels::SMALL_HOUSE);
         }
     }
 }
@@ -142,9 +135,9 @@ void Mapper::detectMagnet(bool hall_effect_data) {
     // 2. hall effect detected magnet and
     // 3. the indices are labeled as SAND
     if (_found_labels.find(labels::MAGNET) == _found_labels.end() && hall_effect_data &&
-        _label_map.queryMap(magnet_location.first,magnet_location.second) == labels::SAND) {
+        _label_map.queryMap(magnet_location.first, magnet_location.second) == labels::SAND) {
         _found_labels.insert(labels::MAGNET);
-        modifyLabelMapWithLabels(magnet_location.first, magnet_location.second, labels::MAGNET);
+        _label_map.setLabel(magnet_location.first, magnet_location.second, labels::MAGNET);
     }
 }
 

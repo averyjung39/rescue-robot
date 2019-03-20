@@ -22,7 +22,7 @@ public:
     int getSize() { return _size; }
     int getResolution() { return _resolution; }
 
-    int queryMap(int row, int col) { return _map[row][col]; }
+    int queryMap(int row, int col);
 
     /**
      * @brief print the current label map
