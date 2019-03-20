@@ -4,6 +4,7 @@
 
 #include "mapperception/Mapper.h"
 #include "sensors/Distance.h"
+#include "constants/denoise_params.h"
 
 Mapper::Mapper(int orientation) {
     _label_map.setLabel(5, 3, labels::FLAT_WOOD);
@@ -67,6 +68,12 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
         // -1 is INVALID_SENSOR_DATA
         if (dist_data[i] == -1) continue;
         std::pair<float, float> coords = distToCoordinates(dist_data[i], _robot_pos.first, _robot_pos.second, _robot_angle, i, high_sensor);
+        if (coords.first < denoise_params::WALL_OFFSET || coords.first > dimensions::MAP_WIDTH - denoise_params::WALL_OFFSET ||
+            coords.second < denoise_params::WALL_OFFSET || coords.second > dimensions::MAP_HEIGHT - denoise_params::WALL_OFFSET)
+        {
+            // Too close to the wall, don't put it in the map
+            return;    
+        }
         std::pair<int, int> points = coordinateToPoints(coords.first, coords.second, _label_map.getResolution());
         int map_label = _label_map.queryMap(points.first,points.second);
         if (high_sensor) {
