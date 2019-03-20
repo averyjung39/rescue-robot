@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <math.h>
+#include "constants/dimensions.h"
 
 #include "mapperception/Mapper.h"
 #include "sensors/Distance.h"
@@ -148,12 +149,12 @@ std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, f
     if (!high_sensor) {
         switch(sensor) {
             case BOTTOM_LEFT:
-                xr = d+BOTTOM_TOF_X_OFFSET;
-                yr = BOTTOM_TOF_Y_OFFSET;
+                xr = d+dimensions::BOTTOM_TOF_X_OFFSET;
+                yr = dimensions::BOTTOM_TOF_Y_OFFSET;
                 break;
             case BOTTOM_RIGHT:
-                xr = d+BOTTOM_TOF_X_OFFSET;
-                yr = -(BOTTOM_TOF_Y_OFFSET);
+                xr = d+dimensions::BOTTOM_TOF_X_OFFSET;
+                yr = -(dimensions::BOTTOM_TOF_Y_OFFSET);
                 break;
             default:
                 ROS_ERROR("Unknown sensor type.");
@@ -162,17 +163,20 @@ std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, f
     } else {
         switch(sensor) {
             case TOP_FRONT:
-                xr = d+TOP_TOF_FRONT_X_OFFSET;
-                yr = TOP_TOF_FRONT_Y_OFFSET;
+                xr = d+dimensions::TOP_TOF_FRONT_X_OFFSET;
+                yr = dimensions::TOP_TOF_FRONT_Y_OFFSET;
                 break;
             case TOP_BACK:
-                xr = -(d+TOP_TOF_OFFSET);
+                xr = -(d+dimensions::TOP_TOF_OFFSET);
+                yr = dimensions::TOP_TOF_BACK_Y_OFFSET;
                 break;
             case TOP_LEFT:
-                yr = d+TOP_TOF_OFFSET;
+                yr = d+dimensions::TOP_TOF_OFFSET;
+                xr = dimensions::TOP_TOF_LEFT_X_OFFSET;
                 break;
             case TOP_RIGHT:
-                yr = -(d+TOP_TOF_OFFSET);
+                yr = -(d+dimensions::TOP_TOF_OFFSET);
+                xr = dimensions::TOP_TOF_RIGHT_X_OFFSET;
                 break;
             default:
                 ROS_ERROR("Unknown sensor type.");
@@ -189,7 +193,7 @@ std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, f
 }
 
 std::pair<int,int> Mapper::coordinateToPoints(float x, float y, int resolution) {
-    float cm_per_px = 30.48/resolution;
+    float cm_per_px = dimensions::TILE_WIDTH_CM/resolution;
     int row = _label_map.getSize() - floor(y/cm_per_px) - 1;
     int col = floor(x/cm_per_px);
     return std::make_pair(row, col);

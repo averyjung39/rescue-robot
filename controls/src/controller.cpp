@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 
 #include "controls/controller.h"
-#include "planning/Arc.h"
+#include "messages/Arc.h"
 #include "constants/gpio_pins.h"
 #include "external/wiringPi/wiringPi.h"
 #include "external/wiringPi/softPwm.h"
@@ -30,7 +30,7 @@ void Controller::motorInit() {
     softPwmCreate(MOTOR_ENABLE_2,0,MAX_PWM);
 }
 
-void Controller::actuate(const planning::Arc &arc_cmd) {
+void Controller::actuate(const messages::Arc &arc_cmd) {
     std::pair<float, float> right_left_velocities = getVelocities(arc_cmd);
 
     _rpm_right = right_left_velocities.first;
@@ -75,28 +75,28 @@ void Controller::actuateLeftMotor(int pwm, bool is_forward) const {
     }
 }
 
-std::pair<float, float> Controller::getVelocities(const planning::Arc &arc_cmd) const {
-    const float &radius = arc_cmd.radius;
+std::pair<float, float> Controller::getVelocities(const messages::Arc &arc_cmd) const {
+    const float &command_type = arc_cmd.command_type;
     const bool &direction_is_right = arc_cmd.direction_is_right;
     const float &speed_r = arc_cmd.speed_r;
     const float &speed_l = arc_cmd.speed_l;
 
     std::pair<float, float> right_left_velocities = std::make_pair(_rpm_right, _rpm_left);
 
-    if (radius == planning::Arc::STRAIGHT_LINE) {
+    if (command_type == messages::Arc::STRAIGHT_LINE) {
         // right is forward
         int direction_sign = direction_is_right ? 1 : -1;
         right_left_velocities.first = rampVelocity(direction_sign*speed_r, true);
         right_left_velocities.second = rampVelocity(-direction_sign*speed_l, false);
-    } else if (radius == planning::Arc::STOP) {
+    } else if (command_type == messages::Arc::STOP) {
         right_left_velocities.first = rampVelocity(0, true);
         right_left_velocities.second = rampVelocity(0, false);
-    } else if (radius == planning::Arc::TURN_ON_SPOT) {
+    } else if (command_type == messages::Arc::TURN_ON_SPOT) {
         int direction_sign = direction_is_right ? -1 : 1;
         right_left_velocities.first = rampVelocity(direction_sign*speed_r, true);
         right_left_velocities.second = rampVelocity(direction_sign*speed_l, false);
     } else {
-        ROS_ERROR("UNHANDLED CONTROLS CASE: radius=%f, direction=%d", radius, direction_is_right);
+        ROS_ERROR("UNHANDLED CONTROLS CASE: command_type=%f, direction=%d", command_type, direction_is_right);
     }
 
     return right_left_velocities;

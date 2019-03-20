@@ -2,12 +2,12 @@
 #include <ros/duration.h>
 
 #include "controls/controller.h"
-#include "planning/Arc.h"
+#include "messages/Arc.h"
 #include "constants/topics.h"
 
-planning::Arc::ConstPtr arc_msg;
+messages::Arc::ConstPtr arc_msg;
 
-void planningArcCallback(const planning::Arc::ConstPtr &msg) {
+void planningArcCallback(const messages::Arc::ConstPtr &msg) {
     arc_msg = msg;
 }
 

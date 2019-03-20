@@ -13,10 +13,12 @@
   <build_depend>planning</build_depend>
   <build_depend>topics</build_depend>
   <build_depend>sensors</build_depend>
+  <build_depend>messages</build_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>planning</exec_depend>
   <exec_depend>topics</exec_depend>
   <exec_depend>sensors</exec_depend>
+  <exec_depend>messages</exec_depend>
 </package>
