@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <math.h>
+#include "constants/dimensions.h"
 
 #include "mapperception/Mapper.h"
 #include "sensors/Distance.h"
@@ -189,7 +190,7 @@ std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, f
 }
 
 std::pair<int,int> Mapper::coordinateToPoints(float x, float y, int resolution) {
-    float cm_per_px = 30.48/resolution;
+    float cm_per_px = dimensions::TILE_WIDTH_CM/resolution;
     int row = _label_map.getSize() - floor(y/cm_per_px) - 1;
     int col = floor(x/cm_per_px);
     return std::make_pair(row, col);

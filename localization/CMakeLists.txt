@@ -29,6 +29,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(simple_localization src/localization_main.cpp)
+add_executable(simple_localization src/localization_main.cpp src/SimpleLocalizer.cpp)
 target_link_libraries(simple_localization ${catkin_LIBRARIES})
 add_dependencies(simple_localization ${catkin_EXPORTED_TARGETS})

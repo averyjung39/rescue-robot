@@ -4,16 +4,17 @@
 #include "constants/topics.h"
 #include "messages/Arc.h"
 #include "localization/Pose.h"
+#include "localization/SimpleLocalizer.h"
 #include "sensors/Distance.h"
 #include "sensors/IMU.h"
 
-int command_type = messages::Arc::STOP;
+messages::Arc arc_msg;
 float imu_yaw = 0;
 std::vector<float> high_dist_data;
 
 
 void controlCommandCallback(const messages::Arc::ConstPtr &msg) {
-    command_type = msg->command_type;
+    arc_msg = *msg;
 }
 
 void highDistanceCallback(const sensors::Distance::ConstPtr &msg) {
@@ -34,8 +35,11 @@ int main(int argc, char **argv) {
     ros::Publisher pose_pub = nh.advertise<localization::Pose>(topics::POSE_TOPIC, 1);
 
     ros::Rate rate(10);
+    SimpleLocalizer localizer;
+    localization::Pose pose;
     while (ros::ok()) {
         ros::spinOnce();
+        pose = localizer.getPoseEstimate(arc_msg, imu_yaw, high_dist_data);
         rate.sleep();
     }
     return 0;

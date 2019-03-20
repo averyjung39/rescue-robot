@@ -1,0 +1,5 @@
+<launch>
+	<node pkg="sensors" type="tof_sensor" name="tof_sensor" output="screen">
+		<param name="print_debug" type="bool" value="true" />
+	</node>
+</launch>
