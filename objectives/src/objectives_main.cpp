@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     label_map.resize(6);
     std::vector<bool> active_objs;
     objectives::ActiveObjectives active_objs_msg;
-    active_objs_msg.active_objectives.resize(5);
+    active_objs_msg.active_objectives.resize(6);
 
     while(ros::ok()) {
         ros::spinOnce();

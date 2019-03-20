@@ -43,6 +43,7 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j,
                     _active_objectives[objectives_list::FIND_FIRE] = false;
                     _active_objectives[objectives_list::FIND_FOOD] = true;
                     _active_objectives[objectives_list::FIND_PERSON] = true;
+                    _active_objectives[objectives_list::FIND_SURVIVORS] = true;
                     return _active_objectives;
                 }
             } else {
@@ -58,7 +59,8 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j,
                 turnOnIndicator(FOOD_INDICATOR);
                 // Deactivate FIND_FOOD objective, activate FIND_SURVIVORS objective
                 _active_objectives[objectives_list::FIND_FOOD] = false;
-                _active_objectives[objectives_list::FIND_SURVIVORS] = true;
+                _active_objectives[objectives_list::RETURN_TO_SURVIVORS] = true;
+                _active_objectives[objectives_list::FIND_SURVIVORS] = false;
                 return _active_objectives;
             }
         }
@@ -79,12 +81,15 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j,
             }
         }
 
-        if (_active_objectives[objectives_list::FIND_SURVIVORS]) {
+        if (_active_objectives[objectives_list::FIND_SURVIVORS] ||
+            _active_objectives[objectives_list::RETURN_TO_SURVIVORS])
+        {
             if(near_labels.find(labels::BIG_HOUSE) != near_labels.end()) {
                 // Found big house
                 turnOnIndicator(SURVIVORS_INDICATOR);
                 // Deactivate FIND_SURVIVORS objective
                 _active_objectives[objectives_list::FIND_SURVIVORS] = false;
+                _active_objectives[objectives_list::RETURN_TO_SURVIVORS] = false;
                 // Check if all the missions were completed, if so, return to home
                 for (int i = 0; i < _active_objectives.size(); i++) {
                     // If there are any uncompleted missions, just return the active objectives list

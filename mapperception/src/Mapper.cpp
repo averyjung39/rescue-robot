@@ -162,7 +162,8 @@ std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, f
     } else {
         switch(sensor) {
             case TOP_FRONT:
-                xr = d+TOP_TOF_FRONT_Y_OFFSET;
+                xr = d+TOP_TOF_FRONT_X_OFFSET;
+                yr = TOP_TOF_FRONT_Y_OFFSET;
                 break;
             case TOP_BACK:
                 xr = -(d+TOP_TOF_OFFSET);
@@ -204,5 +205,7 @@ std::pair<int,int> Mapper::indicesInFront() {
         return std::make_pair(robot_points.first - 1, robot_points.second);
     } else if (_robot_angle > 350 || _robot_angle < 10) {
         return std::make_pair(robot_points.first, robot_points.second + 1);
+    } else {
+        return std::make_pair(-1, -1);
     }
 }
