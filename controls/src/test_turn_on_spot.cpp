@@ -4,14 +4,14 @@
 #include "external/wiringPi/wiringPi.h"
 #include "messages/Arc.h"
 #include "sensors/IMU.h"
-#include "sensors/Ultrasonic.h"
+// #include "sensors/Ultrasonic.h"
 
-sensors::Ultrasonic ultrasonic_msg;
+// sensors::Ultrasonic ultrasonic_msg;
 sensors::IMU imu_msg;
 
-void ultrasonicCallback(const sensors::Ultrasonic::ConstPtr &msg) {
-    ultrasonic_msg = *msg;
-}
+// void ultrasonicCallback(const sensors::Ultrasonic::ConstPtr &msg) {
+//     ultrasonic_msg = *msg;
+// }
 
 void imuCallback(const sensors::IMU::ConstPtr &msg) {
     imu_msg = *msg;
@@ -29,14 +29,14 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "planning_test_turn_on_spot");
     ros::NodeHandle nh;
 
-    ros::Subscriber ultrasonic_sub = nh.subscribe(topics::ULTRASONIC_TOPIC, 1, ultrasonicCallback);
+    // ros::Subscriber ultrasonic_sub = nh.subscribe(topics::ULTRASONIC_TOPIC, 1, ultrasonicCallback);
     ros::Subscriber imu_sub = nh.subscribe(topics::IMU_TOPIC, 1, imuCallback);
     ros::Publisher arc_pub = nh.advertise<messages::Arc>(topics::ARC_TOPIC, 1);
-    std::vector<float> ultrasonic_data;
-    for (int i = 0; i < 3; ++i) {
-        ultrasonic_data.push_back(sensors::Ultrasonic::INVALID_SENSOR_DATA);
-    }
-    ultrasonic_msg.data = ultrasonic_data;
+    // std::vector<float> ultrasonic_data;
+    // for (int i = 0; i < 3; ++i) {
+    //     ultrasonic_data.push_back(sensors::Ultrasonic::INVALID_SENSOR_DATA);
+    // }
+    // ultrasonic_msg.data = ultrasonic_data;
     bool turn_now = false;
     messages::Arc arc_command;
     float speed;

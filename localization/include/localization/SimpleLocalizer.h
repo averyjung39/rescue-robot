@@ -18,8 +18,6 @@ private:
     static const int FRONT_INDEX = 0;
     static const int BACK_INDEX = 1;
     static const float MAX_STRAIGHT_LINE_DISTANCE_DEVIATION_CM = 10; // TODO tune this 
-    static const float FRONT_HIGH_DISTANCE_SENSOR_OFFSET_CM = 15; // TODO measure this
-    static const float BACK_HIGH_DISTANCE_SENSOR_OFFSET_CM = 15; // TODO measure this
 
     localization::Pose _current_pose;
     int _prev_control_command;

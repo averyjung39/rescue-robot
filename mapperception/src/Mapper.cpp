@@ -149,12 +149,12 @@ std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, f
     if (!high_sensor) {
         switch(sensor) {
             case BOTTOM_LEFT:
-                xr = d+BOTTOM_TOF_X_OFFSET;
-                yr = BOTTOM_TOF_Y_OFFSET;
+                xr = d+dimensions::BOTTOM_TOF_X_OFFSET;
+                yr = dimensions::BOTTOM_TOF_Y_OFFSET;
                 break;
             case BOTTOM_RIGHT:
-                xr = d+BOTTOM_TOF_X_OFFSET;
-                yr = -(BOTTOM_TOF_Y_OFFSET);
+                xr = d+dimensions::BOTTOM_TOF_X_OFFSET;
+                yr = -(dimensions::BOTTOM_TOF_Y_OFFSET);
                 break;
             default:
                 ROS_ERROR("Unknown sensor type.");
@@ -163,17 +163,17 @@ std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, f
     } else {
         switch(sensor) {
             case TOP_FRONT:
-                xr = d+TOP_TOF_FRONT_X_OFFSET;
-                yr = TOP_TOF_FRONT_Y_OFFSET;
+                xr = d+dimensions::TOP_TOF_FRONT_X_OFFSET;
+                yr = dimensions::TOP_TOF_FRONT_Y_OFFSET;
                 break;
             case TOP_BACK:
-                xr = -(d+TOP_TOF_OFFSET);
+                xr = -(d+dimensions::TOP_TOF_X_OFFSET);
                 break;
             case TOP_LEFT:
-                yr = d+TOP_TOF_OFFSET;
+                yr = d+dimensions::TOP_TOF_X_OFFSET;
                 break;
             case TOP_RIGHT:
-                yr = -(d+TOP_TOF_OFFSET);
+                yr = -(d+dimensions::TOP_TOF_X_OFFSET);
                 break;
             default:
                 ROS_ERROR("Unknown sensor type.");
