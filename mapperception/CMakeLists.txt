@@ -32,4 +32,4 @@ include_directories(
 
 add_executable(mapping src/mapping_main.cpp src/Mapper.cpp src/LabelMap.cpp)
 target_link_libraries(mapping ${catkin_LIBRARIES})
-add_dependencies(mapping ${catkin_EXPORTED_TARGETS})
+add_dependencies(mapping sensors_generate_messages_cpp ${catkin_EXPORTED_TARGETS})

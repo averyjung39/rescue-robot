@@ -65,7 +65,7 @@ int main (int argc, char **argv) {
     bool success;
 
     while (ros::ok()) {
-        success = readUltrasonic(ULTRASONIC_F_TRIG, ULTRASONIC_F_ECHO, elapsed_r);
+        success = readUltrasonic(ULTRASONIC_F_TRIG, ULTRASONIC_F_ECHO, elapsed);
 
         if (success) {
             ult_data_cm.data = (elapsed.toSec() * 34300) / 2;

@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
     while(ros::ok()) {
         ros::spinOnce();
         for(int i = 0; i < map_rows.size(); i++) {
-            label_map[i] = map_rows[i];
+            label_map[i] = map_rows[i].row;
         }
         active_objs = obj_manager.activateObjectives(robot_i, robot_j, label_map);
         for(int i = 0; i < active_objs.size(); i++) {

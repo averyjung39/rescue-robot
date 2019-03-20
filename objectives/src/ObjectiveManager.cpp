@@ -29,16 +29,6 @@ void ObjectiveManager::setupGpio() {
     pinMode(FAN, OUTPUT);
 }
 
-std::pair<int,int> ObjectiveManager::findObjectLocation(int label, std::vector< std::vector<int> > label_map) {
-    for (int i = 0; i < label_map.size(); i++) {
-        for (int j = 0; j < label_map.size(); j++) {
-            if (label_map[i][j] == label) return std::make_pair(i,j);
-        }
-    }
-    // label not found
-    return std::make_pair(-1, -1);
-}
-
 std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j, std::vector< std::vector<int> > label_map) {
     std::set<int> near_labels = getNearLabels(robot_i, robot_j, label_map);
 
@@ -107,7 +97,7 @@ std::vector<bool> ObjectiveManager::activateObjectives(int robot_i, int robot_j,
     }
 }
 
-std::set<int> ObjectiveManager::getNearLabels(int robot_i, int robot_j, std::vector<int> map) {
+std::set<int> ObjectiveManager::getNearLabels(int robot_i, int robot_j, std::vector< std::vector<int> > map) {
     // {left, right, front, back}
     std::set<int> labels;
     if (robot_i != 0) {

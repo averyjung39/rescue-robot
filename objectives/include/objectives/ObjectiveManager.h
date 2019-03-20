@@ -21,9 +21,8 @@ public:
 
 private:
     void turnOnIndicator(int pin);
-    std::set<int> getNearLabels(int robot_i, int robot_j, std::vector<int> map);
+    std::set<int> getNearLabels(int robot_i, int robot_j, std::vector< std::vector<int> > map);
     void setupGpio();
-    std::pair<int,int> findObjectLocation(int label);
 
     std::vector<bool> _active_objectives;
 };

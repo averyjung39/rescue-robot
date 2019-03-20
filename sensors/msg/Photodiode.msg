@@ -1,1 +1,1 @@
-bool[] data
+int32[] data

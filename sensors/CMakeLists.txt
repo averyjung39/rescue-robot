@@ -16,7 +16,6 @@ add_message_files(
   Photodiode.msg
   IMU.msg
   Encoder.msg
-  Colour.msg
 )
 
 generate_messages(
@@ -46,7 +45,3 @@ add_dependencies(photodiode_sensor ${catkin_EXPORTED_TARGETS})
 add_executable(hall_effect_sensor src/hall_effect_sensor_main.cpp)
 target_link_libraries(hall_effect_sensor ${catkin_LIBRARIES})
 add_dependencies(hall_effect_sensor ${catkin_EXPORTED_TARGETS})
-
-add_executable(colour_sensor src/colour_sensor_main.cpp)
-target_link_libraries(colour_sensor ${catkin_LIBRARIES})
-add_dependencies(colour_sensor ${catkin_EXPORTED_TARGETS})
