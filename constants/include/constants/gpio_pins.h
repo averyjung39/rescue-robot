@@ -9,13 +9,6 @@
 #define MOTOR_LEFT_2 23
 #define MOTOR_ENABLE_2 19
 
-#define ULTRASONIC_R_TRIG 31
-#define ULTRASONIC_R_ECHO 28
-#define ULTRASONIC_L_TRIG 29
-#define ULTRASONIC_L_ECHO 32
-#define ULTRASONIC_B_TRIG 30
-#define ULTRASONIC_B_ECHO 33
-
 // Photodiode on robot left = 1 robot right = 5
 #define PHOTODIODE_1 4
 #define PHOTODIODE_2 5
@@ -28,22 +21,26 @@
 #define HALL_EFFECT_2_H 10
 #define HALL_EFFECT_2_L 11
 
-#define MOTOR_R_ENCODER_A_PIN 16
-#define MOTOR_R_ENCODER_B_PIN 17
-#define MOTOR_L_ENCODER_A_PIN 24
-#define MOTOR_L_ENCODER_B_PIN 25
+#define TOF_BOTTOM_LEFT 34
+#define TOF_BOTTOM_RIGHT 35
+#define TOF_TOP_FRONT 37
+#define TOF_TOP_BACK 36
+#define TOF_TOP_LEFT 38
+#define TOF_TOP_RIGHT 39
 
-#define TOF_XSHUT_1 34
-#define TOF_XSHUT_2 35
-#define TOF_XSHUT_3 37
-//#define TOF_XSHUT_4 37
-//#define TOF_XSHUT_5 38
+// TODO: define these with actual pin numbers used
+#define FOOD_INDICATOR 40
+#define PERSON_INDICATOR 41
+#define SURVIVORS_INDICATOR 42
+#define HOME_INDICATOR 43
 
-#define TOF_ADDR_1 0x30
-#define TOF_ADDR_2 0x31
-#define TOF_ADDR_3 0x32
-#define TOF_ADDR_4 0x33
-#define TOF_ADDR_5 0x34
+#define FAN 44
 
+#define BOTTOM_LEFT_ADDR 0x30
+#define BOTTOM_RIGHT_ADDR 0x31
+#define TOP_FRONT_ADDR 0x32
+#define TOP_BACK_ADDR 0x33
+#define TOP_LEFT_ADDR 0x34
+#define TOP_RIGHT_ADDR 0x35
 
 #endif // GPIO_PINS

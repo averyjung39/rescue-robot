@@ -2,6 +2,7 @@
 #include <ros/ros.h>
 
 #include "mapperception/LabelMap.h"
+#include "constants/labels.h"
 
 void LabelMap::print() const {
     std::ostringstream oss;
@@ -19,4 +20,12 @@ void LabelMap::print() const {
         oss << "]\n";
     }
     ROS_INFO("%s", oss.str().c_str());
+}
+
+int LabelMap::queryMap(int row, int col) {
+    if (row > 5 || col > 5 || row < 0 || col < 0) {
+        ROS_WARN("Out of bound {%d, %d}", row, col);
+        return labels::INVALID_LABEL;
+    }
+    return _map[row][col];
 }

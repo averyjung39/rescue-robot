@@ -1165,7 +1165,9 @@ int iTimeout;
   writeReg(0xFF, 0x00);
   writeReg(0x80, 0x00);
 
-  writeReg(SYSRANGE_START, 0x01);
+  if (!writeReg(SYSRANGE_START, 0x01)) {
+      return -1;
+  }
 
   // "Wait until start bit has been cleared"
   iTimeout = 0;
