@@ -79,9 +79,8 @@ int main(int argc, char **argv) {
         mapper.setRobotPose(robot_x, robot_y, robot_angle);
         if (scanning) {
             mapper.detectFire(photodiode_data);
-            if (high_dists[0] < 50.0 && high_dists[0] != sensors::Distance::INVALID_SENSOR_DATA) {
-                // The front ToF sensor detected the object
-                big_house_detected = true;
+            if (high_dists[0] != sensors::Distance::INVALID_SENSOR_DATA && !big_house_detected) {
+                mapper.detectHouses(big_house_detected, scanning, high_dists[0]);
             }
         } else {
             // Try detecting what the terrain is right in front the robot
@@ -91,7 +90,7 @@ int main(int argc, char **argv) {
         }
 
         // After scanning classify which house we detected
-        mapper.detectHouses(big_house_detected);
+        mapper.detectHouses(big_house_detected, scanning, high_dists[0]);
 
         label_map = mapper.getLabelMap().getMap();
         label_map_rows.resize(label_map.size());

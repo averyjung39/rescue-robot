@@ -1,10 +1,9 @@
 #include <ros/ros.h>
 #include <math.h>
 #include "constants/dimensions.h"
-
+#include "constants/denoise_params.h"
 #include "mapperception/Mapper.h"
 #include "sensors/Distance.h"
-#include "constants/denoise_params.h"
 
 Mapper::Mapper(int orientation) {
     _label_map.setLabel(5, 3, labels::FLAT_WOOD);
@@ -72,7 +71,7 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
             coords.second < denoise_params::WALL_OFFSET || coords.second > dimensions::MAP_HEIGHT - denoise_params::WALL_OFFSET)
         {
             // Too close to the wall, don't put it in the map
-            return;    
+            return;
         }
         std::pair<int, int> points = coordinateToPoints(coords.first, coords.second, _label_map.getResolution());
         int map_label = _label_map.queryMap(points.first,points.second);
@@ -120,18 +119,36 @@ void Mapper::detectFire(std::vector<int> photodiode_data)
     }
 }
 
-void Mapper::detectHouses(bool big_house_detected) {
-    std::pair<int,int> house_location = indicesInFront();
-    int map_label = _label_map.queryMap(house_location.first, house_location.second);
-    if (map_label == labels::TALL_OBJECT || map_label == labels::OBJECT)
-    {
-        if (big_house_detected && _found_labels.find(labels::BIG_HOUSE) == _found_labels.end()) {
-            _found_labels.insert(labels::BIG_HOUSE);
-            _label_map.setLabel(house_location.first, house_location.second, labels::BIG_HOUSE);
+void Mapper::detectHouses(bool &big_house_detected, bool scanning, float dist) {
+    if (scanning) {
+        // Check if the high front ToF sees something within 50 cm
+        if (dist < 50.0) {
+            // Check if the x,y point of the ToF reading is too close to the wall
+            std::pair<float,float> coords =
+                distToCoordinates(dist, _robot_pos.first, _robot_pos.second, _robot_angle, TOP_FRONT, true);
 
-        } else if (!big_house_detected && _found_labels.find(labels::SMALL_HOUSE) == _found_labels.end()) {
-            _found_labels.insert(labels::SMALL_HOUSE);
-            _label_map.setLabel(house_location.first, house_location.second, labels::SMALL_HOUSE);
+            if (coords.first < denoise_params::WALL_OFFSET || coords.first > dimensions::MAP_WIDTH - denoise_params::WALL_OFFSET ||
+                coords.second < denoise_params::WALL_OFFSET || coords.second > dimensions::MAP_HEIGHT - denoise_params::WALL_OFFSET)
+            {
+                // Too close to the wall, return false to indicate it's not the big house
+                big_house_detected = false;
+            } else {
+                big_house_detected = true;
+            }
+        }
+    } else {
+        std::pair<int,int> house_location = indicesInFront();
+        int map_label = _label_map.queryMap(house_location.first, house_location.second);
+        if (map_label == labels::TALL_OBJECT || map_label == labels::OBJECT)
+        {
+            if (big_house_detected && _found_labels.find(labels::BIG_HOUSE) == _found_labels.end()) {
+                _found_labels.insert(labels::BIG_HOUSE);
+                _label_map.setLabel(house_location.first, house_location.second, labels::BIG_HOUSE);
+
+            } else if (!big_house_detected && _found_labels.find(labels::SMALL_HOUSE) == _found_labels.end()) {
+                _found_labels.insert(labels::SMALL_HOUSE);
+                _label_map.setLabel(house_location.first, house_location.second, labels::SMALL_HOUSE);
+            }
         }
     }
 }
