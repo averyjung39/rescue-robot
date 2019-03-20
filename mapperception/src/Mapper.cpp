@@ -5,6 +5,7 @@
 #include "sensors/Distance.h"
 
 Mapper::Mapper(int orientation) {
+    _label_map.setLabel(5, 3, labels::FLAT_WOOD);
     if (orientation == 1) {
         _label_map.setLabel(5, 2, labels::PIT);
         _label_map.setLabel(4, 1, labels::SAND);
