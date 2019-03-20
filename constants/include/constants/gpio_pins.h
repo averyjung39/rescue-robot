@@ -31,13 +31,6 @@
 #define TOF_TOP_LEFT 38
 #define TOF_TOP_RIGHT 39
 
-#define BOTTOM_LEFT_ADDR 0x30
-#define BOTTOM_RIGHT_ADDR 0x31
-#define TOP_FRONT_ADDR 0x32
-#define TOP_BACK_ADDR 0x33
-#define TOP_LEFT_ADDR 0x34
-#define TOP_RIGHT_ADDR 0x35
-
 // TODO: define these with actual pin numbers used
 #define FOOD_INDICATOR 40
 #define PERSON_INDICATOR 41
@@ -46,8 +39,11 @@
 
 #define FAN 44
 
-#define SAND_PIN 45
-#define ROCK_PIN 46
-
+#define BOTTOM_LEFT_ADDR 0x30
+#define BOTTOM_RIGHT_ADDR 0x31
+#define TOP_FRONT_ADDR 0x32
+#define TOP_BACK_ADDR 0x33
+#define TOP_LEFT_ADDR 0x34
+#define TOP_RIGHT_ADDR 0x35
 
 #endif // GPIO_PINS
