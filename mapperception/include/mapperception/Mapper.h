@@ -33,7 +33,13 @@ public:
     void modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sensor);
 
     void detectFire(std::vector<int> photodiode_data);
-    void detectHouses(bool big_house_detected);
+    /**
+     * @brief figure out which house is in front of the robot
+     * @param big_house_detected: set to true if we've detected the big house
+     * @param scanning: boolean to indicate the robot is scanning
+     * @param dist: distance value read from the top front ToF sensor
+     */
+    void detectHouses(bool &big_house_detected, bool scanning, float dist);
     void detectMagnet(bool hall_effect_data);
 
     LabelMap getLabelMap() { return _label_map; }
