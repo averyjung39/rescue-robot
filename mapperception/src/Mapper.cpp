@@ -167,13 +167,16 @@ std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, f
                 yr = dimensions::TOP_TOF_FRONT_Y_OFFSET;
                 break;
             case TOP_BACK:
-                xr = -(d+dimensions::TOP_TOF_X_OFFSET);
+                xr = -(d+dimensions::TOP_TOF_OFFSET);
+                yr = dimensions::TOP_TOF_BACK_Y_OFFSET;
                 break;
             case TOP_LEFT:
-                yr = d+dimensions::TOP_TOF_X_OFFSET;
+                yr = d+dimensions::TOP_TOF_OFFSET;
+                xr = dimensions::TOP_TOF_LEFT_X_OFFSET;
                 break;
             case TOP_RIGHT:
-                yr = -(d+dimensions::TOP_TOF_X_OFFSET);
+                yr = -(d+dimensions::TOP_TOF_OFFSET);
+                xr = dimensions::TOP_TOF_RIGHT_X_OFFSET;
                 break;
             default:
                 ROS_ERROR("Unknown sensor type.");

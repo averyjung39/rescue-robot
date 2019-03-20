@@ -12,5 +12,9 @@ namespace dimensions {
     const float BOTTOM_TOF_X_OFFSET = 5.08;
     const float TOP_TOF_FRONT_X_OFFSET = 5.08;
     const float TOP_TOF_FRONT_Y_OFFSET = 0.0;
-    const float TOP_TOF_X_OFFSET = 10.56;
+    
+    const float TOP_TOF_OFFSET = 10.16;
+    const float TOP_TOF_LEFT_X_OFFSET = -0.9525;
+    const float TOP_TOF_RIGHT_X_OFFSET = 0.3175;
+    const float TOP_TOF_BACK_Y_OFFSET = -0.635;
 };

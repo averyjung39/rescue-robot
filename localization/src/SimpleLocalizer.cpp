@@ -60,7 +60,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
             }
             // Subtract sensor offset to get nominal distance with respect to sensor location
             front_nominal_distance -= dimensions::TOP_TOF_FRONT_X_OFFSET;
-            back_nominal_distance -= dimensions::TOP_TOF_X_OFFSET;
+            back_nominal_distance -= dimensions::TOP_TOF_OFFSET;
 
             // Use nominal values if measured sensor data is invalid
             if (_front_distance_cm == sensors::Distance::INVALID_SENSOR_DATA) {
