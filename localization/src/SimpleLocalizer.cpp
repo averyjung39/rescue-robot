@@ -126,9 +126,12 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
             _imu_yaw_deg = imu_yaw;
             // Update _nominal_theta_deg to the angle after we are done turning, assuming we turn 90 deg at a time
             _nominal_theta_deg = arc_msg.direction_is_right ? (_nominal_theta_deg - 90) % 360 : (_nominal_theta_deg + 90) % 360;
+            _starting_angle_deg = _current_pose.theta;
         } else {
             // Update robot angle based on difference from starting angle
-            _current_pose.theta += imu_yaw - _imu_yaw_deg;
+            _current_pose.theta = _starting_angle_deg + _imu_yaw - _imu_yaw_deg;
+            if (_current_pose.theta < 0) _current_pose.theta += 360;
+            if (_current_pose.theta >= 360) _current_pose.theta -= 360;
         }
         // Assume x and y don't change while turning on the spot
     } else if (control_command_type == messages::Arc::STOP) {

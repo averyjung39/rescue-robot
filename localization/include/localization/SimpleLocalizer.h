@@ -22,6 +22,7 @@ private:
     localization::Pose _current_pose;
     int _prev_control_command;
     float _imu_yaw_deg;
+    float _starting_angle_deg;
     float _front_distance_cm;
     float _back_distance_cm;
     float _prev_front_distance_cm;
