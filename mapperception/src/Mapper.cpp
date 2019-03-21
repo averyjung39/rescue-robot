@@ -76,13 +76,13 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
         std::pair<int, int> points = coordinateToPoints(coords.first, coords.second, _label_map.getResolution());
         int map_label = _label_map.queryMap(points.first,points.second);
         if (high_sensor) {
-            // label it as TALL_OBJECT only if the cell is labeled as OBJECT, UNSEARCHED, or SAND
-            if (map_label == labels::OBJECT || map_label == labels::UNSEARCHED || map_label == labels::SAND) {
+            // label it as TALL_OBJECT only if the cell is labeled as OBJECT or UNSEARCHED
+            if (map_label == labels::OBJECT || map_label == labels::UNSEARCHED) {
                 _label_map.setLabel(points.first, points.second, label);
             }
         } else {
             // label it as OBJECT only if the cell is labeled as UNSEARCHED, or SAND
-            if (map_label == labels::UNSEARCHED || map_label == labels::SAND) {
+            if (map_label == labels::UNSEARCHED) {
                 _label_map.setLabel(points.first, points.second, label);
             }
         }
