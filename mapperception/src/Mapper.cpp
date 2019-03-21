@@ -1,14 +1,78 @@
 #include "mapperception/Mapper.h"
 #include <ros/ros.h>
 #include <math.h>
+#include "constants/dimensions.h"
+#include "constants/denoise_params.h"
+#include "mapperception/Mapper.h"
+#include "sensors/Distance.h"
 
-void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data,
-                                     float robot_x, float robot_y,
-                                     float robot_angle) {
+Mapper::Mapper(int orientation) {
+    _label_map.setLabel(5, 3, labels::FLAT_WOOD);
+    if (orientation == 1) {
+        _label_map.setLabel(5, 2, labels::PIT);
+        _label_map.setLabel(4, 1, labels::SAND);
+        _label_map.setLabel(4, 4, labels::GRAVEL);
+        _label_map.setLabel(3, 5, labels::PIT);
+        _label_map.setLabel(2, 0, labels::GRAVEL);
+        _label_map.setLabel(2, 2, labels::SAND);
+        _label_map.setLabel(1, 1, labels::PIT);
+        _label_map.setLabel(1, 4, labels::SAND);
+        _label_map.setLabel(0, 3, labels::GRAVEL);
+    } else if (orientation == 2) {
+        _label_map.setLabel(5, 2, labels::PIT);
+        _label_map.setLabel(4, 1, labels::GRAVEL);
+        _label_map.setLabel(4, 4, labels::SAND);
+        _label_map.setLabel(3, 5, labels::GRAVEL);
+        _label_map.setLabel(2, 0, labels::PIT);
+        _label_map.setLabel(2, 3, labels::SAND);
+        _label_map.setLabel(1, 1, labels::SAND);
+        _label_map.setLabel(1, 4, labels::PIT);
+        _label_map.setLabel(0, 3, labels::GRAVEL);
+    } else if (orientation == 3) {
+        _label_map.setLabel(5, 2, labels::GRAVEL);
+        _label_map.setLabel(4, 1, labels::SAND);
+        _label_map.setLabel(4, 4, labels::PIT);
+        _label_map.setLabel(3, 3, labels::SAND);
+        _label_map.setLabel(3, 5, labels::GRAVEL);
+        _label_map.setLabel(2, 0, labels::PIT);
+        _label_map.setLabel(1, 1, labels::GRAVEL);
+        _label_map.setLabel(1, 4, labels::SAND);
+        _label_map.setLabel(0, 3, labels::PIT);
+    } else if (orientation == 4) {
+        _label_map.setLabel(5, 2, labels::GRAVEL);
+        _label_map.setLabel(4, 1, labels::PIT);
+        _label_map.setLabel(4, 4, labels::SAND);
+        _label_map.setLabel(3, 2, labels::SAND);
+        _label_map.setLabel(3, 5, labels::PIT);
+        _label_map.setLabel(2, 0, labels::GRAVEL);
+        _label_map.setLabel(1, 1, labels::SAND);
+        _label_map.setLabel(1, 4, labels::GRAVEL);
+        _label_map.setLabel(0, 3, labels::PIT);
+    }
+}
+
+void Mapper::setRobotPose(float robot_x, float robot_y, float robot_angle) {
+    _robot_pos = std::make_pair(robot_x, robot_y);
+    _robot_angle = robot_angle;
+    std::pair<int,int> robot_points = coordinateToPoints(robot_x, robot_y, _label_map.getResolution());
+    if (_label_map.queryMap(robot_points.first,robot_points.second) == labels::UNSEARCHED) {
+        _label_map.setLabel(robot_points.first, robot_points.second, labels::FLAT_WOOD);
+    }
+}
+
+void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sensor)
+{
+    int label = high_sensor ? labels::TALL_OBJECT : labels::OBJECT;
     for(int i = 0; i < dist_data.size(); i++) {
         // TODO: replace -1 with INVALID_SENSOR_DATA
         if (dist_data[i] == -1) continue;
-        std::pair<float, float> coords = distToCoordinates(dist_data[i], robot_x, robot_y, robot_angle, i);
+        std::pair<float, float> coords = distToCoordinates(dist_data[i], _robot_pos.first, _robot_pos.second, _robot_angle, i, high_sensor);
+        if (coords.first < denoise_params::WALL_OFFSET || coords.first > dimensions::MAP_WIDTH - denoise_params::WALL_OFFSET ||
+            coords.second < denoise_params::WALL_OFFSET || coords.second > dimensions::MAP_HEIGHT - denoise_params::WALL_OFFSET)
+        {
+            // Too close to the wall, don't put it in the map
+            return;
+        }
         std::pair<int, int> points = coordinateToPoints(coords.first, coords.second, _label_map.getResolution());
         if (points.first > 5 || points.second > 5 || points.first < 0 || points.second < 0) {
             ROS_WARN("Out of bound {%d, %d}", points.first, points.second);
@@ -18,12 +82,109 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data,
     }
 }
 
-void Mapper::modifyLabelMapWithLabels(int robot_i, int robot_j, int label) {
-    _label_map.setLabel(robot_i, robot_j, label);
+bool Mapper::detectFire(std::vector<int> photodiode_data) {
+    // Check if candle has been detected, try classifying the object if candle hasn't been found
+    for(int i = 0; i < photodiode_data.size(); i++) {
+        if (photodiode_data[i]) {
+            return true;
+        }
+    }
+    // none of the photodiodes see fire
+    return false;
 }
 
-std::pair<int, int> Mapper::robotPosToPoints(float robot_x, float robot_y) {
-    return coordinateToPoints(robot_x, robot_y, _label_map.getResolution());
+void Mapper::modifyLabelMapWithPhotodiode(std::vector<int> photodiode_data) {
+    if (_found_labels.find(labels::FIRE) != _found_labels.end()) {
+        std::pair<int,int> fire_location = indicesInFront();
+        int map_label = _label_map.queryMap(fire_location.first, fire_location.second);
+        if (map_label == labels::FIRE) {
+            for(int i = 0; i < photodiode_data.size(); i++) {
+                // If any of the photodiode sensors is high, then fire hasn't been extinguished
+                if (photodiode_data[i]) return;
+            }
+            _found_labels.insert(labels::NO_FIRE);
+            _label_map.setLabel(fire_location.first, fire_location.second, labels::NO_FIRE);
+        }
+    }
+}
+
+bool Mapper::detectHouses(float dist_l, float dist_r) {
+    bool big_house_detected = false;
+    if (dist_l < 50.0 && dist_l != sensors::Distance::INVALID_SENSOR_DATA) {
+        // Check if the x,y point of the ToF reading is too close to the wall
+        std::pair<float,float> coords =
+            distToCoordinates(dist_l, _robot_pos.first, _robot_pos.second, _robot_angle, TOP_LEFT, true);
+
+        if (coords.first < denoise_params::WALL_OFFSET || coords.first > dimensions::MAP_WIDTH - denoise_params::WALL_OFFSET ||
+            coords.second < denoise_params::WALL_OFFSET || coords.second > dimensions::MAP_HEIGHT - denoise_params::WALL_OFFSET)
+        {
+            // Too close to the wall, return false to indicate it's not the big house
+            big_house_detected = false;
+        } else {
+            big_house_detected = true;
+        }
+    }
+    if (!big_house_detected) {
+        if (dist_r < 50.0 && dist_r != sensors::Distance::INVALID_SENSOR_DATA) {
+            // Check if the x,y point of the ToF reading is too close to the wall
+            std::pair<float,float> coords =
+                distToCoordinates(dist_r, _robot_pos.first, _robot_pos.second, _robot_angle, TOP_RIGHT, true);
+
+            if (coords.first < denoise_params::WALL_OFFSET || coords.first > dimensions::MAP_WIDTH - denoise_params::WALL_OFFSET ||
+                coords.second < denoise_params::WALL_OFFSET || coords.second > dimensions::MAP_HEIGHT - denoise_params::WALL_OFFSET)
+            {
+                // Too close to the wall, return false to indicate it's not the big house
+                big_house_detected = false;
+            } else {
+                big_house_detected = true;
+            }
+        }
+    }
+    return big_house_detected;
+}
+
+void Mapper::updateLabelMapWithScanningResults(bool &big_house_detected, bool &fire_detected) {
+    std::pair<int,int> object_location = indicesInFront();
+    int map_label = _label_map.queryMap(object_location.first, object_location.second);
+
+    if (map_label == labels::TALL_OBJECT || map_label == labels::OBJECT) {
+        if (fire_detected) {
+            big_house_detected = false;
+            if (_found_labels.find(labels::FIRE) == _found_labels.end()) {
+                _found_labels.insert(labels::FIRE);
+                _label_map.setLabel(object_location.first, object_location.second, labels::FIRE);
+                return;
+            }
+        }
+
+        if (big_house_detected) {
+            if (_found_labels.find(labels::BIG_HOUSE) == _found_labels.end()) {
+                _found_labels.insert(labels::BIG_HOUSE);
+                _label_map.setLabel(object_location.first, object_location.second, labels::BIG_HOUSE);
+            }
+        } else {
+            if (_found_labels.find(labels::SMALL_HOUSE) == _found_labels.end()) {
+                _found_labels.insert(labels::SMALL_HOUSE);
+                _label_map.setLabel(object_location.first, object_location.second, labels::SMALL_HOUSE);
+            }
+        }
+    } else {
+        big_house_detected = false;
+        fire_detected = false;
+    }
+}
+
+void Mapper::detectMagnet(bool hall_effect_data) {
+    std::pair<int,int> magnet_location = indicesInFront();
+    // label the indices as MAGNET if:
+    // 1. magnet hasn't been found and
+    // 2. hall effect detected magnet and
+    // 3. the indices are labeled as SAND
+    if (_found_labels.find(labels::MAGNET) == _found_labels.end() && hall_effect_data &&
+        _label_map.queryMap(magnet_location.first, magnet_location.second) == labels::SAND) {
+        _found_labels.insert(labels::MAGNET);
+        _label_map.setLabel(magnet_location.first, magnet_location.second, labels::MAGNET);
+    }
 }
 
 std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, float rangle, int sensor) {

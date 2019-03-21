@@ -75,6 +75,57 @@ bool readdress() {
     return true;
 }
 
+float denoiseTof(std::vector<int> data, TOF sensor) {
+    float sum_data = 0.0;
+    int num_useful_data = data.size();
+    for(int i = 0; i < data.size(); i++) {
+        // INVALID_SENSOR_DATA
+        if (data[i] >= MAX_TOF) {
+            num_useful_data--;
+            continue;
+        } else if (data[i] == -1) {
+            // failed to read from the bus
+            // assume the sensor got reset to default address and set address again
+            switch(sensor) {
+                case BOTTOM_LEFT:
+                    b_left = VL53L0X();
+                    readdress(false, BOTTOM_LEFT);
+                    break;
+                case BOTTOM_RIGHT:
+                    b_right = VL53L0X();
+                    readdress(false, BOTTOM_RIGHT);
+                    break;
+                case TOP_FRONT:
+                    t_front = VL53L0X();
+                    readdress(false, TOP_FRONT);
+                    break;
+                case TOP_BACK:
+                    t_back = VL53L0X();
+                    readdress(false, TOP_BACK);
+                    break;
+                case TOP_LEFT:
+                    t_left = VL53L0X();
+                    readdress(false, TOP_LEFT);
+                    break;
+                case TOP_RIGHT:
+                    t_right = VL53L0X();
+                    readdress(false, TOP_RIGHT);
+                    break;
+                default:
+                    ROS_ERROR("Unknown sensor");
+                    break;
+                return sensors::Distance::INVALID_SENSOR_DATA;
+            }
+        }
+        sum_data += data[i];
+    }
+    if (num_useful_data <= 2) {
+        return sensors::Distance::INVALID_SENSOR_DATA;
+    }
+    // return the average value in cm
+    return (sum_data / num_useful_data) / 10.0;
+}
+
 int main(int argc, char **argv) {
     ros::init(argc, argv, "tof_sensor");
 
@@ -82,7 +133,7 @@ int main(int argc, char **argv) {
 
     ros::Publisher low_dist_pub = nh.advertise<sensors::Distance>(topics::LOW_DIST_TOPIC, 1);
     ros::Publisher high_dist_pub = nh.advertise<sensors::Distance>(topics::HIGH_DIST_TOPIC, 1);
-    int tof_distance1, tof_distance2, tof_distance3, tof_distance4, tof_distance5;
+    std::vector<int> b_left_dist, b_right_dist, t_front_dist, t_back_dist, t_left_dist, t_right_dist;
     int model, revision;
 
     // Readdress ToF sensors
@@ -97,22 +148,25 @@ int main(int argc, char **argv) {
 
     while (ros::ok()) {
         // Read data from the sensors
-        tof_distance1 = tof1.tofReadDistance();
-        tof_distance2 = tof2.tofReadDistance();
-        tof_distance3 = tof3.tofReadDistance();
-        // tof_distance4 = tof4.tofReadDistance();
-        // tof_distance5 = tof5.tofReadDistance();
+        for (int i = 0; i < 5; i++) {
+            b_left_dist.push_back(b_left.tofReadDistance());
+            b_right_dist.push_back(b_right.tofReadDistance());
+            t_front_dist.push_back(t_front.tofReadDistance());
+            t_back_dist.push_back(t_front.tofReadDistance());
+            t_left_dist.push_back(t_left.tofReadDistance());
+            t_right_dist.push_back(t_right.tofReadDistance());
+        }
 
-
-        // Check if they are in valid range and populate the ToF data msg
-        low_dist_data_cm.data[0] = (tof_distance1 < MAX_TOF) ? tof_distance1 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
-        low_dist_data_cm.data[1] = (tof_distance2 < MAX_TOF) ? tof_distance2 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
-        low_dist_data_cm.data[2] = (tof_distance3 < MAX_TOF) ? tof_distance3 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
-        // high_dist_data_cm.data[0] = (tof_distance4 < MAX_TOF) ? tof_distance4 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
-        // high_dist_data_cm.data[1] = (tof_distance5 < MAX_TOF) ? tof_distance5 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
+        // Denoise sensor value
+        low_dist_data_cm.data[0] = denoiseTof(b_left_dist, BOTTOM_LEFT);
+        low_dist_data_cm.data[1] = denoiseTof(b_right_dist, BOTTOM_RIGHT);
+        high_dist_data_cm.data[0] = denoiseTof(t_front_dist, TOP_FRONT);
+        high_dist_data_cm.data[1] = denoiseTof(t_back_dist, TOP_BACK);
+        high_dist_data_cm.data[2] = denoiseTof(t_left_dist, TOP_LEFT);
+        high_dist_data_cm.data[3] = denoiseTof(t_right_dist, TOP_RIGHT);
 
         low_dist_pub.publish(low_dist_data_cm);
-        // high_dist_pub.publish(high_dist_data_cm);
+        high_dist_pub.publish(high_dist_data_cm);
         rate.sleep();
     }
 

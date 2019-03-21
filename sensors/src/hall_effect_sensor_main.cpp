@@ -11,18 +11,9 @@ void hallEffectInit() {
         ROS_ERROR("Setting up wiringPi failed.");
         throw std::runtime_error("");
     }
-    
-    pinMode(HALL_EFFECT_1_H, INPUT);
-    pinMode(HALL_EFFECT_1_L, INPUT);
-    pinMode(HALL_EFFECT_2_H, INPUT);
-    pinMode(HALL_EFFECT_2_L, INPUT);
-}
 
-bool checkForMagnet() {
-    return (digitalRead(HALL_EFFECT_1_H) == HIGH ||
-            digitalRead(HALL_EFFECT_1_L) == LOW ||
-            digitalRead(HALL_EFFECT_2_H) == HIGH ||
-            digitalRead(HALL_EFFECT_2_L) == LOW);
+    pinMode(HALL_EFFECT_1, INPUT);
+    pinMode(HALL_EFFECT_2, INPUT);
 }
 
 int main(int argc, char **argv) {
@@ -34,10 +25,17 @@ int main(int argc, char **argv) {
     hallEffectInit();
 
     std_msgs::Bool hall_effect_msg;
+    std::vector<bool> read_data(2,true);
     ros::Rate rate(10);
 
     while (ros::ok()) {
-        hall_effect_msg.data = checkForMagnet();
+        read_data[0] = true;
+        read_data[1] = true;
+        for (int i = 0; i < 5; i++) {
+            read_data[0] = read_data[0] && digitalRead(HALL_EFFECT_1);
+            read_data[1] = read_data[1] && digitalRead(HALL_EFFECT_2);
+        }
+        hall_effect_msg.data = (read_data[0] || read_data[1]);
         hall_effect_data_pub.publish(hall_effect_msg);
         rate.sleep();
     }
