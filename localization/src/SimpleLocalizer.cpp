@@ -66,7 +66,10 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
                 case 180:
                     front_nominal_distance = _current_pose.x;
                     back_nominal_distance = dimensions::MAP_WIDTH - _current_pose.x;
+<<<<<<< HEAD
                     _nominal_x_cm = _current_pose.x - dimensions::TILE_WIDTH_CM * arc_msg.num_tiles;
+=======
+>>>>>>> 71c8f6f... change perception logic
                     break;
                 case 270:
                     front_nominal_distance = _current_pose.y;
