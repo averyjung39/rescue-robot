@@ -9,7 +9,9 @@
 class SimpleLocalizer {
 public:
     SimpleLocalizer();
-    SimpleLocalizer(const float &tile_time);
+    SimpleLocalizer(const float &tile_time,
+        const float &right_turn_time,
+        const float &left_turn_time);
     localization::Pose getPoseEstimate(
         const messages::Arc &arc_msg,
         const float &imu_yaw,
@@ -32,8 +34,11 @@ private:
     float _nominal_x_cm;
     float _nominal_y_cm;
     float _straight_line_speed;
-    float _straight_prev_time;
+    float _prev_time;
+    float _angular_speed;
     float _tile_time; // Time it takes to travel one tile
+    float _right_turn_time;
+    float _left_turn_time;
 
     bool isValidDistanceReading(const float &distance,
         const float &prev_distance) const;

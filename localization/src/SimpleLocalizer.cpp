@@ -6,10 +6,12 @@
 #include "sensors/Distance.h"
 
 SimpleLocalizer::SimpleLocalizer() {
-    SimpleLocalizer(2.05);
+    SimpleLocalizer(2.05, 2.1, 1.8);
 }
 
-SimpleLocalizer::SimpleLocalizer(const float &tile_time) {
+SimpleLocalizer::SimpleLocalizer(const float &tile_time,
+    const float &right_turn_time,
+    const float &left_turn_time) {
     // Initialize pose estimate
     _current_pose.x = 7*dimensions::HALF_TILE_WIDTH_CM;
     _current_pose.y = dimensions::HALF_TILE_WIDTH_CM;
@@ -21,10 +23,13 @@ SimpleLocalizer::SimpleLocalizer(const float &tile_time) {
     _back_distance_cm = 0;
     _prev_front_distance_cm = 0;
     _prev_back_distance_cm = 0;
-    _tile_time = tile_time;
     _straight_line_speed = 0;
     _nominal_x_cm = _current_pose.x;
     _nominal_y_cm = _current_pose.y;
+    _angular_speed = 0;
+    _tile_time = tile_time;
+    _right_turn_time = right_turn_time;
+    _left_turn_time = left_turn_time;
 }
 
 localization::Pose SimpleLocalizer::getPoseEstimate(
@@ -38,7 +43,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
         if (_prev_control_command != messages::Arc::STRAIGHT_LINE) {
             // Get nominal straight line speed based on hard-coded times
             _straight_line_speed = dimensions::TILE_WIDTH_CM * arc_msg.num_tiles / _tile_time;
-            _straight_prev_time = ros::Time::now().toSec();
+            _prev_time = ros::Time::now().toSec();
 
             // Record ToF distance to front and back obstacles at the start
             _front_distance_cm = high_distance_data[FRONT_INDEX];
@@ -88,9 +93,9 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
             _prev_back_distance_cm = _back_distance_cm;
         } else {
             // Get distance traveled based on hard-coded times
-            float dt = ros::Time::now().toSec() - _straight_prev_time;
+            float dt = ros::Time::now().toSec() - _prev_time;
             float distance_traveled_hardcode = _straight_line_speed * dt;
-            _straight_prev_time = ros::Time::now().toSec();
+            _prev_time = ros::Time::now().toSec();
 
             // Get distance traveled based on ToFs
             bool valid_front_distance = isValidDistanceReading(high_distance_data[FRONT_INDEX], _prev_front_distance_cm) && _prev_front_distance_cm > high_distance_data[FRONT_INDEX];
@@ -110,6 +115,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
             }
 
             // Fuse distance calculations
+            // Weightings are arbitrary for now
             float distance_traveled = 0.7*distance_traveled_hardcode + 0.3*distance_traveled_tof;
 
             // Update pose based on distance traveled
@@ -147,14 +153,25 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
     } else if (control_command_type == messages::Arc::TURN_ON_SPOT) {
         // Check if we are just starting to turn
         if (_prev_control_command != messages::Arc::TURN_ON_SPOT) {
+            // Get angular speed given hard coded values
+            _angular_speed = arc_msg.direction_is_right ? 90.0 / _right_turn_time : 90.0 / _left_turn_time;
+            _prev_time = ros::Time::now().toSec();
+
             // Record IMU yaw at the start of the turn
             _imu_yaw_deg = imu_yaw;
             // Update _nominal_theta_deg to the angle after we are done turning, assuming we turn 90 deg at a time
             _nominal_theta_deg = arc_msg.direction_is_right ? (_nominal_theta_deg - 90) % 360 : (_nominal_theta_deg + 90) % 360;
             _starting_angle_deg = _current_pose.theta;
         } else {
-            // Update robot angle based on difference from starting angle
-            _current_pose.theta = _starting_angle_deg + imu_yaw - _imu_yaw_deg;
+            // Get angle from hard-coded times
+            float dt = ros::Time::now().toSec() - _prev_time;
+            float angle_change_hardcode = _angular_speed * dt;
+            _prev_time = ros::Time::now().toSec();
+
+            // Update IMU angle based on difference from starting angle
+            float angle_change_imu = _starting_angle_deg + imu_yaw - _imu_yaw_deg;
+            _current_pose.theta += 0.7*angle_change_hardcode + 0.3*angle_change_imu;
+
             if (_current_pose.theta < 0) _current_pose.theta += 360;
             if (_current_pose.theta >= 360) _current_pose.theta -= 360;
         }
