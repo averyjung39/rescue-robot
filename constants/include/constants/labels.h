@@ -1,9 +1,4 @@
-#ifndef LABELS
-#define LABELS
-
 namespace labels {
-    const int INVALID_LABEL = -1;
-    const int UNSEARCHED = 0;
     const int FLAT_WOOD = 1;
     const int PIT = 2;
     const int GRAVEL = 3;
@@ -14,7 +9,4 @@ namespace labels {
     const int SMALL_HOUSE = 8;
     const int BIG_HOUSE = 9;
     const int OBJECT = 10;
-    const int TALL_OBJECT = 11;
 }
-
-#endif // LABELS

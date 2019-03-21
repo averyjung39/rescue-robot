@@ -7,7 +7,6 @@ find_package(catkin REQUIRED COMPONENTS
   sensors
   planning
   constants
-  messages
 )
 
 ## Generate messages in the 'msg' folder

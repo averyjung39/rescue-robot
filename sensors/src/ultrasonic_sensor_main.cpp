@@ -13,8 +13,12 @@ void ultrasonicInit(){
         throw std::runtime_error("");
     }
 
-    pinMode(ULTRASONIC_F_TRIG, OUTPUT);
-    pinMode(ULTRASONIC_F_ECHO, INPUT);
+    pinMode(ULTRASONIC_R_TRIG, OUTPUT);
+    pinMode(ULTRASONIC_R_ECHO, INPUT);
+    pinMode(ULTRASONIC_L_TRIG, OUTPUT);
+    pinMode(ULTRASONIC_L_ECHO, INPUT);
+    pinMode(ULTRASONIC_B_TRIG, OUTPUT);
+    pinMode(ULTRASONIC_B_ECHO, INPUT);
 }
 
 /**
@@ -61,18 +65,43 @@ int main (int argc, char **argv) {
     ultrasonicInit();
 
     sensors::Ultrasonic ult_data_cm;
-    ros::Duration elapsed;
-    bool success;
+    ult_data_cm.data.resize(3);
+
+    ros::Duration elapsed_r;
+    ros::Duration elapsed_l;
+    ros::Duration elapsed_b;
+
+    bool success_r;
+    bool success_l;
+    bool success_b;
 
     while (ros::ok()) {
-        success = readUltrasonic(ULTRASONIC_F_TRIG, ULTRASONIC_F_ECHO, elapsed);
+        success_r = readUltrasonic(ULTRASONIC_R_TRIG, ULTRASONIC_R_ECHO, elapsed_r);
+        success_l = readUltrasonic(ULTRASONIC_L_TRIG, ULTRASONIC_L_ECHO, elapsed_l);
+        success_b = readUltrasonic(ULTRASONIC_B_TRIG, ULTRASONIC_B_ECHO, elapsed_b);
 
-        if (success) {
-            ult_data_cm.data = (elapsed.toSec() * 34300) / 2;
-    	    ROS_INFO("LEFT ELAPSED TIME: %f", elapsed.toSec());
+        if (success_l) {
+            ult_data_cm.data[0] = (elapsed_l.toSec() * 34300) / 2;
+    	    ROS_INFO("LEFT ELAPSED TIME: %f", elapsed_l.toSec());
         } else {
-            ult_data_cm.data = sensors::Ultrasonic::INVALID_SENSOR_DATA;
-            ROS_WARN("Timed out while reading ultrasonic sensor!");
+            ult_data_cm.data[0] = sensors::Ultrasonic::INVALID_SENSOR_DATA;
+            ROS_WARN("Timed out while reading left ultrasonic sensor!");
+        }
+
+        if (success_b) {
+            ult_data_cm.data[1] = (elapsed_b.toSec() * 34300) / 2;
+            ROS_INFO("BACK ELAPSED TIME: %f", elapsed_b.toSec());
+        } else {
+            ult_data_cm.data[1] = sensors::Ultrasonic::INVALID_SENSOR_DATA;
+            ROS_WARN("Timed out while reading back ultrasonic sensor!");
+        }
+
+        if (success_r) {
+            ult_data_cm.data[2] = (elapsed_r.toSec() * 34300) / 2;
+            ROS_INFO("RIGHT ELAPSED TIME: %f", elapsed_r.toSec());
+        } else {
+            ult_data_cm.data[2] = sensors::Ultrasonic::INVALID_SENSOR_DATA;
+            ROS_WARN("Timed out while reading right ultrasonic sensor!");
         }
 
         ult_data_pub.publish(ult_data_cm);

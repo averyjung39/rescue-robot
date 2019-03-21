@@ -1,1 +1,1 @@
-bool[] active_objectives
+int32 mask

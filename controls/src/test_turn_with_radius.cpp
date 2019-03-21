@@ -1,7 +1,6 @@
 #include <ros/ros.h>
 
 #include "constants/topics.h"
-#include "external/wiringPi/wiringPi.h"
 #include "planning/Arc.h"
 #include "sensors/IMU.h"
 #include "sensors/Ultrasonic.h"
@@ -20,12 +19,6 @@ void imuCallback(const sensors::IMU::ConstPtr &msg) {
 // Subscribe to ultrasonic message and make a 90 degree turn when detecting something 
 // Use IMU to determine when 90 degrees has been turned
 int main(int argc, char **argv) {
-    if (wiringPiSetup() < 0 || wiringPiSetupGpio() < 0) {
-        ROS_ERROR("Setting up wiringPi failed");
-        return -1;
-    }
-    pinMode(45, INPUT);
-
     ros::init(argc, argv, "planning_test_turn_with_radius");
     ros::NodeHandle nh;
 
@@ -50,30 +43,19 @@ int main(int argc, char **argv) {
     while (ros::ok()) {
         ros::spinOnce();
         if (turn_now) {
-            turn_now = abs(imu_msg.yaw - yaw) <= 90;
-            ROS_INFO("%f", imu_msg.yaw - yaw);
+            turn_now = imu_msg.yaw - yaw > 90;
         } else {
-            // Wait for gpio pin
-            if (digitalRead(45)) {
-                arc_command.radius = planning::Arc::TURN_ON_SPOT;
-                turn_now = true;
-                yaw = imu_msg.yaw;
-            } else {
-                arc_command.radius = planning::Arc::STOP;
-            }
-/*
-            // Stay still and check ultrasonics
+            // Go straight and check ultrasonics
             for (int i = 0; i < 3; ++i) {
                 if (ultrasonic_msg.data[i] < 10 && ultrasonic_msg.data[i] != sensors::Ultrasonic::INVALID_SENSOR_DATA) {
-                    arc_command.radius = planning::Arc::TURN_ON_SPOT;
+                    arc_command.radius = planning::Arc::TURN_WITH_RADIUS;
                     turn_now = true;
                     yaw = imu_msg.yaw;
                     break;
                 } else {
-                    arc_command.radius = planning::Arc::STOP;
+                    arc_command.radius = planning::Arc::STRAIGHT_LINE;
                 }
             }
-*/
         }
         arc_pub.publish(arc_command);
     }

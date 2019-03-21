@@ -20,21 +20,11 @@
 Don't forget to remove the protective plastic cover from the sensor before using!
 7. Repeat for each sensor, turning each one on, setting a unique address.Note you must do this every time you turn on the power, the addresses are not permanent*/
 
-enum TOF {
-    BOTTOM_LEFT = 1,
-    BOTTOM_RIGHT = 2,
-    TOP_FRONT = 3,
-    TOP_BACK = 4,
-    TOP_LEFT = 5,
-    TOP_RIGHT = 6
-};
-
-VL53L0X b_left = VL53L0X();
-VL53L0X b_right = VL53L0X();
-VL53L0X t_front = VL53L0X();
-VL53L0X t_back = VL53L0X();
-VL53L0X t_left = VL53L0X();
-VL53L0X t_right = VL53L0X();
+VL53L0X tof1 = VL53L0X();
+VL53L0X tof2 = VL53L0X();
+VL53L0X tof3 = VL53L0X();
+//VL53L0X tof4 = VL53L0X();
+//VL53L0X tof5 = VL53L0X();
 
 #define I2C_SLAVE_DEVICE_ADDRESS 0x8A
 
@@ -52,57 +42,35 @@ bool setId(VL53L0X &tof, uint8_t address, int xshut_pin) {
     return true;
 }
 
-bool readdress(bool all = true, int sensor = 0) {
+bool readdress() {
     if (wiringPiSetupGpio() == -1) {
         ROS_ERROR("Setting up wiringPi failed.");
         throw std::runtime_error("");
     }
 
-    pinMode(TOF_BOTTOM_LEFT, OUTPUT);
-    pinMode(TOF_BOTTOM_RIGHT, OUTPUT);
-    pinMode(TOF_TOP_FRONT, OUTPUT);
-    pinMode(TOF_TOP_BACK, OUTPUT);
-    pinMode(TOF_TOP_LEFT, OUTPUT);
-    pinMode(TOF_TOP_RIGHT, OUTPUT);
+    pinMode(TOF_XSHUT_1, OUTPUT);
+    pinMode(TOF_XSHUT_2, OUTPUT);
+    pinMode(TOF_XSHUT_3, OUTPUT);
+//    pinMode(TOF_XSHUT_4, OUTPUT);
+//    pinMode(TOF_XSHUT_5, OUTPUT);
 
     ROS_INFO("Shutdown pins...");
 
-    digitalWrite(TOF_BOTTOM_LEFT, LOW);
-    digitalWrite(TOF_BOTTOM_RIGHT, LOW);
-    digitalWrite(TOF_TOP_FRONT, LOW);
-    digitalWrite(TOF_TOP_BACK, LOW);
-    digitalWrite(TOF_TOP_LEFT, LOW);
-    digitalWrite(TOF_TOP_RIGHT, LOW);
+    digitalWrite(TOF_XSHUT_1, LOW);
+    digitalWrite(TOF_XSHUT_2, LOW);
+    digitalWrite(TOF_XSHUT_3, LOW);
+//    digitalWrite(TOF_XSHUT_4, LOW);
+//    digitalWrite(TOF_XSHUT_5, LOW);
 
     ROS_INFO("All sensors in reset mode...(pins are low)");
 
     ros::Duration(0.01).sleep();
 
-    if (all || sensor == BOTTOM_LEFT) {
-        if (!setId(b_left, BOTTOM_LEFT_ADDR, TOF_BOTTOM_LEFT)) { return false; }
-    }
-    if (all || sensor == BOTTOM_RIGHT) {
-        if (!setId(b_right, BOTTOM_RIGHT_ADDR, TOF_BOTTOM_RIGHT)) { return false; }
-    }
-    if (all || sensor == TOP_FRONT) {
-        if (!setId(t_front, TOP_FRONT_ADDR, TOF_TOP_FRONT)) { return false; }
-    }
-    if (all || sensor == TOP_BACK) {
-        if (!setId(t_back, TOP_BACK_ADDR, TOF_TOP_BACK)) { return false; }
-    }
-    if (all || sensor == TOP_LEFT) {
-        if (!setId(t_left, TOP_LEFT_ADDR, TOF_TOP_LEFT)) { return false; }
-    }
-    if (all || sensor == TOP_RIGHT) {
-        if (!setId(t_right, TOP_RIGHT_ADDR, TOF_TOP_RIGHT)) { return false; }
-    }
-
-    digitalWrite(TOF_BOTTOM_LEFT, HIGH);
-    digitalWrite(TOF_BOTTOM_RIGHT, HIGH);
-    digitalWrite(TOF_TOP_FRONT, HIGH);
-    digitalWrite(TOF_TOP_BACK, HIGH);
-    digitalWrite(TOF_TOP_LEFT, HIGH);
-    digitalWrite(TOF_TOP_RIGHT, HIGH);
+    if (!setId(tof1, TOF_ADDR_1, TOF_XSHUT_1)) { return false; }
+    if (!setId(tof2, TOF_ADDR_2, TOF_XSHUT_2)) { return false; }
+   // if (!setId(tof3, TOF_ADDR_3, TOF_XSHUT_3)) { return false; }
+//    if (!setId(tof4, TOF_ADDR_4, TOF_XSHUT_4)) { return false; }
+//    if (!setId(tof5, TOF_ADDR_5, TOF_XSHUT_5)) { return false; }
 
     return true;
 }
@@ -114,7 +82,7 @@ int main(int argc, char **argv) {
 
     ros::Publisher low_dist_pub = nh.advertise<sensors::Distance>(topics::LOW_DIST_TOPIC, 1);
     ros::Publisher high_dist_pub = nh.advertise<sensors::Distance>(topics::HIGH_DIST_TOPIC, 1);
-    int b_left_dist, b_right_dist, t_front_dist, t_back_dist, t_left_dist, t_right_dist;
+    int tof_distance1, tof_distance2, tof_distance3, tof_distance4, tof_distance5;
     int model, revision;
 
     // Readdress ToF sensors
@@ -123,52 +91,25 @@ int main(int argc, char **argv) {
     ROS_INFO("VL53L0X device successfully opened.\n");
 
     sensors::Distance low_dist_data_cm, high_dist_data_cm;
-    low_dist_data_cm.data.resize(2);
-    high_dist_data_cm.data.resize(4);
+    low_dist_data_cm.data.resize(3);
+    high_dist_data_cm.data.resize(3);
     ros::Rate rate(10);
 
     while (ros::ok()) {
         // Read data from the sensors
-        b_left_dist = b_left.tofReadDistance();
-        b_right_dist = b_right.tofReadDistance();
-        t_front_dist = t_front.tofReadDistance();
-        t_back_dist = t_back.tofReadDistance();
-        t_left_dist = t_left.tofReadDistance();
-        t_right_dist = t_right.tofReadDistance();
-
-        if (b_left_dist == -1) {
-            b_left = VL53L0X();
-            readdress(false, BOTTOM_LEFT);
-        }
-        if (b_right_dist == -1) {
-            b_right = VL53L0X();
-            readdress(false, BOTTOM_RIGHT);
-        }
-        if (t_front_dist == -1) {
-            t_front = VL53L0X();
-            readdress(false, TOP_FRONT);
-        }
-        if (t_back_dist == -1) {
-            t_back = VL53L0X();
-            readdress(false, TOP_BACK);
-        }
-        if (t_left_dist == -1) {
-            t_left = VL53L0X();
-            readdress(false, TOP_LEFT);
-        }
-        if (t_right_dist == -1) {
-            t_right = VL53L0X();
-            readdress(false, TOP_RIGHT);
-        }
+        tof_distance1 = tof1.tofReadDistance();
+        tof_distance2 = tof2.tofReadDistance();
+        tof_distance3 = tof3.tofReadDistance();
+        // tof_distance4 = tof4.tofReadDistance();
+        // tof_distance5 = tof5.tofReadDistance();
 
 
         // Check if they are in valid range and populate the ToF data msg
-        low_dist_data_cm.data[0] = (b_left_dist < MAX_TOF && b_left_dist != -1) ? b_left_dist / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
-        low_dist_data_cm.data[1] = (b_right_dist < MAX_TOF && b_right_dist != -1) ? b_right_dist / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
-        high_dist_data_cm.data[0] = (t_front_dist < MAX_TOF && t_front_dist != -1) ? t_front_dist / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
-        high_dist_data_cm.data[1] = (t_back_dist < MAX_TOF && t_back_dist != -1) ? t_back_dist / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
-        high_dist_data_cm.data[2] = (t_left_dist < MAX_TOF && t_left_dist != -1) ? t_left_dist / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
-        high_dist_data_cm.data[3] = (t_right_dist < MAX_TOF && t_right_dist != -1) ? t_right_dist / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
+        low_dist_data_cm.data[0] = (tof_distance1 < MAX_TOF) ? tof_distance1 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
+        low_dist_data_cm.data[1] = (tof_distance2 < MAX_TOF) ? tof_distance2 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
+        low_dist_data_cm.data[2] = (tof_distance3 < MAX_TOF) ? tof_distance3 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
+        // high_dist_data_cm.data[0] = (tof_distance4 < MAX_TOF) ? tof_distance4 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
+        // high_dist_data_cm.data[1] = (tof_distance5 < MAX_TOF) ? tof_distance5 / 10.0 : sensors::Distance::INVALID_SENSOR_DATA;
 
         low_dist_pub.publish(low_dist_data_cm);
         // high_dist_pub.publish(high_dist_data_cm);
