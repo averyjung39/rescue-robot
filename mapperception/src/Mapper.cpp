@@ -133,7 +133,7 @@ bool Mapper::detectHouses(float dist_l, float dist_r) {
         }
     }
     if (!big_house_detected) {
-        if (dist_l < 50.0 && dist_l != sensors::Distance::INVALID_SENSOR_DATA) {
+        if (dist_r < 50.0 && dist_r != sensors::Distance::INVALID_SENSOR_DATA) {
             // Check if the x,y point of the ToF reading is too close to the wall
             std::pair<float,float> coords =
                 distToCoordinates(dist_r, _robot_pos.first, _robot_pos.second, _robot_angle, TOP_RIGHT, true);
@@ -161,6 +161,7 @@ void Mapper::updateLabelMapWithScanningResults(bool &big_house_detected, bool &f
             if (_found_labels.find(labels::FIRE) == _found_labels.end()) {
                 _found_labels.insert(labels::FIRE);
                 _label_map.setLabel(object_location.first, object_location.second, labels::FIRE);
+                return;
             }
         }
 
