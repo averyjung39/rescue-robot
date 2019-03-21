@@ -31,22 +31,9 @@ public:
      * @param robot_angle: orientation of the robot w.r.t. the positive horizontal axis
      */
     void modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sensor);
-    void modifyLabelMapWithPhotodiode(std::vector<int> photodiode_data);
-    void updateLabelMapWithScanningResults(bool &big_house_detected, bool &fire_detected);
 
-    /**
-     * @brief perform detection to figure out if the object in front of the robot is the fire
-     * @param photodiode_data: photodiode sensor data
-     * @return true if fire is detected
-     */
-    bool detectFire(std::vector<int> photodiode_data);
-    
-    /**
-     * @brief perform detection to figure out if the object in front of the robot is the big house
-     * @param dist_l, dist_r: top left and right tof sensor data
-     * @return true if big house is detected
-     */
-    bool detectHouses(float dist_l, float dist_r);
+    void detectFire(std::vector<int> photodiode_data);
+    void detectHouses(bool big_house_detected);
     void detectMagnet(bool hall_effect_data);
 
     LabelMap getLabelMap() { return _label_map; }

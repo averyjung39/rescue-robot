@@ -24,7 +24,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
     const float &imu_yaw,
     const std::vector<float> &high_distance_data) {
     _current_pose.is_good_reading = true;
-    int control_command_type = arc_msg.command_type;
+    int control_command_type = arc_msg.command_type;    
     if (control_command_type == messages::Arc::STRAIGHT_LINE) {
         // Use high distance data to localize
         // Check if we are just starting to drive straight
@@ -34,7 +34,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
             _back_distance_cm = high_distance_data[BACK_INDEX];
 
             // Calculate nominal distances (ideal distances if there are no obstacles and flat walls)
-            float front_nominal_distance = _front_distance_cm, back_nominal_distance = _back_distance_cm;
+            float front_nominal_distance = _front_distance_cm, back_nominal_distance = _back_distance_cm;  
             // Get nominal distance with respect to centre of robot
             switch (_nominal_theta_deg) {
                 case 0:
@@ -47,7 +47,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
                     break;
                 case 180:
                     front_nominal_distance = _current_pose.x;
-                    back_nominal_distance = dimensions::MAP_WIDTH - _current_pose.x;
+                    back_nominal_distance = dimensions::MAP_WIDTH - _current_pose.x; 
                     break;
                 case 270:
                     front_nominal_distance = _current_pose.y;
@@ -129,7 +129,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
             _starting_angle_deg = _current_pose.theta;
         } else {
             // Update robot angle based on difference from starting angle
-            _current_pose.theta = _starting_angle_deg + imu_yaw - _imu_yaw_deg;
+            _current_pose.theta = _starting_angle_deg + _imu_yaw - _imu_yaw_deg;
             if (_current_pose.theta < 0) _current_pose.theta += 360;
             if (_current_pose.theta >= 360) _current_pose.theta -= 360;
         }
