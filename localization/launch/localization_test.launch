@@ -1,0 +1,30 @@
+<launch>
+    <arg name="tile_time" default="2.05" />
+    <arg name="right_turn_time" default="2.1" />
+    <arg name="left_turn_time" default="1.8" />
+    <arg name="localization_output" default="log" />
+    <arg name="mapping_output" default="log" />
+
+    <arg name="command_type" default="-1" />
+    <arg name="direction_is_right" default="true" />
+    <arg name="num_tiles" default="1" />
+    <arg name="speed_r" default="120" />
+    <arg name="speed_l" default="110" />
+
+    <param name="tile_time" type="double" value="$(arg tile_time)" />
+    <param name="right_turn_time" type="double" value="$(arg right_turn_time)" />
+    <param name="left_turn_time" type="double" value="$(arg left_turn_time)" />
+
+    <node pkg="sensors" type="imu_sensor" name="imu_sensor" />
+    <node pkg="sensors" type="tof_sensor" name="tof_sensor" />
+    <node pkg="localization" type="simple_localization" name="simple_localization" output="$(arg localization_output)" />
+    <node pkg="mapperception" type="mapping" name="mapping" output="$(arg mapping_output)" />
+    <node pkg="planning" type="dummy_planner" name="dummy_planner" >
+        <param name="command_type" type="int" value="$(arg command_type)" />
+        <param name="direction_is_right" type="bool" value="$(arg direction_is_right)" />
+        <param name="num_tiles" type="int" value="$(arg num_tiles)" />
+        <param name="speed_r" type="int" value="$(arg speed_r)" />
+        <param name="speed_l" type="int" value="$(arg speed_l)" />
+    </node>
+    <node pkg="controls" type="controller" name="controller" />
+</launch>
