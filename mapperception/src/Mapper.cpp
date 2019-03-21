@@ -100,11 +100,11 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
                     _label_map.setLabel(points.first, j, labels::FLAT_WOOD);
                 }
             } else if (_robot_angle > 260 && _robot_angle < 280) {
-                for(int i = robot_location.first-1; j > points.first; i--) {
+                for(int i = robot_location.first-1; i > points.first; i--) {
                     _label_map.setLabel(i, points.second, labels::FLAT_WOOD);
                 }
             } else if (_robot_angle > 350 || _robot_angle < 10) {
-                for(int j = robot_location.second+1; i < points.second; j++) {
+                for(int j = robot_location.second+1; j < points.second; j++) {
                     _label_map.setLabel(points.first, j, labels::FLAT_WOOD);
                 }
             }
@@ -138,7 +138,7 @@ void Mapper::modifyLabelMapWithPhotodiode(std::vector<int> photodiode_data) {
     }
 }
 
-bool Mapper::detectHouses(float dist_l);//, float dist_r) {
+bool Mapper::detectHouses(float dist_l) {//, float dist_r) {
     bool big_house_detected = false;
     if (dist_l < 50.0 && dist_l != sensors::Distance::INVALID_SENSOR_DATA) {
         // Check if the x,y point of the ToF reading is too close to the wall

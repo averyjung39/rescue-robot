@@ -47,7 +47,7 @@ void scanningCallback(const std_msgs::Bool::ConstPtr& msg) {
     scanning = msg->data;
 }
 
-void arcCallback(const messages::Arc::ContPtr &msg) {
+void arcCallback(const messages::Arc::ConstPtr &msg) {
     arc_cmd = msg->command_type;
 }
 
