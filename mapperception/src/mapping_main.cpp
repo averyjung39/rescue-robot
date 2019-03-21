@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     std::vector<mapperception::MapRow> label_map_rows;
     mapperception::Map published_label_map;
 
-    bool big_house_detected = false;
+    bool big_house_detected = false, fire_detected = false;
 
     while(ros::ok()) {
 
@@ -78,19 +78,21 @@ int main(int argc, char **argv) {
 
         mapper.setRobotPose(robot_x, robot_y, robot_angle);
         if (scanning) {
-            mapper.detectFire(photodiode_data);
-            if (high_dists[0] != sensors::Distance::INVALID_SENSOR_DATA && !big_house_detected) {
-                mapper.detectHouses(big_house_detected, scanning, high_dists[0]);
+            if (!fire_detected) fire_detected = mapper.detectFire(photodiode_data);
+            if ((high_dists[2] != sensors::Distance::INVALID_SENSOR_DATA ||
+                high_dists[3] != sensors::Distance::INVALID_SENSOR_DATA) &&
+                !big_house_detected)
+            {
+                big_house_detected = mapper.detectHouses(high_dists[2], high_dists[3]);
             }
         } else {
+            mapper.updateLabelMapWithScanningResults(big_house_detected, fire_detected);
+            mapper.modifyLabelMapWithPhotodiode(photodiode_data);
             // Try detecting what the terrain is right in front the robot
             mapper.detectMagnet(hall_effect_data);
             mapper.modifyLabelMapWithDists(low_dists, false);
             mapper.modifyLabelMapWithDists(high_dists, true);
         }
-
-        // After scanning classify which house we detected
-        mapper.detectHouses(big_house_detected, scanning, high_dists[0]);
 
         label_map = mapper.getLabelMap().getMap();
         label_map_rows.resize(label_map.size());
