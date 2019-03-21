@@ -18,7 +18,7 @@ SimpleLocalizer::SimpleLocalizer(const float &tile_time,
     _current_pose.theta = 90;
     _nominal_theta_deg = 90;
     _prev_control_command = messages::Arc::STOP;
-    _imu_yaw_deg = 0;
+    _starting_imu_yaw = 0;
     _front_distance_cm = 0;
     _back_distance_cm = 0;
     _prev_front_distance_cm = 0;
@@ -42,7 +42,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
         // Check if we are just starting to drive straight
         if (_prev_control_command != messages::Arc::STRAIGHT_LINE) {
             // Get nominal straight line speed based on hard-coded times
-            _straight_line_speed = dimensions::TILE_WIDTH_CM * arc_msg.num_tiles / _tile_time;
+            _straight_line_speed = dimensions::TILE_WIDTH_CM / _tile_time;
             _prev_time = ros::Time::now().toSec();
 
             // Record ToF distance to front and back obstacles at the start
@@ -158,7 +158,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
             _prev_time = ros::Time::now().toSec();
 
             // Record IMU yaw at the start of the turn
-            _imu_yaw_deg = imu_yaw;
+            _starting_imu_yaw = imu_yaw;
             // Update _nominal_theta_deg to the angle after we are done turning, assuming we turn 90 deg at a time
             _nominal_theta_deg = arc_msg.direction_is_right ? (_nominal_theta_deg - 90) % 360 : (_nominal_theta_deg + 90) % 360;
             _starting_angle_deg = _current_pose.theta;
@@ -169,7 +169,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
             _prev_time = ros::Time::now().toSec();
 
             // Update IMU angle based on difference from starting angle
-            float angle_change_imu = _starting_angle_deg + imu_yaw - _imu_yaw_deg;
+            float angle_change_imu = _starting_angle_deg + imu_yaw - _starting_imu_yaw;
             _current_pose.theta += 0.7*angle_change_hardcode + 0.3*angle_change_imu;
 
             if (_current_pose.theta < 0) _current_pose.theta += 360;
