@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_message_files(
   FILES
-  Distance.msg
+  TimeOfFlight.msg
   Ultrasonic.msg
   Photodiode.msg
   IMU.msg
@@ -23,7 +23,9 @@ generate_messages(
   std_msgs
 )
 
-catkin_package()
+catkin_package(
+    INCLUDE_DIRS include
+)
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
@@ -46,7 +48,7 @@ add_executable(hall_effect_sensor src/hall_effect_sensor_main.cpp)
 target_link_libraries(hall_effect_sensor ${catkin_LIBRARIES})
 add_dependencies(hall_effect_sensor ${catkin_EXPORTED_TARGETS})
 
-add_executable(encoder src/encoder_main.cpp src/MotorEncoder.cpp)
+add_executable(encoder src/encoder_main.cpp src/MotorEncoder.cpp src/GPIOClass.cpp)
 target_link_libraries(encoder ${catkin_LIBRARIES})
 add_dependencies(encoder ${catkin_EXPORTED_TARGETS})
 

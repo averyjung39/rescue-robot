@@ -5,11 +5,9 @@ namespace MotorEncoderISR {
 
     void ISR1 () {
         ++rising_edges_1;
-//        ROS_INFO("ISR 1: %d", rising_edges_1);
     }
 
     void ISR2 () {
         ++rising_edges_2;
-//        ROS_INFO("ISR 2: %d", rising_edges_2);
     }
 }

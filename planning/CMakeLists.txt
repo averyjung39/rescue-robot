@@ -17,15 +17,8 @@ generate_messages(
   std_msgs
 )
 
-catkin_package(
-  INCLUDE_DIRS include
-)
+catkin_package()
 
 include_directories(
-  include
   ${catkin_INCLUDE_DIRS}
 )
-
-add_executable(planning_node src/planning_main.cpp src/AStarPlanner.cpp src/RobotPath.cpp)
-target_link_libraries(planning_node ${catkin_LIBRARIES})
-add_dependencies(planning_node ${catkin_EXPORTED_TARGETS})
