@@ -11,7 +11,7 @@ void photodiodeInit() {
         ROS_ERROR("Setting up wiringPi failed.");
         throw std::runtime_error("");
     }
-    
+
     pinMode(PHOTODIODE_1, INPUT);
     pinMode(PHOTODIODE_2, INPUT);
     pinMode(PHOTODIODE_3, INPUT);
@@ -19,17 +19,13 @@ void photodiodeInit() {
     pinMode(PHOTODIODE_5, INPUT);
 }
 
-sensors::Photodiode readPhotodiodeSensors() {
-    sensors::Photodiode photodiode_data;
-    photodiode_data.data.resize(5);
+void resetData(sensors::Photodiode &photodiode_data) {
+    photodiode_data.data[0] = true;
+    photodiode_data.data[1] = true;
+    photodiode_data.data[2] = true;
+    photodiode_data.data[3] = true;
+    photodiode_data.data[4] = true;
 
-    photodiode_data.data[0] = digitalRead(PHOTODIODE_1);
-    photodiode_data.data[1] = digitalRead(PHOTODIODE_2);
-    photodiode_data.data[2] = digitalRead(PHOTODIODE_3);
-    photodiode_data.data[3] = digitalRead(PHOTODIODE_4);
-    photodiode_data.data[4] = digitalRead(PHOTODIODE_5);
-
-    return photodiode_data;
 }
 
 int main(int argc, char **argv) {
@@ -41,10 +37,18 @@ int main(int argc, char **argv) {
     photodiodeInit();
 
     sensors::Photodiode photodiode_data;
+    photodiode_data.resize(5);
     ros::Rate rate(10);
 
     while (ros::ok()) {
-        photodiode_data = readPhotodiodeSensors();
+        resetData(photodiode_data);
+        for (int i = 0; i < 5; i++) {
+            photodiode_data.data[0] = photodiode_data.data[0] & !digitalRead(PHOTODIODE_1);
+            photodiode_data.data[1] = photodiode_data.data[1] & !digitalRead(PHOTODIODE_2);
+            photodiode_data.data[2] = photodiode_data.data[2] & !digitalRead(PHOTODIODE_3);
+            photodiode_data.data[3] = photodiode_data.data[3] & !digitalRead(PHOTODIODE_4);
+            photodiode_data.data[4] = photodiode_data.data[4] & !digitalRead(PHOTODIODE_5);
+        }
         photodiode_data_pub.publish(photodiode_data);
         rate.sleep();
     }

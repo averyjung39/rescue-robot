@@ -16,10 +16,8 @@
 #define PHOTODIODE_4 7
 #define PHOTODIODE_5 8
 
-#define HALL_EFFECT_1_H 8
-#define HALL_EFFECT_1_L 9
-#define HALL_EFFECT_2_H 10
-#define HALL_EFFECT_2_L 11
+#define HALL_EFFECT_1 8
+#define HALL_EFFECT_2 9
 
 #define MOTOR_R_ENCODER_A_PIN 16
 #define MOTOR_R_ENCODER_B_PIN 17
