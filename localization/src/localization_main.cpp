@@ -34,8 +34,11 @@ int main(int argc, char **argv) {
     ros::Subscriber imu_sub = nh.subscribe(topics::IMU_TOPIC, 1, imuCallback);
     ros::Publisher pose_pub = nh.advertise<localization::Pose>(topics::POSE_TOPIC, 1);
 
+    float tile_time; // Time to travel one tile
+    nh.param<float>("/tile_time", tile_time, 2.05);
+
     ros::Rate rate(10);
-    SimpleLocalizer localizer;
+    SimpleLocalizer localizer(tile_time);
     localization::Pose pose;
     while (ros::ok()) {
         ros::spinOnce();

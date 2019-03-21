@@ -6,6 +6,10 @@
 #include "sensors/Distance.h"
 
 SimpleLocalizer::SimpleLocalizer() {
+    SimpleLocalizer(2.05);
+}
+
+SimpleLocalizer::SimpleLocalizer(const float &tile_time) {
     // Initialize pose estimate
     _current_pose.x = 7*dimensions::HALF_TILE_WIDTH_CM;
     _current_pose.y = dimensions::HALF_TILE_WIDTH_CM;
@@ -17,6 +21,8 @@ SimpleLocalizer::SimpleLocalizer() {
     _back_distance_cm = 0;
     _prev_front_distance_cm = 0;
     _prev_back_distance_cm = 0;
+    _tile_time = tile_time;
+    _straight_line_speed = 0;
 }
 
 localization::Pose SimpleLocalizer::getPoseEstimate(
@@ -29,9 +35,15 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
         // Use high distance data to localize
         // Check if we are just starting to drive straight
         if (_prev_control_command != messages::Arc::STRAIGHT_LINE) {
+            // Get nominal straight line speed based on hard-coded times
+            _straight_line_speed = dimensions::TILE_WIDTH_CM * arc_msg.num_tiles / _tile_time;
+            _straight_prev_time = ros::Time::now().toSec();
+
             // Record distance to front and back obstacles at the start
             _front_distance_cm = high_distance_data[FRONT_INDEX];
             _back_distance_cm = high_distance_data[BACK_INDEX];
+
+
 
             // Calculate nominal distances (ideal distances if there are no obstacles and flat walls)
             float front_nominal_distance = _front_distance_cm, back_nominal_distance = _back_distance_cm;  
@@ -72,21 +84,30 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
             _prev_front_distance_cm = _front_distance_cm;
             _prev_back_distance_cm = _back_distance_cm;
         } else {
+            // Get distance traveled based on hard-coded times
+            float dt = ros::Time::now().toSec() - _straight_prev_time;
+            float distance_traveled_hardcode = _straight_line_speed * dt;
+            _straight_prev_time = ros::Time::now().toSec();
+
+            // Get distance traveled based on ToFs
             bool valid_front_distance = isValidDistanceReading(high_distance_data[FRONT_INDEX], _prev_front_distance_cm) && _prev_front_distance_cm > high_distance_data[FRONT_INDEX];
             bool valid_back_distance = isValidDistanceReading(high_distance_data[BACK_INDEX], _prev_back_distance_cm) && _prev_back_distance_cm < high_distance_data[BACK_INDEX];
-            float distance_traveled = 0;
+            float distance_traveled_tof = 0;
             if (valid_front_distance && valid_back_distance) {
                 // Average distance traveled
-                distance_traveled = 0.5*(_prev_front_distance_cm - high_distance_data[FRONT_INDEX]) + 0.5*(high_distance_data[BACK_INDEX] - _prev_front_distance_cm);
+                distance_traveled_tof = 0.5*(_prev_front_distance_cm - high_distance_data[FRONT_INDEX]) + 0.5*(high_distance_data[BACK_INDEX] - _prev_front_distance_cm);
             } else if (valid_front_distance) {
-                distance_traveled = _prev_front_distance_cm - high_distance_data[FRONT_INDEX];
+                distance_traveled_tof = _prev_front_distance_cm - high_distance_data[FRONT_INDEX];
             } else if (valid_back_distance) {
-                distance_traveled = high_distance_data[BACK_INDEX] - _prev_back_distance_cm;
+                distance_traveled_tof = high_distance_data[BACK_INDEX] - _prev_back_distance_cm;
             } else {
                 // Both front distance and back distance are invalid
-                distance_traveled = 0;
+                distance_traveled_tof = 0;
                 _current_pose.is_good_reading = false;
             }
+
+            // Fuse distance calculations
+            float distance_traveled = 0.7*distance_traveled_hardcode + 0.3*distance_traveled_tof;
 
             // Update pose based on distance traveled
             switch (_nominal_theta_deg) {
@@ -107,15 +128,16 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
                     _current_pose.is_good_reading = false;
                     break;
             }
+
             if (valid_front_distance) {
                 _prev_front_distance_cm = high_distance_data[FRONT_INDEX];
             } else {
-                _prev_front_distance_cm -= distance_traveled;
+                _prev_front_distance_cm -= distance_traveled_tof;
             }
             if (valid_back_distance) {
                 _prev_back_distance_cm = high_distance_data[BACK_INDEX];
             } else {
-                _prev_back_distance_cm += distance_traveled;
+                _prev_back_distance_cm += distance_traveled_tof;
             }
         }
         // Assume theta doesn't change while driving straight
@@ -129,7 +151,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
             _starting_angle_deg = _current_pose.theta;
         } else {
             // Update robot angle based on difference from starting angle
-            _current_pose.theta = _starting_angle_deg + _imu_yaw - _imu_yaw_deg;
+            _current_pose.theta = _starting_angle_deg + imu_yaw - _imu_yaw_deg;
             if (_current_pose.theta < 0) _current_pose.theta += 360;
             if (_current_pose.theta >= 360) _current_pose.theta -= 360;
         }

@@ -9,6 +9,7 @@
 class SimpleLocalizer {
 public:
     SimpleLocalizer();
+    SimpleLocalizer(const float &tile_time);
     localization::Pose getPoseEstimate(
         const messages::Arc &arc_msg,
         const float &imu_yaw,
@@ -28,6 +29,9 @@ private:
     float _prev_front_distance_cm;
     float _prev_back_distance_cm;
     int _nominal_theta_deg; // Closest angle to yaw that's a multiple of 90 (when driving straight)
+    float _straight_line_speed;
+    float _straight_prev_time;
+    float _tile_time; // Time it takes to travel one tile
 
     bool isValidDistanceReading(const float &distance,
         const float &prev_distance) const;
