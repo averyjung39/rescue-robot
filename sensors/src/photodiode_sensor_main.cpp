@@ -37,17 +37,17 @@ int main(int argc, char **argv) {
     photodiodeInit();
 
     sensors::Photodiode photodiode_data;
-    photodiode_data.resize(5);
+    photodiode_data.data.resize(5);
     ros::Rate rate(10);
 
     while (ros::ok()) {
         resetData(photodiode_data);
         for (int i = 0; i < 5; i++) {
-            photodiode_data.data[0] = photodiode_data.data[0] & !digitalRead(PHOTODIODE_1);
-            photodiode_data.data[1] = photodiode_data.data[1] & !digitalRead(PHOTODIODE_2);
-            photodiode_data.data[2] = photodiode_data.data[2] & !digitalRead(PHOTODIODE_3);
-            photodiode_data.data[3] = photodiode_data.data[3] & !digitalRead(PHOTODIODE_4);
-            photodiode_data.data[4] = photodiode_data.data[4] & !digitalRead(PHOTODIODE_5);
+            photodiode_data.data[0] = photodiode_data.data[0] && !digitalRead(PHOTODIODE_1);
+            photodiode_data.data[1] = photodiode_data.data[1] && !digitalRead(PHOTODIODE_2);
+            photodiode_data.data[2] = photodiode_data.data[2] && !digitalRead(PHOTODIODE_3);
+            photodiode_data.data[3] = photodiode_data.data[3] && !digitalRead(PHOTODIODE_4);
+            photodiode_data.data[4] = photodiode_data.data[4] && !digitalRead(PHOTODIODE_5);
         }
         photodiode_data_pub.publish(photodiode_data);
         rate.sleep();

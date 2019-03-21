@@ -38,58 +38,6 @@ VL53L0X t_right = VL53L0X();
 
 #define I2C_SLAVE_DEVICE_ADDRESS 0x8A
 
-float denoiseTof(std::vector<float> data, TOF sensor) {
-    float sum_data = 0.0;
-    int num_useful_data = data.size();
-    for(int i = 0; i < data.size(); i++) {
-        // INVALID_SENSOR_DATA
-        if (data[i] >= MAX_TOF) {
-            num_useful_data--;
-            continue;
-        } else if (data[i] == -1) {
-            // failed to read from the bus
-            // assume the sensor got reset to default address and set address again
-            switch(sensor) {
-                case BOTTOM_LEFT:
-                    b_left = VL53L0X();
-                    readdress(false, BOTTOM_LEFT);
-                    break;
-                case BOTTOM_RIGHT:
-                    b_right = VL53L0X();
-                    readdress(false, BOTTOM_RIGHT);
-                    break;
-                case TOP_FRONT:
-                    t_front = VL53L0X();
-                    readdress(false, TOP_FRONT);
-                    break;
-                case TOP_BACK:
-                    t_back = VL53L0X();
-                    readdress(false, TOP_BACK);
-                    break;
-                case TOP_LEFT:
-                    t_left = VL53L0X();
-                    readdress(false, TOP_LEFT);
-                    break;
-                case TOP_RIGHT:
-                    t_right = VL53L0X();
-                    readdress(false, TOP_RIGHT);
-                    break;
-                default:
-                    ROS_ERROR("Unknown sensor");
-                    break;
-                return sensors::Distance::INVALID_SENSOR_DATA;
-            }
-        }
-        sum_data += data[i];
-    }
-    if (num_useful_data <= 2) {
-        return sensors::Distance::INVALID_SENSOR_DATA;
-    }
-    // return the average value in cm
-    return (sum_data / num_useful_data) / 10.0;
-}
-
-
 bool setId(VL53L0X &tof, uint8_t address, int xshut_pin) {
     digitalWrite(xshut_pin, HIGH);
     ros::Duration(0.01).sleep();
@@ -159,6 +107,57 @@ bool readdress(bool all = true, int sensor = 0) {
     return true;
 }
 
+float denoiseTof(std::vector<int> data, TOF sensor) {
+    float sum_data = 0.0;
+    int num_useful_data = data.size();
+    for(int i = 0; i < data.size(); i++) {
+        // INVALID_SENSOR_DATA
+        if (data[i] >= MAX_TOF) {
+            num_useful_data--;
+            continue;
+        } else if (data[i] == -1) {
+            // failed to read from the bus
+            // assume the sensor got reset to default address and set address again
+            switch(sensor) {
+                case BOTTOM_LEFT:
+                    b_left = VL53L0X();
+                    readdress(false, BOTTOM_LEFT);
+                    break;
+                case BOTTOM_RIGHT:
+                    b_right = VL53L0X();
+                    readdress(false, BOTTOM_RIGHT);
+                    break;
+                case TOP_FRONT:
+                    t_front = VL53L0X();
+                    readdress(false, TOP_FRONT);
+                    break;
+                case TOP_BACK:
+                    t_back = VL53L0X();
+                    readdress(false, TOP_BACK);
+                    break;
+                case TOP_LEFT:
+                    t_left = VL53L0X();
+                    readdress(false, TOP_LEFT);
+                    break;
+                case TOP_RIGHT:
+                    t_right = VL53L0X();
+                    readdress(false, TOP_RIGHT);
+                    break;
+                default:
+                    ROS_ERROR("Unknown sensor");
+                    break;
+                return sensors::Distance::INVALID_SENSOR_DATA;
+            }
+        }
+        sum_data += data[i];
+    }
+    if (num_useful_data <= 2) {
+        return sensors::Distance::INVALID_SENSOR_DATA;
+    }
+    // return the average value in cm
+    return (sum_data / num_useful_data) / 10.0;
+}
+
 int main(int argc, char **argv) {
     ros::init(argc, argv, "tof_sensor");
 
@@ -191,12 +190,12 @@ int main(int argc, char **argv) {
         }
 
         // Denoise sensor value
-        low_dist_data_cm.data[0] = denoiseTof(b_left_dist);
-        low_dist_data_cm.data[1] = denoiseTof(b_right_dist);
-        high_dist_data_cm.data[0] = denoiseTof(t_front_dist);
-        high_dist_data_cm.data[1] = denoiseTof(t_back_dist);
-        high_dist_data_cm.data[2] = denoiseTof(t_left_dist);
-        high_dist_data_cm.data[3] = denoiseTof(t_right_dist);
+        low_dist_data_cm.data[0] = denoiseTof(b_left_dist, BOTTOM_LEFT);
+        low_dist_data_cm.data[1] = denoiseTof(b_right_dist, BOTTOM_RIGHT);
+        high_dist_data_cm.data[0] = denoiseTof(t_front_dist, TOP_FRONT);
+        high_dist_data_cm.data[1] = denoiseTof(t_back_dist, TOP_BACK);
+        high_dist_data_cm.data[2] = denoiseTof(t_left_dist, TOP_LEFT);
+        high_dist_data_cm.data[3] = denoiseTof(t_right_dist, TOP_RIGHT);
 
         low_dist_pub.publish(low_dist_data_cm);
         high_dist_pub.publish(high_dist_data_cm);
