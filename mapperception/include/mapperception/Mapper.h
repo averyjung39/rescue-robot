@@ -40,13 +40,13 @@ public:
      * @return true if fire is detected
      */
     bool detectFire(std::vector<int> photodiode_data);
-    
+
     /**
      * @brief perform detection to figure out if the object in front of the robot is the big house
      * @param dist_l, dist_r: top left and right tof sensor data
      * @return true if big house is detected
      */
-    bool detectHouses(float dist_l, float dist_r);
+    bool detectHouses(float dist_l);//, float dist_r);
     void detectMagnet(bool hall_effect_data);
 
     LabelMap getLabelMap() { return _label_map; }

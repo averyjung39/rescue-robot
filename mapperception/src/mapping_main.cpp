@@ -8,12 +8,14 @@
 #include "localization/Pose.h"
 #include "std_msgs/Bool.h"
 #include "constants/topics.h"
+#include "messages/Arc.h"
 
 std::vector<float> low_dists;
 std::vector<float> high_dists;
 std::vector<int> photodiode_data;
 bool hall_effect_data;
 bool scanning;
+int arc_cmd;
 
 float robot_x;
 float robot_y;
@@ -43,6 +45,10 @@ void poseCallback(const localization::Pose::ConstPtr& msg) {
 
 void scanningCallback(const std_msgs::Bool::ConstPtr& msg) {
     scanning = msg->data;
+}
+
+void arcCallback(const messages::Arc::ContPtr &msg) {
+    arc_cmd = msg->command_type;
 }
 
 int main(int argc, char **argv) {
@@ -77,21 +83,24 @@ int main(int argc, char **argv) {
         ros::spinOnce();
 
         mapper.setRobotPose(robot_x, robot_y, robot_angle);
-        if (scanning) {
-            if (!fire_detected) fire_detected = mapper.detectFire(photodiode_data);
-            if ((high_dists[2] != sensors::Distance::INVALID_SENSOR_DATA ||
-                high_dists[3] != sensors::Distance::INVALID_SENSOR_DATA) &&
-                !big_house_detected)
-            {
-                big_house_detected = mapper.detectHouses(high_dists[2], high_dists[3]);
+        // Don't map if the robot is turning
+        if (arc_cmd != messages::Arc::TURN_ON_SPOT) {
+            if (scanning) {
+                if (!fire_detected) fire_detected = mapper.detectFire(photodiode_data);
+                if ((high_dists[2] != sensors::Distance::INVALID_SENSOR_DATA ||
+                    high_dists[3] != sensors::Distance::INVALID_SENSOR_DATA) &&
+                    !big_house_detected)
+                {
+                    big_house_detected = mapper.detectHouses(high_dists[0]); //high_dists[2], high_dists[3]);
+                }
+            } else {
+                mapper.updateLabelMapWithScanningResults(big_house_detected, fire_detected);
+                mapper.modifyLabelMapWithPhotodiode(photodiode_data);
+                // Try detecting what the terrain is right in front the robot
+                mapper.detectMagnet(hall_effect_data);
+                mapper.modifyLabelMapWithDists(low_dists, false);
+                mapper.modifyLabelMapWithDists(high_dists, true);
             }
-        } else {
-            mapper.updateLabelMapWithScanningResults(big_house_detected, fire_detected);
-            mapper.modifyLabelMapWithPhotodiode(photodiode_data);
-            // Try detecting what the terrain is right in front the robot
-            mapper.detectMagnet(hall_effect_data);
-            mapper.modifyLabelMapWithDists(low_dists, false);
-            mapper.modifyLabelMapWithDists(high_dists, true);
         }
 
         label_map = mapper.getLabelMap().getMap();
