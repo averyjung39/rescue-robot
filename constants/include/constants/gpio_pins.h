@@ -16,10 +16,8 @@
 #define PHOTODIODE_4 7
 #define PHOTODIODE_5 8
 
-#define HALL_EFFECT_1_H 8
-#define HALL_EFFECT_1_L 9
-#define HALL_EFFECT_2_H 10
-#define HALL_EFFECT_2_L 11
+#define HALL_EFFECT_1 9
+#define HALL_EFFECT_2 10
 
 #define MOTOR_R_ENCODER_A_PIN 16
 #define MOTOR_R_ENCODER_B_PIN 17
@@ -29,9 +27,9 @@
 #define TOF_BOTTOM_LEFT 34
 #define TOF_BOTTOM_RIGHT 35
 #define TOF_TOP_FRONT 37
-#define TOF_TOP_BACK 36
-#define TOF_TOP_LEFT 38
-#define TOF_TOP_RIGHT 39
+#define TOF_TOP_BACK 33
+#define TOF_TOP_LEFT 36
+#define TOF_TOP_RIGHT 38
 
 // TODO: define these with actual pin numbers used
 #define FOOD_INDICATOR 40

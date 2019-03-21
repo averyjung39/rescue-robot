@@ -37,7 +37,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
     const float &imu_yaw,
     const std::vector<float> &high_distance_data) {
     _current_pose.is_good_reading = true;
-    int control_command_type = arc_msg.command_type;    
+    int control_command_type = arc_msg.command_type;
     if (control_command_type == messages::Arc::STRAIGHT_LINE) {
         // Check if we are just starting to drive straight
         if (_prev_control_command != messages::Arc::STRAIGHT_LINE) {
@@ -50,7 +50,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
             _back_distance_cm = high_distance_data[BACK_INDEX];
 
             // Calculate nominal distances (ideal distances if there are no obstacles and flat walls)
-            float front_nominal_distance = _front_distance_cm, back_nominal_distance = _back_distance_cm;  
+            float front_nominal_distance = _front_distance_cm, back_nominal_distance = _back_distance_cm;
             // Get nominal distance with respect to centre of robot
             switch (_nominal_theta_deg) {
                 case 0:
