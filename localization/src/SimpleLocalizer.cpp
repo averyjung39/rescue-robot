@@ -23,6 +23,8 @@ SimpleLocalizer::SimpleLocalizer(const float &tile_time) {
     _prev_back_distance_cm = 0;
     _tile_time = tile_time;
     _straight_line_speed = 0;
+    _nominal_x_cm = _current_pose.x;
+    _nominal_y_cm = _current_pose.y;
 }
 
 localization::Pose SimpleLocalizer::getPoseEstimate(
@@ -32,18 +34,15 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
     _current_pose.is_good_reading = true;
     int control_command_type = arc_msg.command_type;    
     if (control_command_type == messages::Arc::STRAIGHT_LINE) {
-        // Use high distance data to localize
         // Check if we are just starting to drive straight
         if (_prev_control_command != messages::Arc::STRAIGHT_LINE) {
             // Get nominal straight line speed based on hard-coded times
             _straight_line_speed = dimensions::TILE_WIDTH_CM * arc_msg.num_tiles / _tile_time;
             _straight_prev_time = ros::Time::now().toSec();
 
-            // Record distance to front and back obstacles at the start
+            // Record ToF distance to front and back obstacles at the start
             _front_distance_cm = high_distance_data[FRONT_INDEX];
             _back_distance_cm = high_distance_data[BACK_INDEX];
-
-
 
             // Calculate nominal distances (ideal distances if there are no obstacles and flat walls)
             float front_nominal_distance = _front_distance_cm, back_nominal_distance = _back_distance_cm;  
@@ -52,18 +51,22 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
                 case 0:
                     front_nominal_distance = dimensions::MAP_WIDTH - _current_pose.x;
                     back_nominal_distance = _current_pose.x;
+                    _nominal_x_cm = _current_pose.x + dimensions::TILE_WIDTH_CM * arc_msg.num_tiles;
                     break;
                 case 90:
                     front_nominal_distance = dimensions::MAP_HEIGHT - _current_pose.y;
                     back_nominal_distance = _current_pose.y;
+                    _nominal_y_cm = _current_pose.y + dimensions::TILE_WIDTH_CM * arc_msg.num_tiles;
                     break;
                 case 180:
                     front_nominal_distance = _current_pose.x;
-                    back_nominal_distance = dimensions::MAP_WIDTH - _current_pose.x; 
+                    back_nominal_distance = dimensions::MAP_WIDTH - _current_pose.x;
+                    _nominal_x_cm = _current_pose.x - dimensions::TILE_WIDTH_CM * arc_msg.num_tiles;
                     break;
                 case 270:
                     front_nominal_distance = _current_pose.y;
                     back_nominal_distance = dimensions::MAP_HEIGHT - _current_pose.y;
+                    _nominal_y_cm = _current_pose.y - dimensions::TILE_WIDTH_CM * arc_msg.num_tiles;
                     break;
                 default:
                     ROS_ERROR("Unhandled nominal theta: %d", _nominal_theta_deg);
@@ -157,7 +160,14 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
         }
         // Assume x and y don't change while turning on the spot
     } else if (control_command_type == messages::Arc::STOP) {
-        // Do nothing - no pose change
+        if (_prev_control_command == messages::Arc::STRAIGHT_LINE) {
+            // If we were driving straight, set x and y to nominal values
+            _current_pose.x = _nominal_x_cm;
+            _current_pose.y = _nominal_y_cm;
+        } else if (_prev_control_command == messages::Arc::TURN_ON_SPOT) {
+            // If we were turning, set theta to nominal value
+            _current_pose.theta = _nominal_theta_deg;
+        }
     } else {
         ROS_ERROR("Unknown control_command_type: %d", control_command_type);
     }

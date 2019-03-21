@@ -29,6 +29,8 @@ private:
     float _prev_front_distance_cm;
     float _prev_back_distance_cm;
     int _nominal_theta_deg; // Closest angle to yaw that's a multiple of 90 (when driving straight)
+    float _nominal_x_cm;
+    float _nominal_y_cm;
     float _straight_line_speed;
     float _straight_prev_time;
     float _tile_time; // Time it takes to travel one tile
