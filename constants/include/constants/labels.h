@@ -5,16 +5,17 @@ namespace labels {
     const int INVALID_LABEL = -1;
     const int UNSEARCHED = 0;
     const int FLAT_WOOD = 1;
-    const int PIT = 2;
-    const int GRAVEL = 3;
-    const int SAND = 4;
-    const int MAGNET = 5;
-    const int FIRE = 6;
-    const int NO_FIRE = 7;
-    const int SMALL_HOUSE = 8;
-    const int BIG_HOUSE = 9;
-    const int OBJECT = 10;
-    const int TALL_OBJECT = 11;
+    const int SAND = 50;
+    const int MAGNET = 60;
+    const int GRAVEL = 99;
+    const int OBSTACLE = 100; // Anything greater than OBSTACLE is not traversable 
+    const int PIT = 101;
+    const int FIRE = 102;
+    const int NO_FIRE = 103;
+    const int SMALL_HOUSE = 104;
+    const int BIG_HOUSE = 105;
+    const int OBJECT = 106;
+    const int TALL_OBJECT = 107;
 }
 
 #endif // LABELS
