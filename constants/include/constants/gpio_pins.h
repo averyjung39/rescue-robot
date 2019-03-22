@@ -27,9 +27,8 @@
 #define TOF_BOTTOM_LEFT 34
 #define TOF_BOTTOM_RIGHT 35
 #define TOF_TOP_FRONT 37
-#define TOF_TOP_BACK 33
 #define TOF_TOP_LEFT 36
-#define TOF_TOP_RIGHT 38
+#define TOF_TOP_RIGHT 33
 
 // TODO: define these with actual pin numbers used
 #define FOOD_INDICATOR 40
@@ -42,8 +41,7 @@
 #define BOTTOM_LEFT_ADDR 0x30
 #define BOTTOM_RIGHT_ADDR 0x31
 #define TOP_FRONT_ADDR 0x32
-#define TOP_BACK_ADDR 0x33
-#define TOP_LEFT_ADDR 0x34
-#define TOP_RIGHT_ADDR 0x35
+#define TOP_LEFT_ADDR 0x33
+#define TOP_RIGHT_ADDR 0x34
 
 #endif // GPIO_PINS
