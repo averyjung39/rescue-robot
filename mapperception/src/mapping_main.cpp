@@ -10,9 +10,9 @@
 #include "constants/topics.h"
 #include "messages/Arc.h"
 
-std::vector<float> low_dists;
-std::vector<float> high_dists;
-std::vector<int> photodiode_data;
+std::vector<float> low_dists(2,0);
+std::vector<float> high_dists(3,0);
+std::vector<int> photodiode_data(5,0);
 bool hall_effect_data;
 bool scanning;
 int arc_cmd;
@@ -67,8 +67,8 @@ int main(int argc, char **argv) {
     ros::Subscriber scanning = nh.subscribe(topics::SCANNING, 1, scanningCallback);
     ros::Publisher label_map_publisher = nh.advertise<mapperception::Map>(topics::LABEL_MAP_TOPIC, 1);
 
-    // TODO: Integrate button for figuring out orientation;
-    int orientation = 1;
+    int orientation;
+    nh.param("/mapping/orientation", orientation, 1);
 
     Mapper mapper = Mapper(orientation);
 
