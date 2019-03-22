@@ -285,11 +285,11 @@ std::pair<int,int> Mapper::coordinateToPoints(float x, float y, int resolution) 
 std::pair<int,int> Mapper::indicesInFront() {
     std::pair<int,int> robot_points = coordinateToPoints(_robot_pos.first, _robot_pos.second, _label_map.getResolution());
     if (_robot_angle > 80 && _robot_angle < 100) {
-        return std::make_pair(robot_points.first + 1, robot_points.second);
+        return std::make_pair(robot_points.first - 1, robot_points.second);
     } else if (_robot_angle > 170 && _robot_angle < 190) {
         return std::make_pair(robot_points.first, robot_points.second - 1);
     } else if (_robot_angle > 260 && _robot_angle < 280) {
-        return std::make_pair(robot_points.first - 1, robot_points.second);
+        return std::make_pair(robot_points.first + 1, robot_points.second);
     } else if (_robot_angle > 350 || _robot_angle < 10) {
         return std::make_pair(robot_points.first, robot_points.second + 1);
     } else {
