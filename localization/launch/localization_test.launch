@@ -15,11 +15,9 @@
     <param name="right_turn_time" type="double" value="$(arg right_turn_time)" />
     <param name="left_turn_time" type="double" value="$(arg left_turn_time)" />
 
-    <node pkg="sensors" type="imu_sensor" name="imu_sensor" />
-    <node pkg="sensors" type="tof_sensor" name="tof_sensor" />
     <node pkg="localization" type="simple_localization" name="simple_localization" output="$(arg localization_output)" />
     <node pkg="mapperception" type="mapping" name="mapping" output="$(arg mapping_output)" />
-    <node pkg="planning" type="dummy_planner" name="dummy_planner" >
+    <node pkg="planning" type="dummy_planner" name="dummy_planner" output="screen" >
         <param name="command_type" type="int" value="$(arg command_type)" />
         <param name="direction_is_right" type="bool" value="$(arg direction_is_right)" />
         <param name="num_tiles" type="int" value="$(arg num_tiles)" />

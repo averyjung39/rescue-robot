@@ -44,9 +44,12 @@ int main(int argc, char **argv) {
     ros::Rate rate(10);
     SimpleLocalizer localizer(tile_time, right_turn_time, left_turn_time);
     localization::Pose pose;
+    arc_msg.command_type = messages::Arc::STOP;
     while (ros::ok()) {
         ros::spinOnce();
         pose = localizer.getPoseEstimate(arc_msg);//, imu_yaw, high_dist_data);
+        ROS_INFO("Pose {x,y,th}: %.3f, %.3f, %.3f", pose.x, pose.y, pose.theta);
+        pose_pub.publish(pose);
         rate.sleep();
     }
     return 0;
