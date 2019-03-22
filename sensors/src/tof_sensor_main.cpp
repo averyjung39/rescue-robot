@@ -1,6 +1,7 @@
 #include <ros/ros.h>
-#include <ros/duration.h>
+// #include <ros/duration.h>
 #include <vector>
+#include <std_msgs/Bool.h>
 
 #include "sensors/Distance.h"
 #include "constants/topics.h"
@@ -9,6 +10,12 @@
 #include "external/tof/VL53L0X.h"
 
 #define MAX_TOF 4096
+
+bool fan_inactive = false;
+bool readdress_done = false;
+void fanCallback(std_msgs::Bool::ConstPtr &msg) {
+    fan_inactive = msg->data;
+}
 
 /*
 1. Reset all sensors by setting all of their XSHUT pins low for delay(10), then set all XSHUT high to bring out of reset
@@ -165,6 +172,7 @@ int main(int argc, char **argv) {
 
     ros::Publisher low_dist_pub = nh.advertise<sensors::Distance>(topics::LOW_DIST_TOPIC, 1);
     ros::Publisher high_dist_pub = nh.advertise<sensors::Distance>(topics::HIGH_DIST_TOPIC, 1);
+    ros::Subscriber fan_inactive_sub = nh.subscribe(topics::FAN_TOPIC, 1, fanCallback);
     std::vector<int> b_left_dist, b_right_dist, t_front_dist, t_back_dist, t_left_dist, t_right_dist;
     int model, revision;
 
@@ -179,6 +187,12 @@ int main(int argc, char **argv) {
     ros::Rate rate(10);
 
     while (ros::ok()) {
+        ros::spinOnce();
+
+        if (fan_inactive && !readdress_done) {
+            readdress();
+            readdress_done = true;
+        }
         // Read data from the sensors
         for (int i = 0; i < 5; i++) {
             b_left_dist.push_back(b_left.tofReadDistance());

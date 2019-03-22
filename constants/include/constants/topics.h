@@ -23,6 +23,7 @@ namespace topics {
 
     // Objectives
     const char *OBJECTIVE_TOPIC = "active_objectives";
+    const char *FAN_TOPIC = "fan_inactive_indicator";
 
     // Construction Check Demos
     const char *DRIVE_DEMO_COMPLETE_TOPIC = "drive_demo_complete";
