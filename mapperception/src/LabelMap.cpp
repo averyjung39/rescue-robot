@@ -48,7 +48,7 @@ void LabelMap::print() const {
                     case labels::TALL_OBJECT:
                         oss << " TO";
                         break;
-                    default:
+                    case labels::UNSEARCHED:
                         oss << " 0 ";
                         break;
                 }

@@ -65,16 +65,15 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
     int label = high_sensor ? labels::TALL_OBJECT : labels::OBJECT;
     int sensor = 0;
     std::pair<int,int> robot_location = coordinateToPoints(_robot_pos.first, _robot_pos.second, _label_map.getResolution());
-
-    for(int i = 0; i < dist_data.size(); i++) {
+    for(int k = 0; k < dist_data.size(); k++) {
         // -1 is INVALID_SENSOR_DATA
-        if (dist_data[i] == -1) continue;
+        if (dist_data[k] == -1) continue;
         if (high_sensor) {
-            sensor = i + 3;
+            sensor = k + 3;
         } else {
-            sensor = i;
+            sensor = k;
         }
-        std::pair<float, float> coords = distToCoordinates(dist_data[i], _robot_pos.first, _robot_pos.second, _robot_angle, sensor, high_sensor);
+        std::pair<float, float> coords = distToCoordinates(dist_data[k], _robot_pos.first, _robot_pos.second, _robot_angle, sensor, high_sensor);
         if (coords.first < denoise_params::WALL_OFFSET || coords.first > dimensions::MAP_WIDTH - denoise_params::WALL_OFFSET ||
             coords.second < denoise_params::WALL_OFFSET || coords.second > dimensions::MAP_HEIGHT - denoise_params::WALL_OFFSET)
         {
@@ -82,37 +81,43 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
             return;
         }
         std::pair<int, int> points = coordinateToPoints(coords.first, coords.second, _label_map.getResolution());
+        ROS_INFO("sensor: %d, points: {%d, %d}", sensor, points.first, points.second);
         // Put the object in the label map if it's not on the robot position
-        if (points.first != robot_location.first && points.second != robot_location.second) {
+        if (points.first == robot_location.first && points.second == robot_location.second) {
+            // Don't map
+            return;
+        } else {
             int map_label = _label_map.queryMap(points.first,points.second);
             if (high_sensor) {
                 // label it as TALL_OBJECT only if the cell is labeled as OBJECT or UNSEARCHED or FLAT_WOOD
                 if (map_label == labels::OBJECT || map_label == labels::UNSEARCHED || map_label == labels::FLAT_WOOD) {
                     _label_map.setLabel(points.first, points.second, label);
+                    int check_points = _label_map.queryMap(points.first, points.second);
                 }
             } else {
                 // label it as OBJECT only if the cell is labeled as UNSEARCHED
                 if (map_label == labels::UNSEARCHED || map_label == labels::FLAT_WOOD) {
                     _label_map.setLabel(points.first, points.second, label);
+                    int check_points = _label_map.queryMap(points.first, points.second);
                 }
             }
             // Mark the tiles between the robot and the object as FLAT_WOOD unless they are different terrain
-            if (_robot_angle > 80 && _robot_angle < 100) {
+            if ((robot_location.first - points.first) > 0 && (robot_location.second - points.second) == 0) {
                 for(int i = robot_location.first-1; i > points.first; i--) {
                     if (_label_map.queryMap(i, points.second) != labels::UNSEARCHED) continue;
                     _label_map.setLabel(i, points.second, labels::FLAT_WOOD);
                 }
-            } else if (_robot_angle > 170 && _robot_angle < 190) {
+            } else if ((robot_location.second - points.second) > 0 && (robot_location.first - points.first) == 0) {
                 for(int j = robot_location.second-1; j > points.second; j--) {
                     if (_label_map.queryMap(points.first,j) != labels::UNSEARCHED) continue;
                     _label_map.setLabel(points.first, j, labels::FLAT_WOOD);
                 }
-            } else if (_robot_angle > 260 && _robot_angle < 280) {
+            } else if ((robot_location.first - points.first) < 0 && (robot_location.second - points.second) == 0) {
                 for(int i = robot_location.first+1; i < points.first; i++) {
                     if (_label_map.queryMap(i, points.second) != labels::UNSEARCHED) continue;
                     _label_map.setLabel(i, points.second, labels::FLAT_WOOD);
                 }
-            } else if (_robot_angle > 350 || _robot_angle < 10) {
+            } else if ((robot_location.second - points.second) < 0 && (robot_location.first - points.first) == 0) {
                 for(int j = robot_location.second+1; j < points.second; j++) {
                     if (_label_map.queryMap(points.first, j) != labels::UNSEARCHED) continue;
                     _label_map.setLabel(points.first, j, labels::FLAT_WOOD);
@@ -183,34 +188,39 @@ bool Mapper::detectHouses(float dist_l, float dist_r) {
     return big_house_detected;
 }
 
-void Mapper::updateLabelMapWithScanningResults(bool &big_house_detected, bool &fire_detected) {
-    std::pair<int,int> object_location = indicesInFront();
-    int map_label = _label_map.queryMap(object_location.first, object_location.second);
+void Mapper::updateLabelMapWithScanningResults(bool &big_house_detected, bool &fire_detected, bool &was_scanning) {
+    if (was_scanning) {
+        std::pair<int,int> object_location = indicesInFront();
+        int map_label = _label_map.queryMap(object_location.first, object_location.second);
 
-    if (map_label == labels::TALL_OBJECT || map_label == labels::OBJECT) {
-        if (fire_detected) {
-            big_house_detected = false;
-            if (_found_labels.find(labels::FIRE) == _found_labels.end()) {
-                _found_labels.insert(labels::FIRE);
-                _label_map.setLabel(object_location.first, object_location.second, labels::FIRE);
-                return;
+        if (map_label == labels::TALL_OBJECT || map_label == labels::OBJECT) {
+            if (fire_detected) {
+                big_house_detected = false;
+                if (_found_labels.find(labels::FIRE) == _found_labels.end()) {
+                    _found_labels.insert(labels::FIRE);
+                    _label_map.setLabel(object_location.first, object_location.second, labels::FIRE);
+                    return;
+                }
             }
-        }
 
-        if (big_house_detected) {
-            if (_found_labels.find(labels::BIG_HOUSE) == _found_labels.end()) {
-                _found_labels.insert(labels::BIG_HOUSE);
-                _label_map.setLabel(object_location.first, object_location.second, labels::BIG_HOUSE);
+            if (big_house_detected) {
+                if (_found_labels.find(labels::BIG_HOUSE) == _found_labels.end()) {
+                    _found_labels.insert(labels::BIG_HOUSE);
+                    _label_map.setLabel(object_location.first, object_location.second, labels::BIG_HOUSE);
+                }
+            } else {
+                if (_found_labels.find(labels::SMALL_HOUSE) == _found_labels.end()) {
+                    _found_labels.insert(labels::SMALL_HOUSE);
+                    _label_map.setLabel(object_location.first, object_location.second, labels::SMALL_HOUSE);
+                }
             }
         } else {
-            if (_found_labels.find(labels::SMALL_HOUSE) == _found_labels.end()) {
-                _found_labels.insert(labels::SMALL_HOUSE);
-                _label_map.setLabel(object_location.first, object_location.second, labels::SMALL_HOUSE);
-            }
+            big_house_detected = false;
+            fire_detected = false;
         }
+        was_scanning = false;
     } else {
-        big_house_detected = false;
-        fire_detected = false;
+        return;
     }
 }
 
@@ -251,8 +261,8 @@ std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, f
     } else {
         switch(sensor) {
             case TOP_FRONT:
-                xr = d+dimensions::FRONT_TOF_X_OFFSET;
-                yr = dimensions::TOP_TOF_FRONT_Y_OFFSET;
+                xr = d+dimensions::FRONT_TOF_X_OFFSET; // 40
+                yr = dimensions::TOP_TOF_FRONT_Y_OFFSET; // -7.62
                 break;
             case TOP_LEFT:
                 yr = d+dimensions::TOP_TOF_Y_OFFSET;
@@ -270,8 +280,8 @@ std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, f
 
     float rad_angle = rangle*M_PI/180;
     // Convert xr,yr (local robot axes) to x,y (global axes)
-    int x = rx + xr*cos(rad_angle) + yr*sin(rad_angle);
-    int y = ry - xr*sin(rad_angle) + yr*cos(rad_angle);
+    int x = rx + xr*cos(rad_angle) - yr*sin(rad_angle);
+    int y = ry + xr*sin(rad_angle) + yr*cos(rad_angle);
 
     return std::make_pair(x,y);
 }
@@ -286,11 +296,11 @@ std::pair<int,int> Mapper::coordinateToPoints(float x, float y, int resolution) 
 std::pair<int,int> Mapper::indicesInFront() {
     std::pair<int,int> robot_points = coordinateToPoints(_robot_pos.first, _robot_pos.second, _label_map.getResolution());
     if (_robot_angle > 80 && _robot_angle < 100) {
-        return std::make_pair(robot_points.first + 1, robot_points.second);
+        return std::make_pair(robot_points.first - 1, robot_points.second);
     } else if (_robot_angle > 170 && _robot_angle < 190) {
         return std::make_pair(robot_points.first, robot_points.second - 1);
     } else if (_robot_angle > 260 && _robot_angle < 280) {
-        return std::make_pair(robot_points.first - 1, robot_points.second);
+        return std::make_pair(robot_points.first + 1, robot_points.second);
     } else if (_robot_angle > 350 || _robot_angle < 10) {
         return std::make_pair(robot_points.first, robot_points.second + 1);
     } else {

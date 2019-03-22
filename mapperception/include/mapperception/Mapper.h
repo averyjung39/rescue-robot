@@ -31,7 +31,7 @@ public:
      */
     void modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sensor);
     void modifyLabelMapWithPhotodiode(std::vector<int> photodiode_data);
-    void updateLabelMapWithScanningResults(bool &big_house_detected, bool &fire_detected);
+    void updateLabelMapWithScanningResults(bool &big_house_detected, bool &fire_detected, bool &was_scanning);
 
     /**
      * @brief perform detection to figure out if the object in front of the robot is the fire

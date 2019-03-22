@@ -13,8 +13,9 @@
 std::vector<float> low_dists(2,0);
 std::vector<float> high_dists(3,0);
 std::vector<int> photodiode_data(5,0);
-bool hall_effect_data;
-bool scanning;
+bool hall_effect_data = false;
+bool scanning = false;
+bool was_scanning = false;
 int arc_cmd;
 
 float robot_x = 106.68;
@@ -86,6 +87,7 @@ int main(int argc, char **argv) {
         // // Don't map if the robot is turning
         // if (arc_cmd != messages::Arc::TURN_ON_SPOT) {
             if (scanning) {
+                was_scanning = true;
                 if (!fire_detected) fire_detected = mapper.detectFire(photodiode_data);
                 if ((high_dists[2] != sensors::Distance::INVALID_SENSOR_DATA ||
                     high_dists[3] != sensors::Distance::INVALID_SENSOR_DATA) &&
@@ -94,7 +96,7 @@ int main(int argc, char **argv) {
                     big_house_detected = mapper.detectHouses(high_dists[2], high_dists[3]);
                 }
             } else {
-                mapper.updateLabelMapWithScanningResults(big_house_detected, fire_detected);
+                mapper.updateLabelMapWithScanningResults(big_house_detected, fire_detected, was_scanning);
                 mapper.modifyLabelMapWithPhotodiode(photodiode_data);
                 // Try detecting what the terrain is right in front the robot
                 mapper.detectMagnet(hall_effect_data);
