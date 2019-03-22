@@ -161,7 +161,9 @@ float denoiseTof(std::vector<int> data, TOF sensor) {
 int main(int argc, char **argv) {
     ros::init(argc, argv, "tof_sensor");
 
-    ros::NodeHandle nh;
+    ros::NodeHandle nh("~");
+    bool print_data;
+    nh.param<bool>("print_data", print_data, false);
 
     ros::Publisher low_dist_pub = nh.advertise<sensors::Distance>(topics::LOW_DIST_TOPIC, 1);
     ros::Publisher high_dist_pub = nh.advertise<sensors::Distance>(topics::HIGH_DIST_TOPIC, 1);
@@ -199,6 +201,17 @@ int main(int argc, char **argv) {
 
         low_dist_pub.publish(low_dist_data_cm);
         high_dist_pub.publish(high_dist_data_cm);
+
+        if (print_data) {
+            ROS_INFO("Data: %.3f, %.3f, %.3f, %.3f, %.3f, %.3f",
+                low_dist_data_cm.data[0],
+                low_dist_data_cm.data[1],
+                high_dist_data_cm.data[0],
+                high_dist_data_cm.data[1],
+                high_dist_data_cm.data[2],
+                high_dist_data_cm.data[3]);
+        }
+
         rate.sleep();
     }
 

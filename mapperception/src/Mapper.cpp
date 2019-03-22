@@ -94,22 +94,22 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
             // Mark the tiles between the robot and the object as FLAT_WOOD unless they are different terrain
             if (_robot_angle > 80 && _robot_angle < 100) {
                 for(int i = robot_location.first-1; i > points.first; i--) {
-                    if (_label_map[i][points.second] != labels::UNSEARCHED) continue;
+                    if (_label_map.queryMap(i, points.second) != labels::UNSEARCHED) continue;
                     _label_map.setLabel(i, points.second, labels::FLAT_WOOD);
                 }
             } else if (_robot_angle > 170 && _robot_angle < 190) {
                 for(int j = robot_location.second-1; j > points.second; j--) {
-                    if (_label_map[points.first][j] != labels::UNSEARCHED) continue;
+                    if (_label_map.queryMap(points.first,j) != labels::UNSEARCHED) continue;
                     _label_map.setLabel(points.first, j, labels::FLAT_WOOD);
                 }
             } else if (_robot_angle > 260 && _robot_angle < 280) {
                 for(int i = robot_location.first+1; i < points.first; i++) {
-                    if (_label_map[i][points.second] != labels::UNSEARCHED) continue;
+                    if (_label_map.queryMap(i, points.second) != labels::UNSEARCHED) continue;
                     _label_map.setLabel(i, points.second, labels::FLAT_WOOD);
                 }
             } else if (_robot_angle > 350 || _robot_angle < 10) {
                 for(int j = robot_location.second+1; j < points.second; j++) {
-                    if (_label_map[points.first][j] != labels::UNSEARCHED) continue;
+                    if (_label_map.queryMap(points.first, j) != labels::UNSEARCHED) continue;
                     _label_map.setLabel(points.first, j, labels::FLAT_WOOD);
                 }
             }
@@ -210,15 +210,18 @@ void Mapper::updateLabelMapWithScanningResults(bool &big_house_detected, bool &f
 }
 
 void Mapper::detectMagnet(bool hall_effect_data) {
-    std::pair<int,int> magnet_location = indicesInFront();
+    std::pair<int,int> magnet_location = coordinateToPoints(_robot_pos.first, _robot_pos.second, _label_map.getResolution());
+    int map_label = _label_map.queryMap(magnet_location.first, magnet_location.second);
     // label the indices as MAGNET if:
     // 1. magnet hasn't been found and
     // 2. hall effect detected magnet and
     // 3. the indices are labeled as SAND
     if (_found_labels.find(labels::MAGNET) == _found_labels.end() && hall_effect_data &&
-        _label_map.queryMap(magnet_location.first, magnet_location.second) == labels::SAND) {
+        (map_label == labels::SAND || map_label == labels::NO_MAGNET)) {
         _found_labels.insert(labels::MAGNET);
         _label_map.setLabel(magnet_location.first, magnet_location.second, labels::MAGNET);
+    } else if (!hall_effect_data && map_label == labels::SAND) {
+        _label_map.setLabel(magnet_location.first, magnet_location.second, labels::NO_MAGNET);
     }
 }
 
