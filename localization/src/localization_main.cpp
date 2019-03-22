@@ -48,6 +48,8 @@ int main(int argc, char **argv) {
     while (ros::ok()) {
         ros::spinOnce();
         pose = localizer.getPoseEstimate(arc_msg);//, imu_yaw, high_dist_data);
+        ROS_INFO("Pose {x,y,th}: %.3f, %.3f, %.3f", pose.x, pose.y, pose.theta);
+        pose_pub.publish(pose);
         rate.sleep();
     }
     return 0;
