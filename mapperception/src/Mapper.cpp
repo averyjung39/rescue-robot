@@ -7,6 +7,7 @@
 
 Mapper::Mapper(int orientation) {
     _label_map.setLabel(5, 3, labels::FLAT_WOOD);
+    ROS_INFO("ORIENTATION OF THE MAP: %d", orientation);
     if (orientation == 1) {
         _label_map.setLabel(5, 2, labels::PIT);
         _label_map.setLabel(4, 1, labels::SAND);
@@ -63,6 +64,8 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
 {
     int label = high_sensor ? labels::TALL_OBJECT : labels::OBJECT;
 
+    std::pair<int,int> robot_location = coordinateToPoints(_robot_pos.first, _robot_pos.second, _label_map.getResolution());
+
     for(int i = 0; i < dist_data.size(); i++) {
         // -1 is INVALID_SENSOR_DATA
         if (dist_data[i] == -1) continue;
@@ -74,19 +77,43 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
             return;
         }
         std::pair<int, int> points = coordinateToPoints(coords.first, coords.second, _label_map.getResolution());
-        int map_label = _label_map.queryMap(points.first,points.second);
-        if (high_sensor) {
-            // label it as TALL_OBJECT only if the cell is labeled as OBJECT, UNSEARCHED, or SAND
-            if (map_label == labels::OBJECT || map_label == labels::UNSEARCHED || map_label == labels::SAND) {
-                _label_map.setLabel(points.first, points.second, label);
+        // Put the object in the label map if it's not on the robot position
+        if (points.first != robot_location.first && points.second != robot_location.second) {
+            int map_label = _label_map.queryMap(points.first,points.second);
+            if (high_sensor) {
+                // label it as TALL_OBJECT only if the cell is labeled as OBJECT or UNSEARCHED or FLAT_WOOD
+                if (map_label == labels::OBJECT || map_label == labels::UNSEARCHED || map_label == labels::FLAT_WOOD) {
+                    _label_map.setLabel(points.first, points.second, label);
+                }
+            } else {
+                // label it as OBJECT only if the cell is labeled as UNSEARCHED
+                if (map_label == labels::UNSEARCHED || map_label == labels::FLAT_WOOD) {
+                    _label_map.setLabel(points.first, points.second, label);
+                }
             }
-        } else {
-            // label it as OBJECT only if the cell is labeled as UNSEARCHED, or SAND
-            if (map_label == labels::UNSEARCHED || map_label == labels::SAND) {
-                _label_map.setLabel(points.first, points.second, label);
+            // Mark the tiles between the robot and the object as FLAT_WOOD unless they are different terrain
+            if (_robot_angle > 80 && _robot_angle < 100) {
+                for(int i = robot_location.first-1; i > points.first; i--) {
+                    if (_label_map.queryMap(i, points.second) != labels::UNSEARCHED) continue;
+                    _label_map.setLabel(i, points.second, labels::FLAT_WOOD);
+                }
+            } else if (_robot_angle > 170 && _robot_angle < 190) {
+                for(int j = robot_location.second-1; j > points.second; j--) {
+                    if (_label_map.queryMap(points.first,j) != labels::UNSEARCHED) continue;
+                    _label_map.setLabel(points.first, j, labels::FLAT_WOOD);
+                }
+            } else if (_robot_angle > 260 && _robot_angle < 280) {
+                for(int i = robot_location.first+1; i < points.first; i++) {
+                    if (_label_map.queryMap(i, points.second) != labels::UNSEARCHED) continue;
+                    _label_map.setLabel(i, points.second, labels::FLAT_WOOD);
+                }
+            } else if (_robot_angle > 350 || _robot_angle < 10) {
+                for(int j = robot_location.second+1; j < points.second; j++) {
+                    if (_label_map.queryMap(points.first, j) != labels::UNSEARCHED) continue;
+                    _label_map.setLabel(points.first, j, labels::FLAT_WOOD);
+                }
             }
         }
-
     }
 }
 
@@ -183,15 +210,18 @@ void Mapper::updateLabelMapWithScanningResults(bool &big_house_detected, bool &f
 }
 
 void Mapper::detectMagnet(bool hall_effect_data) {
-    std::pair<int,int> magnet_location = indicesInFront();
+    std::pair<int,int> magnet_location = coordinateToPoints(_robot_pos.first, _robot_pos.second, _label_map.getResolution());
+    int map_label = _label_map.queryMap(magnet_location.first, magnet_location.second);
     // label the indices as MAGNET if:
     // 1. magnet hasn't been found and
     // 2. hall effect detected magnet and
     // 3. the indices are labeled as SAND
     if (_found_labels.find(labels::MAGNET) == _found_labels.end() && hall_effect_data &&
-        _label_map.queryMap(magnet_location.first, magnet_location.second) == labels::SAND) {
+        (map_label == labels::SAND || map_label == labels::NO_MAGNET)) {
         _found_labels.insert(labels::MAGNET);
         _label_map.setLabel(magnet_location.first, magnet_location.second, labels::MAGNET);
+    } else if (!hall_effect_data && map_label == labels::SAND) {
+        _label_map.setLabel(magnet_location.first, magnet_location.second, labels::NO_MAGNET);
     }
 }
 

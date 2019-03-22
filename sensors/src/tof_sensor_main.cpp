@@ -152,6 +152,7 @@ int main(int argc, char **argv) {
         low_dist_pub.publish(low_dist_data_cm);
         high_dist_pub.publish(high_dist_data_cm);
 
+
        if (print_data){
          ROS_INFO("Data: %.3f, %.3f, %.3f, %.3f, %.3f, %.3f",
            low_dist_data_cm.data[0],
