@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <vector>
+#include <std_msgs/Bool.h>
 #include "objectives/ObjectiveManager.h"
 #include "objectives/ActiveObjectives.h"
 #include "mapperception/Map.h"
@@ -24,11 +25,13 @@ int main(int argc, char** argv) {
 
     ros::Subscriber map_sub = nh.subscribe(topics::LABEL_MAP_TOPIC, 1, labelMapCallback);
     ros::Publisher active_objs_pub = nh.advertise<objectives::ActiveObjectives>(topics::OBJECTIVE_TOPIC, 1);
+    ros::Publisher fan_inactive_pub = nh.advertise<std_msgs::Bool>(topics::FAN_TOPIC, 1);
 
     ObjectiveManager obj_manager = ObjectiveManager();
     std::vector< std::vector<int> > label_map;
     label_map.resize(6);
     std::vector<bool> active_objs;
+    std_msgs::Bool fan_inactive;
     objectives::ActiveObjectives active_objs_msg;
     active_objs_msg.active_objectives.resize(6);
 
@@ -38,6 +41,9 @@ int main(int argc, char** argv) {
             label_map[i] = map_rows[i].row;
         }
         active_objs = obj_manager.activateObjectives(robot_i, robot_j, label_map);
+        // Fire has been turned off
+        fan_inactive.data = !active_objs[0];
+        fan_inactive_pub.publish(fan_inactive);
         for(int i = 0; i < active_objs.size(); i++) {
             active_objs_msg.active_objectives[i] = active_objs[i];
         }
