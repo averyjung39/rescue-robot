@@ -83,8 +83,8 @@ int main(int argc, char **argv) {
         ros::spinOnce();
 
         mapper.setRobotPose(robot_x, robot_y, robot_angle);
-        // Don't map if the robot is turning
-        if (arc_cmd != messages::Arc::TURN_ON_SPOT) {
+        // // Don't map if the robot is turning
+        // if (arc_cmd != messages::Arc::TURN_ON_SPOT) {
             if (scanning) {
                 if (!fire_detected) fire_detected = mapper.detectFire(photodiode_data);
                 if ((high_dists[2] != sensors::Distance::INVALID_SENSOR_DATA ||
@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
                 mapper.modifyLabelMapWithDists(low_dists, false);
                 mapper.modifyLabelMapWithDists(high_dists, true);
             }
-        }
+        // }
 
         label_map = mapper.getLabelMap().getMap();
         label_map_rows.resize(label_map.size());

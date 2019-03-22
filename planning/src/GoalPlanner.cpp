@@ -5,6 +5,7 @@
 GoalPlanner::GoalPlanner() {
     _run_initialization = true;
     _home_indices = std::make_pair(5,3);
+    _initialization_step = 0;
 }
 
 GoalPose GoalPlanner::getGoal(
@@ -18,26 +19,26 @@ GoalPose GoalPlanner::getGoal(
     int robot_i = map.robot_i;
     int robot_j = map.robot_j;
     // At the very beginning, sweep left and right
+    std::pair<int, int> map_search_result;
+    _run_initialization = _run_initialization && !(searchMap(map, labels::TALL_OBJECT, robot_i, robot_j, map_search_result) ||
+        searchMap(map, labels::OBJECT, robot_i, robot_j, map_search_result));        
     if (_run_initialization) {
-        if (pose.theta < 180) {
-            // Keep turning left. Set GoalPose to current indices in map, LEFT
-            goal_pose.i = robot_i;
-            goal_pose.j = robot_j;
+        goal_pose.i = robot_i;
+        goal_pose.j = robot_j;
+        if (_initialization_step == 0 || _initialization_step == 3) {
             goal_pose.direction = ROBOT_DIRECTION_LEFT;
-        } else if (pose.theta > 0 && pose.theta < 270) {
-            // Start turning right. Set GoalPose to current indices in map, RIGHT
-            goal_pose.i = robot_i;
-            goal_pose.j = robot_j;
+        }  else if (_initialization_step == 1 || _initialization_step == 2) {
             goal_pose.direction = ROBOT_DIRECTION_RIGHT;
         } else {
             _run_initialization = false;
+            goal_pose.direction = ROBOT_DIRECTION_ANY;
         }
+        ++_initialization_step;
     } else {
         std::vector<int> active_objectives = objectives.active_objectives;
         
         // Start checking objectives
         // Want to find fire first, so check that first
-        std::pair<int, int> map_search_result;
         std::pair<int, int> goal_indices;
         if (active_objectives[objectives_list::FIND_FIRE]) {
             // If there is at least one unknown obstacle in the map, set GoalPose to indices adjacent to closest obstacle, direction facing obstacle

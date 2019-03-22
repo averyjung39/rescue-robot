@@ -94,22 +94,22 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
             // Mark the tiles between the robot and the object as FLAT_WOOD unless they are different terrain
             if (_robot_angle > 80 && _robot_angle < 100) {
                 for(int i = robot_location.first-1; i > points.first; i--) {
-                    if (_label_map[i][points.second] != labels::UNSEARCHED) continue;
+                    if (_label_map.queryMap(i, points.second) != labels::UNSEARCHED) continue;
                     _label_map.setLabel(i, points.second, labels::FLAT_WOOD);
                 }
             } else if (_robot_angle > 170 && _robot_angle < 190) {
                 for(int j = robot_location.second-1; j > points.second; j--) {
-                    if (_label_map[points.first][j] != labels::UNSEARCHED) continue;
+                    if (_label_map.queryMap(points.first,j) != labels::UNSEARCHED) continue;
                     _label_map.setLabel(points.first, j, labels::FLAT_WOOD);
                 }
             } else if (_robot_angle > 260 && _robot_angle < 280) {
                 for(int i = robot_location.first+1; i < points.first; i++) {
-                    if (_label_map[i][points.second] != labels::UNSEARCHED) continue;
+                    if (_label_map.queryMap(i, points.second) != labels::UNSEARCHED) continue;
                     _label_map.setLabel(i, points.second, labels::FLAT_WOOD);
                 }
             } else if (_robot_angle > 350 || _robot_angle < 10) {
                 for(int j = robot_location.second+1; j < points.second; j++) {
-                    if (_label_map[points.first][j] != labels::UNSEARCHED) continue;
+                    if (_label_map.queryMap(points.first, j) != labels::UNSEARCHED) continue;
                     _label_map.setLabel(points.first, j, labels::FLAT_WOOD);
                 }
             }

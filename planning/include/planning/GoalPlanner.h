@@ -28,6 +28,7 @@ public:
         const objectives::ActiveObjectives &objectives);
 private:
     bool _run_initialization;
+    int _initialization_step;
     std::pair<int, int> _home_indices;
 
     // Find map indices that has a certain map cell type. Return the one closest to the robot
