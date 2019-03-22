@@ -17,9 +17,9 @@ bool hall_effect_data;
 bool scanning;
 int arc_cmd;
 
-float robot_x;
-float robot_y;
-float robot_angle;
+float robot_x = 106.68;
+float robot_y = 15.64;
+float robot_angle = 90;
 
 void lowDistDataCallback(const sensors::Distance::ConstPtr& msg) {
     low_dists = msg->data;
@@ -115,7 +115,6 @@ int main(int argc, char **argv) {
         label_map_publisher.publish(published_label_map);
 
         mapper.getLabelMap().print();
-
     }
 
     return 0;

@@ -11,10 +11,46 @@ void LabelMap::print() const {
         oss << i << (i < 10 ? "  : [" : (i < 100 ? " : [" : ": ["));
         for (int j = 0; j < _size; ++j) {
                 int cost = _map[i][j];
-                if (cost != 0) {
-                    oss << " X";
-                } else {
-                    oss << " 0";
+                switch(cost) {
+                    case labels::FLAT_WOOD:
+                        oss << " W ";
+                        break;
+                    case labels::SAND:
+                        oss << " S ";
+                        break;
+                    case labels::MAGNET:
+                        oss << " M ";
+                        break;
+                    case labels::NO_MAGNET:
+                        oss << " NM";
+                        break;
+                    case labels::GRAVEL:
+                        oss << " G ";
+                        break;
+                    case labels::PIT:
+                        oss << " P ";
+                        break;
+                    case labels::FIRE:
+                        oss << " F ";
+                        break;
+                    case labels::NO_FIRE:
+                        oss << " NF";
+                        break;
+                    case labels::SMALL_HOUSE:
+                        oss << " SH";
+                        break;
+                    case labels::BIG_HOUSE:
+                        oss << " BH";
+                        break;
+                    case labels::OBJECT:
+                        oss << " OB";
+                        break;
+                    case labels::TALL_OBJECT:
+                        oss << " TO";
+                        break;
+                    default:
+                        oss << " 0 ";
+                        break;
                 }
         }
         oss << "]\n";
