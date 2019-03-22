@@ -154,7 +154,7 @@ localization::Pose SimpleLocalizer::getPoseEstimate(
         // Check if we are just starting to turn
         if (_prev_control_command != messages::Arc::TURN_ON_SPOT) {
             // Get angular speed given hard coded values
-            _angular_speed = arc_msg.direction_is_right ? 90.0 / _right_turn_time : 90.0 / _left_turn_time;
+            _angular_speed = arc_msg.direction_is_right ? -90.0 / _right_turn_time : 90.0 / _left_turn_time;
             _prev_time = ros::Time::now().toSec();
 
             // // Record IMU yaw at the start of the turn
