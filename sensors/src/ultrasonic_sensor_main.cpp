@@ -2,7 +2,7 @@
 #include <ros/time.h>
 #include <ros/duration.h>
 
-#include "sensors/Ultrasonic.h"
+#include "sensors/Distance.h"
 #include "constants/gpio_pins.h"
 #include "constants/topics.h"
 #include "external/wiringPi/wiringPi.h"
@@ -13,8 +13,10 @@ void ultrasonicInit(){
         throw std::runtime_error("");
     }
 
-    pinMode(ULTRASONIC_F_TRIG, OUTPUT);
-    pinMode(ULTRASONIC_F_ECHO, INPUT);
+    pinMode(ULTRASONIC_LOW_TRIG, OUTPUT);
+    pinMode(ULTRASONIC_LOW_ECHO, INPUT);
+    pinMode(ULTRASONIC_HIGH_TRIG, OUTPUT);
+    pinMode(ULTRASONIC_HIGH_ECHO, INPUT);
 }
 
 /**
@@ -56,22 +58,25 @@ int main (int argc, char **argv) {
     ros::init(argc, argv, "ultrasonic_sensor");
 
     ros::NodeHandle nh;
-    ros::Publisher ult_data_pub = nh.advertise<sensors::Ultrasonic>(topics::ULTRASONIC_TOPIC, 1);
+    ros::Publisher ult_data_pub = nh.advertise<sensors::Distance>(topics::LOW_DIST_TOPIC, 1);
 
     ultrasonicInit();
 
     sensors::Ultrasonic ult_data_cm;
-    ros::Duration elapsed;
-    bool success;
+    ult_data_cm.data.resize(2);
+    ros::Duration elapsed_l, elapsed_h;
+    std::vector<float> low_dist(3,0), high_dist(3,0);
+    bool success_l, success_h;
 
     while (ros::ok()) {
-        success = readUltrasonic(ULTRASONIC_F_TRIG, ULTRASONIC_F_ECHO, elapsed);
+        success_l = readUltrasonic(ULTRASONIC_LOW_TRIG, ULTRASONIC_LOW_ECHO, elapsed_l);
+        success_h = readUltrasonic(ULTRASONIC_LOW_TRIG, ULTRASONIC_LOW_ECHO, elapsed_h);
 
-        if (success) {
-            ult_data_cm.data = (elapsed.toSec() * 34300) / 2;
-    	    ROS_INFO("LEFT ELAPSED TIME: %f", elapsed.toSec());
+        if (success_l) {
+            ult_data_cm.data[0] = (elapsed_l.toSec() * 34300) / 2;
+    	    ROS_INFO("LEFT ELAPSED TIME: %f", elapsed_l.toSec());
         } else {
-            ult_data_cm.data = sensors::Ultrasonic::INVALID_SENSOR_DATA;
+            ult_data_cm.data[0] = sensors::Ultrasonic::INVALID_SENSOR_DATA;
             ROS_WARN("Timed out while reading ultrasonic sensor!");
         }
 
