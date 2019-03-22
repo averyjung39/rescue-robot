@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
                     high_dists[3] != sensors::Distance::INVALID_SENSOR_DATA) &&
                     !big_house_detected)
                 {
-                    big_house_detected = mapper.detectHouses(high_dists[0]); //high_dists[2], high_dists[3]);
+                    big_house_detected = mapper.detectHouses(high_dists[2], high_dists[3]);
                 }
             } else {
                 mapper.updateLabelMapWithScanningResults(big_house_detected, fire_detected);

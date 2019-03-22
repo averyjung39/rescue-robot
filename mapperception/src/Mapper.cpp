@@ -92,19 +92,23 @@ void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sen
             }
             // Mark the tiles between the robot and the object as FLAT_WOOD unless they are different terrain
             if (_robot_angle > 80 && _robot_angle < 100) {
-                for(int i = robot_location.first+1; i < points.first; i++) {
+                for(int i = robot_location.first-1; i > points.first; i--) {
+                    if (_label_map[i][points.second] != labels::UNSEARCHED) continue;
                     _label_map.setLabel(i, points.second, labels::FLAT_WOOD);
                 }
             } else if (_robot_angle > 170 && _robot_angle < 190) {
                 for(int j = robot_location.second-1; j > points.second; j--) {
+                    if (_label_map[points.first][j] != labels::UNSEARCHED) continue;
                     _label_map.setLabel(points.first, j, labels::FLAT_WOOD);
                 }
             } else if (_robot_angle > 260 && _robot_angle < 280) {
-                for(int i = robot_location.first-1; i > points.first; i--) {
+                for(int i = robot_location.first+1; i < points.first; i++) {
+                    if (_label_map[i][points.second] != labels::UNSEARCHED) continue;
                     _label_map.setLabel(i, points.second, labels::FLAT_WOOD);
                 }
             } else if (_robot_angle > 350 || _robot_angle < 10) {
                 for(int j = robot_location.second+1; j < points.second; j++) {
+                    if (_label_map[points.first][j] != labels::UNSEARCHED) continue;
                     _label_map.setLabel(points.first, j, labels::FLAT_WOOD);
                 }
             }
@@ -138,7 +142,7 @@ void Mapper::modifyLabelMapWithPhotodiode(std::vector<int> photodiode_data) {
     }
 }
 
-bool Mapper::detectHouses(float dist_l) {//, float dist_r) {
+bool Mapper::detectHouses(float dist_l, float dist_r) {
     bool big_house_detected = false;
     if (dist_l < 50.0 && dist_l != sensors::Distance::INVALID_SENSOR_DATA) {
         // Check if the x,y point of the ToF reading is too close to the wall
@@ -154,7 +158,7 @@ bool Mapper::detectHouses(float dist_l) {//, float dist_r) {
             big_house_detected = true;
         }
     }
-    /*if (!big_house_detected) {
+    if (!big_house_detected) {
         if (dist_r < 50.0 && dist_r != sensors::Distance::INVALID_SENSOR_DATA) {
             // Check if the x,y point of the ToF reading is too close to the wall
             std::pair<float,float> coords =
@@ -169,7 +173,7 @@ bool Mapper::detectHouses(float dist_l) {//, float dist_r) {
                 big_house_detected = true;
             }
         }
-    }*/
+    }
     return big_house_detected;
 }
 
