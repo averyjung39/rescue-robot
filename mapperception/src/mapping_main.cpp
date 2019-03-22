@@ -78,6 +78,7 @@ int main(int argc, char **argv) {
     mapperception::Map published_label_map;
 
     bool big_house_detected = false, fire_detected = false;
+    std::pair<int,int> robot_location;
 
     while(ros::ok()) {
 
@@ -106,6 +107,7 @@ int main(int argc, char **argv) {
         // }
 
         label_map = mapper.getLabelMap().getMap();
+        robot_location = mapper.getRobotLocation();
         label_map_rows.resize(label_map.size());
         published_label_map.map.resize(label_map.size());
 
@@ -114,6 +116,8 @@ int main(int argc, char **argv) {
         }
 
         published_label_map.map = label_map_rows;
+        published_label_map.robot_i = robot_location.first;
+        published_label_map.robot_j = robot_location.second;
         label_map_publisher.publish(published_label_map);
 
         mapper.getLabelMap().print();

@@ -49,6 +49,7 @@ public:
     void detectMagnet(bool hall_effect_data);
 
     LabelMap getLabelMap() { return _label_map; }
+    std::pair<int,int> getRobotLocation();
 
 private:
     /**

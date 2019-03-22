@@ -307,3 +307,7 @@ std::pair<int,int> Mapper::indicesInFront() {
         return std::make_pair(-1, -1);
     }
 }
+
+std::pair<int,int> getRobotLocation() {
+    return coordinateToPoints(_robot_pos.first, _robot_pos.second, _label_map.getResolution());
+}
