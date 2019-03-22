@@ -24,6 +24,9 @@ namespace topics {
     // Objectives
     const char *OBJECTIVE_TOPIC = "active_objectives";
 
+    //Controller
+    const char *CONTROLLER_DONE = "controller_done";
+
     // Construction Check Demos
     const char *DRIVE_DEMO_COMPLETE_TOPIC = "drive_demo_complete";
     const char *TURN_DEMO_COMPLETE_TOPIC = "turn_demo_complete";
