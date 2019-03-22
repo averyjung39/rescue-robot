@@ -9,9 +9,9 @@
 #include "std_msgs/Bool.h"
 #include "constants/topics.h"
 
-std::vector<float> low_dists;
-std::vector<float> high_dists;
-std::vector<int> photodiode_data;
+std::vector<float> low_dists(2,0);
+std::vector<float> high_dists(3,0);
+std::vector<int> photodiode_data(5,0);
 bool hall_effect_data;
 bool scanning;
 
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     ros::Publisher label_map_publisher = nh.advertise<mapperception::Map>(topics::LABEL_MAP_TOPIC, 1);
 
     int orientation;
-    nh.getParam("/mapping/orientation", orientation);
+    nh.param("/mapping/orientation", orientation, 1);
 
     Mapper mapper = Mapper(orientation);
 
