@@ -61,8 +61,8 @@ int main(int argc, char **argv) {
     ros::Subscriber scanning = nh.subscribe(topics::SCANNING, 1, scanningCallback);
     ros::Publisher label_map_publisher = nh.advertise<mapperception::Map>(topics::LABEL_MAP_TOPIC, 1);
 
-    // TODO: Integrate button for figuring out orientation;
-    int orientation = 1;
+    int orientation;
+    nh.getParam("/mapping/orientation", orientation);
 
     Mapper mapper = Mapper(orientation);
 

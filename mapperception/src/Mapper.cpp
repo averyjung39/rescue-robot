@@ -7,6 +7,7 @@
 
 Mapper::Mapper(int orientation) {
     _label_map.setLabel(5, 3, labels::FLAT_WOOD);
+    ROS_INFO("ORIENTATION OF THE MAP: %d", orientation);
     if (orientation == 1) {
         _label_map.setLabel(5, 2, labels::PIT);
         _label_map.setLabel(4, 1, labels::SAND);
