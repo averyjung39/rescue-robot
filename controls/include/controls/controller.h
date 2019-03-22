@@ -7,7 +7,7 @@ class Controller {
 public:
     Controller();
 
-    void actuate(const messages::Arc &arc_cmd);
+    void actuate(const messages::Arc &arc_cmd, const float &time);
 private:
     static const float MAX_ALLOWABLE_RPM_CHANGE = 5;
     static const float MAX_ALLOWABLE_RPM = 280;
