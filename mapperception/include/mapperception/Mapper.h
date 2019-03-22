@@ -12,10 +12,9 @@
 #define BOTTOM_LEFT 0
 #define BOTTOM_RIGHT 1
 
-#define TOP_FRONT 0
-#define TOP_BACK 1
-#define TOP_LEFT 2
-#define TOP_RIGHT 3
+#define TOP_FRONT 3
+#define TOP_LEFT 4
+#define TOP_RIGHT 5
 
 class Mapper {
 public:
@@ -32,7 +31,7 @@ public:
      */
     void modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sensor);
     void modifyLabelMapWithPhotodiode(std::vector<int> photodiode_data);
-    void updateLabelMapWithScanningResults(bool &big_house_detected, bool &fire_detected);
+    void updateLabelMapWithScanningResults(bool &big_house_detected, bool &fire_detected, bool &was_scanning);
 
     /**
      * @brief perform detection to figure out if the object in front of the robot is the fire
@@ -50,6 +49,7 @@ public:
     void detectMagnet(bool hall_effect_data);
 
     LabelMap getLabelMap() { return _label_map; }
+    std::pair<int,int> getRobotLocation();
 
 private:
     /**

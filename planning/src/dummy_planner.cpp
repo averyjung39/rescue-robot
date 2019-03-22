@@ -2,6 +2,7 @@
 #include "constants/topics.h"
 #include "external/wiringPi/wiringPi.h"
 #include "messages/Arc.h"
+#include <std_msgs/Bool.h>
 
 bool controller_done;
 
@@ -48,9 +49,9 @@ int main(int argc, char **argv) {
     arc_cmd.num_tiles = num_tiles;
     arc_cmd.speed_r = speed_r;
     arc_cmd.speed_l = speed_l;
-    
+
     pinMode(45, INPUT);
-    
+
     // float start_time = ros::Time::now().toSec();
     while (ros::ok()) {
         while(!digitalRead(45));

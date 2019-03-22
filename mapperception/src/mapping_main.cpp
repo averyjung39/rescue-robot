@@ -13,8 +13,9 @@
 std::vector<float> low_dists(2,0);
 std::vector<float> high_dists(3,0);
 std::vector<int> photodiode_data(5,0);
-bool hall_effect_data;
-bool scanning;
+bool hall_effect_data = false;
+bool scanning = false;
+bool was_scanning = false;
 int arc_cmd;
 
 float robot_x = 106.68;
@@ -64,7 +65,7 @@ int main(int argc, char **argv) {
     ros::Subscriber photodiode_sub = nh.subscribe(topics::PHOTODIODE_TOPIC, 1, flameSensorDataCallback);
     ros::Subscriber hall_effect_sub = nh.subscribe(topics::HALL_EFFECT_TOPIC, 1, hallEffectDataCallback);
     ros::Subscriber pose_sub = nh.subscribe(topics::POSE_TOPIC, 1, poseCallback);
-    ros::Subscriber scanning = nh.subscribe(topics::SCANNING, 1, scanningCallback);
+    ros::Subscriber scanning_sub = nh.subscribe(topics::SCANNING, 1, scanningCallback);
     ros::Publisher label_map_publisher = nh.advertise<mapperception::Map>(topics::LABEL_MAP_TOPIC, 1);
 
     int orientation;
@@ -77,6 +78,7 @@ int main(int argc, char **argv) {
     mapperception::Map published_label_map;
 
     bool big_house_detected = false, fire_detected = false;
+    std::pair<int,int> robot_location;
 
     while(ros::ok()) {
 
@@ -86,6 +88,7 @@ int main(int argc, char **argv) {
         // // Don't map if the robot is turning
         // if (arc_cmd != messages::Arc::TURN_ON_SPOT) {
             if (scanning) {
+                was_scanning = true;
                 if (!fire_detected) fire_detected = mapper.detectFire(photodiode_data);
                 if ((high_dists[2] != sensors::Distance::INVALID_SENSOR_DATA ||
                     high_dists[3] != sensors::Distance::INVALID_SENSOR_DATA) &&
@@ -94,7 +97,7 @@ int main(int argc, char **argv) {
                     big_house_detected = mapper.detectHouses(high_dists[2], high_dists[3]);
                 }
             } else {
-                mapper.updateLabelMapWithScanningResults(big_house_detected, fire_detected);
+                mapper.updateLabelMapWithScanningResults(big_house_detected, fire_detected, was_scanning);
                 mapper.modifyLabelMapWithPhotodiode(photodiode_data);
                 // Try detecting what the terrain is right in front the robot
                 mapper.detectMagnet(hall_effect_data);
@@ -104,6 +107,7 @@ int main(int argc, char **argv) {
         // }
 
         label_map = mapper.getLabelMap().getMap();
+        robot_location = mapper.getRobotLocation();
         label_map_rows.resize(label_map.size());
         published_label_map.map.resize(label_map.size());
 
@@ -112,6 +116,8 @@ int main(int argc, char **argv) {
         }
 
         published_label_map.map = label_map_rows;
+        published_label_map.robot_i = robot_location.first;
+        published_label_map.robot_j = robot_location.second;
         label_map_publisher.publish(published_label_map);
 
         mapper.getLabelMap().print();
