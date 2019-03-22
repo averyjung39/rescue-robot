@@ -3,6 +3,7 @@
 
 #include <ros/ros.h>
 
+#include "mapperception/Map.h"
 #include "planning/RobotPath.h"
 
 // A struct representing one map cell, for planning purposes
@@ -48,9 +49,8 @@ public:
      * @param map_w, map_h: Width and height of map (number of cols and rows in the array)
      * @param start_pos, end_pos: Start and goal points, in (row,col) format
      */
-    RobotPath planPath(int **map,
-        const int &map_w,
-        const int &map_h,
+    RobotPath planPath(
+        const mapperception::Map &map,
         const std::pair<int, int> &start_pos,
         const std::pair<int, int> &end_pos);
 
@@ -74,11 +74,11 @@ private:
         const int &map_w,
         const int &map_h) const;
     bool isObstacle(std::pair<int, int> indices,
-        int **map,
+        const mapperception::Map &map,
         const int &map_w,
         const int &map_h) const;
     int getCost(std::pair<int, int> indices,
-        int **map,
+        const mapperception::Map &map,
         const int &map_w,
         const int &map_h) const;
 };

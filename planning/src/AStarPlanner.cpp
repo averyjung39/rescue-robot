@@ -15,11 +15,12 @@ AStarPlanner::AStarPlanner() {
     VALID_SEARCH_DIRECTIONS[3][0] = 0; VALID_SEARCH_DIRECTIONS[3][1] = 1;   // right
 }
 
-RobotPath AStarPlanner::planPath(int **map,
-    const int &map_w,
-    const int &map_h,
+RobotPath AStarPlanner::planPath(
+    const mapperception::Map &map,
     const std::pair<int, int> &start_pos,
     const std::pair<int, int> &end_pos) {
+    int map_w = 6;
+    int map_h = 6;
 
     // Initialize open and closed set
     std::set<PlannerCell*, PlannerCellPtrComp> open_set; // Cells to be explored, sorted by lowest cost
@@ -119,23 +120,23 @@ bool AStarPlanner::isValidIndices(std::pair<int, int> indices,
 }
 
 bool AStarPlanner::isObstacle(std::pair<int, int> indices,
-    int **map,
+    const mapperception::Map &map,
     const int &map_w,
     const int &map_h) const {
     if (!isValidIndices(indices, map_w, map_h)) {
         return true;
     }
     int i = indices.first, j = indices.second;
-    return map[i][j] >= OBSTACLE_COST;
+    return map.map[i].row[j] >= OBSTACLE_COST;
 }
 
 int AStarPlanner::getCost(std::pair<int, int> indices,
-    int **map,
+    const mapperception::Map &map,
     const int &map_w,
     const int &map_h) const {
     if (!isValidIndices(indices, map_w, map_h)) {
         return OBSTACLE_COST;
     }
     int i = indices.first, j = indices.second;
-    return map[i][j];
+    return map.map[i].row[j];
 }

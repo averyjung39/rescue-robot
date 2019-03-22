@@ -30,13 +30,13 @@ void Controller::motorInit() {
     softPwmCreate(MOTOR_ENABLE_2,0,MAX_PWM);
 }
 
-void Controller::actuate(const messages::Arc &arc_cmd) {
+void Controller::actuate(const messages::Arc &arc_cmd, const float &time) {
     std::pair<float, float> right_left_velocities = getVelocities(arc_cmd);
 
     _rpm_right = right_left_velocities.first;
     _rpm_left = right_left_velocities.second;
 
-    ROS_INFO("Right/Left Velocities: %f, %f", _rpm_right, _rpm_left);
+    // ROS_INFO("Right/Left Velocities: %f, %f", _rpm_right, _rpm_left);
 
     bool right_is_forward = _rpm_right > 0;
     bool left_is_forward = _rpm_left < 0;
@@ -47,8 +47,13 @@ void Controller::actuate(const messages::Arc &arc_cmd) {
     int right_pwm = MAX_PWM*right_ratio;
     int left_pwm = MAX_PWM*left_ratio;
 
-    actuateRightMotor(right_pwm, right_is_forward);
-    actuateLeftMotor(left_pwm, left_is_forward);
+    float start_time = ros::Time::now().toSec();
+    while (ros::Time::now().toSec() - start_time < time) {
+        actuateRightMotor(right_pwm, right_is_forward);
+        actuateLeftMotor(left_pwm, left_is_forward);
+    }
+    actuateRightMotor(0, right_is_forward);
+    actuateLeftMotor(0, left_is_forward);
 }
 
 void Controller::actuateRightMotor(int pwm, bool is_forward) const {
