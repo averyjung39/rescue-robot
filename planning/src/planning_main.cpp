@@ -160,7 +160,7 @@ bool shouldScan(const mapperception::Map &map, const localization::Pose &pose) {
     }
     return (i_in_front >= 0 && i_in_front <= 5 &&
         j_in_front >= 0 && j_in_front <= 5 &&
-        (map.map[i_in_front].row[j_in_front]) == labels::TALL_OBJECT || map.map[i_in_front].row[j_in_front] == labels::OBJECT);
+        (map.map[i_in_front].row[j_in_front] == labels::TALL_OBJECT || map.map[i_in_front].row[j_in_front] == labels::OBJECT));
 }
 
 messages::Arc leftTurn() {
