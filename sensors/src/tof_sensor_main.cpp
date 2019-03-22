@@ -13,7 +13,7 @@
 
 bool fan_inactive = false;
 bool readdress_done = false;
-void fanCallback(std_msgs::Bool::ConstPtr &msg) {
+void fanCallback(const std_msgs::Bool::ConstPtr& msg) {
     fan_inactive = msg->data;
 }
 

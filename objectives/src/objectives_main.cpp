@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
     std::vector< std::vector<int> > label_map;
     label_map.resize(6);
     std::vector<bool> active_objs;
+    std_msgs::Bool fan_inactive;
     objectives::ActiveObjectives active_objs_msg;
     active_objs_msg.active_objectives.resize(6);
 
@@ -41,7 +42,8 @@ int main(int argc, char** argv) {
         }
         active_objs = obj_manager.activateObjectives(robot_i, robot_j, label_map);
         // Fire has been turned off
-        fan_inactive_pub.publish(!active_objs[0]);
+        fan_inactive.data = !active_objs[0];
+        fan_inactive_pub.publish(fan_inactive);
         for(int i = 0; i < active_objs.size(); i++) {
             active_objs_msg.active_objectives[i] = active_objs[i];
         }
