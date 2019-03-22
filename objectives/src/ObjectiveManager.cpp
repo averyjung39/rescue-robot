@@ -8,8 +8,9 @@
 ObjectiveManager::ObjectiveManager() {
     // Activate FIND_FIRE and unativate all other objectives
     // FIND FIRE = 0, FIND_FOOD = 1, FIND_SURVIVORS = 2,
-    // FIND_PERSON = 3, RETURN_HOME = 4
+    // FIND_PERSON = 3, RETURN_TO_SURVIVORS = 4, RETURN_HOME = 5
     _active_objectives.push_back(true);
+    _active_objectives.push_back(false);
     _active_objectives.push_back(false);
     _active_objectives.push_back(false);
     _active_objectives.push_back(false);
