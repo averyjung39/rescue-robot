@@ -3,10 +3,17 @@
 #include "external/wiringPi/wiringPi.h"
 #include "messages/Arc.h"
 
+bool controller_done;
+
+void controllerDoneCallback(const std_msgs::Bool::ConstPtr &msg) {
+    controller_done = msg->data;
+}
+
 int main(int argc, char **argv) {
     ros::init(argc, argv, "dummy_planner");
     ros::NodeHandle nh;
     ros::Publisher arc_pub = nh.advertise<messages::Arc>(topics::ARC_TOPIC, 1);
+    ros::Subscriber controller_done_sub = nh.subscribe(topics::CONTROLLER_DONE, 1, controllerDoneCallback);
     messages::Arc arc_cmd;
 
     int command_type;
@@ -43,17 +50,23 @@ int main(int argc, char **argv) {
     arc_cmd.speed_l = speed_l;
     
     pinMode(45, INPUT);
-    while(!digitalRead(45));
-    while(digitalRead(45));
     
-    float start_time = ros::Time::now().toSec();
+    // float start_time = ros::Time::now().toSec();
     while (ros::ok()) {
-        if (ros::Time::now().toSec() - start_time >= num_tiles*time) {
-            arc_cmd.command_type = messages::Arc::STOP;
-        } else {
-            arc_cmd.command_type = command_type;
-        }
+        while(!digitalRead(45));
+        while(digitalRead(45));
+        controller_done = false;
+        arc_cmd.command_type = command_type;
         arc_pub.publish(arc_cmd);
+        while (!controller_done) {
+            ros::spinOnce();
+        }
+        arc_cmd.command_type = messages::Arc::STOP;
+        arc_pub.publish(arc_cmd);
+        while (!controller_done) {
+            ros::spinOnce();
+        }
+        ROS_INFO("Done.");
     }
     return 0;
 }
