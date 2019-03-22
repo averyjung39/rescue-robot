@@ -63,13 +63,18 @@ void Mapper::setRobotPose(float robot_x, float robot_y, float robot_angle) {
 void Mapper::modifyLabelMapWithDists(std::vector<float> dist_data, bool high_sensor)
 {
     int label = high_sensor ? labels::TALL_OBJECT : labels::OBJECT;
-
+    int sensor = 0;
     std::pair<int,int> robot_location = coordinateToPoints(_robot_pos.first, _robot_pos.second, _label_map.getResolution());
 
     for(int i = 0; i < dist_data.size(); i++) {
         // -1 is INVALID_SENSOR_DATA
         if (dist_data[i] == -1) continue;
-        std::pair<float, float> coords = distToCoordinates(dist_data[i], _robot_pos.first, _robot_pos.second, _robot_angle, i, high_sensor);
+        if (high_sensor) {
+            sensor = i + 3;
+        } else {
+            sensor = i;
+        }
+        std::pair<float, float> coords = distToCoordinates(dist_data[i], _robot_pos.first, _robot_pos.second, _robot_angle, sensor, high_sensor);
         if (coords.first < denoise_params::WALL_OFFSET || coords.first > dimensions::MAP_WIDTH - denoise_params::WALL_OFFSET ||
             coords.second < denoise_params::WALL_OFFSET || coords.second > dimensions::MAP_HEIGHT - denoise_params::WALL_OFFSET)
         {
@@ -265,8 +270,8 @@ std::pair<float, float> Mapper::distToCoordinates(float d, float rx, float ry, f
 
     float rad_angle = rangle*M_PI/180;
     // Convert xr,yr (local robot axes) to x,y (global axes)
-    int x = rx + xr*cos(rangle) + yr*sin(rad_angle);
-    int y = ry - xr*sin(rangle) + yr*cos(rad_angle);
+    int x = rx + xr*cos(rad_angle) + yr*sin(rad_angle);
+    int y = ry - xr*sin(rad_angle) + yr*cos(rad_angle);
 
     return std::make_pair(x,y);
 }

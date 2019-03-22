@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     ros::Subscriber photodiode_sub = nh.subscribe(topics::PHOTODIODE_TOPIC, 1, flameSensorDataCallback);
     ros::Subscriber hall_effect_sub = nh.subscribe(topics::HALL_EFFECT_TOPIC, 1, hallEffectDataCallback);
     ros::Subscriber pose_sub = nh.subscribe(topics::POSE_TOPIC, 1, poseCallback);
-    ros::Subscriber scanning = nh.subscribe(topics::SCANNING, 1, scanningCallback);
+    ros::Subscriber scanning_sub = nh.subscribe(topics::SCANNING, 1, scanningCallback);
     ros::Publisher label_map_publisher = nh.advertise<mapperception::Map>(topics::LABEL_MAP_TOPIC, 1);
 
     int orientation;

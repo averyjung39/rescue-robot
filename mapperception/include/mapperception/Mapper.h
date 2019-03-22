@@ -12,9 +12,9 @@
 #define BOTTOM_LEFT 0
 #define BOTTOM_RIGHT 1
 
-#define TOP_FRONT 0
-#define TOP_LEFT 1
-#define TOP_RIGHT 2
+#define TOP_FRONT 3
+#define TOP_LEFT 4
+#define TOP_RIGHT 5
 
 class Mapper {
 public:
