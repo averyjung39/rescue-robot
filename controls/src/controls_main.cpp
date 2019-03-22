@@ -30,7 +30,6 @@ int main(int argc, char **argv) {
     nh.param<float>("/right_turn_time", right_turn_time, 2.1);
     nh.param<float>("/left_turn_time", left_turn_time, 1.8);
 
-
     while (ros::ok()) {
         ros::spinOnce();
         controller_done_msg.data =false;
@@ -43,7 +42,6 @@ int main(int argc, char **argv) {
                 time = arc_msg->direction_is_right ? right_turn_time : left_turn_time;
             }
             controller.actuate(*arc_msg, time);
-
         }
         controller_done_msg.data = true;
         controller_done_pub.publish(controller_done_msg);

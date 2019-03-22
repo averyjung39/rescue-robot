@@ -69,7 +69,7 @@ int getAngleToNextCell(const std::pair<int, int> &curr_indices,
 // thetas from 0 to 360
 bool getTurningDirection(const float &robot_theta, const float &destination_theta) {
     if (destination_theta > robot_theta) {
-        return destination_theta - robot_theta < 180;
+        return destination_theta - robot_theta > 180;
     } else {
         return robot_theta - destination_theta < 180;
     }
