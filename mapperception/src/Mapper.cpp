@@ -210,15 +210,18 @@ void Mapper::updateLabelMapWithScanningResults(bool &big_house_detected, bool &f
 }
 
 void Mapper::detectMagnet(bool hall_effect_data) {
-    std::pair<int,int> magnet_location = indicesInFront();
+    std::pair<int,int> magnet_location = coordinateToPoints(_robot_pos.first, _robot_pos.second, _label_map.getResolution());
+    int map_label = _label_map.queryMap(magnet_location.first, magnet_location.second);
     // label the indices as MAGNET if:
     // 1. magnet hasn't been found and
     // 2. hall effect detected magnet and
     // 3. the indices are labeled as SAND
     if (_found_labels.find(labels::MAGNET) == _found_labels.end() && hall_effect_data &&
-        _label_map.queryMap(magnet_location.first, magnet_location.second) == labels::SAND) {
+        (map_label == labels::SAND || map_label == labels::NO_MAGNET)) {
         _found_labels.insert(labels::MAGNET);
         _label_map.setLabel(magnet_location.first, magnet_location.second, labels::MAGNET);
+    } else if (!hall_effect_data && map_label == labels::SAND) {
+        _label_map.setLabel(magnet_location.first, magnet_location.second, labels::NO_MAGNET);
     }
 }
 

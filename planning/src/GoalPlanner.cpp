@@ -40,15 +40,11 @@ GoalPose GoalPlanner::getGoal(
         std::pair<int, int> map_search_result;
         std::pair<int, int> goal_indices;
         if (active_objectives[objectives_list::FIND_FIRE]) {
-            // If candle is in the map, set GoalPose to indices adjacent to the candle cell, direction facing the candle
-            // Else if there is at least one unknown obstacle in the map, set GoalPose to indices adjacent to closest obstacle, direction facing obstacle
+            // If there is at least one unknown obstacle in the map, set GoalPose to indices adjacent to closest obstacle, direction facing obstacle
             // Else set goal to some other area, like the fathest unsearched area or farthest edge of map
             
-            if (searchMap(map, labels::FIRE, robot_i, robot_j, map_search_result)) {
-                goal_indices = lowestCostIndicesNearby(map, map_search_result.first, map_search_result.second, robot_i, robot_j);
-                goal_pose.direction = getDirectionFacingCell(goal_indices, map_search_result);
-            } else if (searchMap(map, labels::OBJECT, robot_i, robot_j, map_search_result) ||
-                searchMap(map, labels::TALL_OBJECT, robot_i, robot_j, map_search_result)) {
+            if (searchMap(map, labels::TALL_OBJECT, robot_i, robot_j, map_search_result) ||
+                searchMap(map, labels::OBJECT, robot_i, robot_j, map_search_result)) {
                 goal_indices = lowestCostIndicesNearby(map, map_search_result.first, map_search_result.second, robot_i, robot_j);
                 goal_pose.direction = getDirectionFacingCell(goal_indices, map_search_result);
             } else if (farthestUnsearchedCell(map, robot_i, robot_j, map_search_result)) {
@@ -81,11 +77,18 @@ GoalPose GoalPlanner::getGoal(
             goal_pose.direction = getDirectionFacingCell(goal_indices, map_search_result);
         }
         // If we haven't found the locations of these objectives, check unknown obstacles or unsearched areas
-        else if (searchMap(map, labels::TALL_OBJECT, robot_i, robot_j, map_search_result) ||
-            searchMap(map, labels::OBJECT, robot_i, robot_j, map_search_result)) {
+        else if (active_objectives[objectives_list::FIND_PERSON] && searchMap(map, labels::OBJECT, robot_i, robot_j, map_search_result)) {
+            goal_indices = lowestCostIndicesNearby(map, map_search_result.first, map_search_result.second, robot_i, robot_j);
+            goal_pose.direction = getDirectionFacingCell(goal_indices, map_search_result);
+        } else if ((active_objectives[objectives_list::RETURN_TO_SURVIVORS] || active_objectives[objectives_list::FIND_SURVIVORS])
+            && (searchMap(map, labels::TALL_OBJECT, robot_i, robot_j, map_search_result) ||
+            searchMap(map, labels::OBJECT, robot_i, robot_j, map_search_result))) {
             // Set goal to indices adjacent to closest unknown obstacle, direction facing obstacle
             goal_indices = lowestCostIndicesNearby(map, map_search_result.first, map_search_result.second, robot_i, robot_j);
             goal_pose.direction = getDirectionFacingCell(goal_indices, map_search_result);
+        } else if (active_objectives[objectives_list::FIND_FOOD] && searchMap(map, labels::SAND, robot_i, robot_j, map_search_result)){
+            goal_indices = map_search_result;
+            goal_pose.direction = ROBOT_DIRECTION_ANY;
         } else if (farthestUnsearchedCell(map, robot_i, robot_j, map_search_result)) {
             // Set goal to indices of farthest unsearched space, direction ANY
             goal_indices = map_search_result;
